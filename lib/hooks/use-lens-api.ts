@@ -1,13 +1,13 @@
+import type { ViewScoping } from "@lens2/contexts/lens-context";
+import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import type { LensEndpoints, View } from "@lens2/types";
 import {
-  useQuery,
   useMutation,
+  UseMutationOptions,
+  useQuery,
   useQueryClient,
   UseQueryOptions,
-  UseMutationOptions,
 } from "@tanstack/react-query";
-import type { View, LensEndpoints } from "@lens2/types";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import type { ViewScoping } from "@lens2/contexts/lens-context";
 
 /**
  * useLensApi - A unified API hook for all Lens operations
@@ -60,8 +60,12 @@ export const useLensApi = ({
   viewScoping,
 }: UseLensApiFactoryProps) => {
   const queryClient = useQueryClient();
-  const { addApiCall, updateApiCall, enabled: debugEnabled } = useLensDebugClient();
-  
+  const {
+    addApiCall,
+    updateApiCall,
+    enabled: debugEnabled,
+  } = useLensDebugClient();
+
   const defaultHeaders = {
     "Content-Type": "application/json",
     ...headers,
@@ -78,39 +82,39 @@ export const useLensApi = ({
     if (!debugEnabled) {
       const response = await fetchFn();
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(`Failed: ${response.statusText}`);
       }
-      
+
       return responseData;
     }
 
     // Debug is enabled, track the call
     const startTime = Date.now();
-    
+
     // Add initial call with more descriptive message
     const callId = addApiCall({
       method,
       endpoint,
       request: body,
     });
-    
+
     try {
       const response = await fetchFn();
       const responseData = await response.json();
-      
+
       // Update call with response
       updateApiCall(callId, {
         response: responseData,
         status: response.status,
         duration: Date.now() - startTime,
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed: ${response.statusText}`);
       }
-      
+
       return responseData;
     } catch (error) {
       // Update call with error
@@ -132,11 +136,12 @@ export const useLensApi = ({
           "POST",
           endpoints.fetch_config,
           body,
-          () => fetch(endpoints.fetch_config, {
-            method: "POST",
-            headers: defaultHeaders,
-            body: JSON.stringify(body),
-          })
+          () =>
+            fetch(endpoints.fetch_config, {
+              method: "POST",
+              headers: defaultHeaders,
+              body: JSON.stringify(body),
+            })
         );
         // Return only the data portion, not the wrapper
         return result.data;
@@ -155,11 +160,11 @@ export const useLensApi = ({
         // If views are disabled, return a static default view
         if (!enableViews) {
           const defaultView = {
-            id: 'default-view',
-            name: 'Default View',
-            type: 'table',
+            id: "default-view",
+            name: "Default View",
+            type: "table",
             is_default: true,
-            belongs_to_type: 'query',
+            belongs_to_type: "query",
             belongs_to_value: query,
             config: {},
           };
@@ -180,7 +185,7 @@ export const useLensApi = ({
             value: query,
           },
         ];
-        
+
         // Add viewScoping filters if provided
         if (viewScoping?.tenantId) {
           conditions.push({
@@ -196,7 +201,7 @@ export const useLensApi = ({
             value: viewScoping.userId,
           });
         }
-        
+
         const body = {
           pagination: {
             type: "cursor",
@@ -213,13 +218,14 @@ export const useLensApi = ({
           "POST",
           endpoints.list_views,
           body,
-          () => fetch(endpoints.list_views, {
-            method: "POST",
-            headers: defaultHeaders,
-            body: JSON.stringify(body),
-          })
+          () =>
+            fetch(endpoints.list_views, {
+              method: "POST",
+              headers: defaultHeaders,
+              body: JSON.stringify(body),
+            })
         );
-        
+
         const viewsData = result.data || [];
         return {
           views: viewsData as View[],
@@ -272,13 +278,7 @@ export const useLensApi = ({
     options?: UseQueryOptions<any>
   ) => {
     return useQuery({
-      queryKey: [
-        "lens",
-        query,
-        "relationOptions",
-        field,
-        search,
-      ],
+      queryKey: ["lens", query, "relationOptions", field, search],
       queryFn: async () => {
         const response = await fetch(endpoints.query_relation_options, {
           method: "POST",
@@ -302,7 +302,7 @@ export const useLensApi = ({
   const updateData = (options?: UseMutationOptions<any, Error, any>) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -310,13 +310,14 @@ export const useLensApi = ({
           "POST",
           endpoints.update_data,
           payload,
-          () => fetch(endpoints.update_data, {
-            method: "POST",
-            headers: defaultHeaders,
-            body: JSON.stringify(payload),
-          })
+          () =>
+            fetch(endpoints.update_data, {
+              method: "POST",
+              headers: defaultHeaders,
+              body: JSON.stringify(payload),
+            })
         );
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -326,7 +327,7 @@ export const useLensApi = ({
   const createView = (options?: UseMutationOptions<any, Error, any>) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -334,14 +335,14 @@ export const useLensApi = ({
         if (!enableViews) {
           return {
             data: {
-              id: 'default-view',
-              name: 'Default View',
-              type: 'table',
+              id: "default-view",
+              name: "Default View",
+              type: "table",
               is_default: true,
-              belongs_to_type: 'query',
+              belongs_to_type: "query",
               belongs_to_value: query,
               config: {},
-            }
+            },
           };
         }
         const response = await fetch(endpoints.create_view, {
@@ -355,12 +356,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "views"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "views"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -369,7 +370,7 @@ export const useLensApi = ({
 
   const updateView = (options?: UseMutationOptions<any, Error, any>) => {
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -389,12 +390,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "views"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "views"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -403,7 +404,7 @@ export const useLensApi = ({
 
   const deleteView = (options?: UseMutationOptions<any, Error, any>) => {
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -422,12 +423,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "views"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "views"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -439,7 +440,7 @@ export const useLensApi = ({
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -456,12 +457,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "customAttributes"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "customAttributes"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -473,7 +474,7 @@ export const useLensApi = ({
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (payload: any) => {
@@ -490,12 +491,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "customAttributes"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "customAttributes"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,
@@ -507,7 +508,7 @@ export const useLensApi = ({
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
-    
+
     return useMutation({
       ...restOptions,
       mutationFn: async (id: string) => {
@@ -524,12 +525,12 @@ export const useLensApi = ({
         }
 
         const result = await response.json();
-        
+
         // Invalidate immediately after successful mutation
-        await queryClient.invalidateQueries({ 
-          queryKey: ["lens", query, "customAttributes"]
+        await queryClient.invalidateQueries({
+          queryKey: ["lens", query, "customAttributes"],
         });
-        
+
         return result;
       },
       onSuccess: userOnSuccess,

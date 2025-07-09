@@ -1,15 +1,14 @@
-import React from 'react';
-import { useViewConfig } from '@lens2/hooks/use-view-config';
-import { 
-  Columns3, 
-  Filter, 
-  Group, 
-  SortAsc, 
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import {
   ChevronRight,
+  Columns3,
+  Filter,
+  Group,
+  Layout,
   Settings,
-  FileText,
-  Layout
-} from 'lucide-react';
+  SortAsc,
+} from "lucide-react";
+import React from "react";
 
 interface NavItem {
   id: string;
@@ -26,50 +25,49 @@ export function ViewConfigNav() {
   const getNavItems = (): NavItem[] => {
     const commonItems: NavItem[] = [
       {
-        id: 'settings',
-        label: 'View Settings',
+        id: "settings",
+        label: "View Settings",
         icon: Settings,
-        description: 'Name, description, and permissions',
-        disabled: true
-      }
+        description: "Name, description, and permissions",
+        disabled: true,
+      },
     ];
 
-    if (view.type === 'table') {
+    if (view.type === "table") {
       return [
         {
-          id: 'columns',
-          label: 'Columns',
+          id: "columns",
+          label: "Columns",
           icon: Columns3,
-          description: 'Show, hide, and reorder columns'
+          description: "Show, hide, and reorder columns",
         },
         {
-          id: 'filter',
-          label: 'Filter',
+          id: "filter",
+          label: "Filter",
           icon: Filter,
-          description: 'Filter your data',
-          disabled: true
+          description: "Filter your data",
         },
         {
-          id: 'group',
-          label: 'Group',
+          id: "group",
+          label: "Group",
           icon: Group,
-          description: 'Group rows by a field',
-          disabled: true
+          description: "Group rows by a field",
+          disabled: true,
         },
         {
-          id: 'sort',
-          label: 'Sort',
+          id: "sort",
+          label: "Sort",
           icon: SortAsc,
-          description: 'Sort your data',
-          disabled: true
+          description: "Sort your data",
+          disabled: true,
         },
         {
-          id: 'layout',
-          label: 'Layout Options',
+          id: "layout",
+          label: "Layout Options",
           icon: Layout,
-          description: 'Adjust column widths and table layout'
+          description: "Adjust column widths and table layout",
         },
-        ...commonItems
+        ...commonItems,
       ];
     }
 
@@ -81,25 +79,29 @@ export function ViewConfigNav() {
 
   return (
     <div className="p-2">
-      {navItems.map((item) => {
+      {navItems.map(item => {
         const Icon = item.icon;
         return (
           <button
             key={item.id}
-            className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hover:bg-accent flex w-full items-center justify-between rounded-lg p-3 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => !item.disabled && navigateToPanel(item.id)}
             disabled={item.disabled}
           >
             <div className="flex items-center gap-3">
-              <Icon className="h-5 w-5 text-muted-foreground" />
+              <Icon className="text-muted-foreground h-5 w-5" />
               <div className="text-left">
                 <div className="text-sm font-medium">{item.label}</div>
                 {item.description && (
-                  <div className="text-xs text-muted-foreground">{item.description}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {item.description}
+                  </div>
                 )}
               </div>
             </div>
-            {!item.disabled && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            {!item.disabled && (
+              <ChevronRight className="text-muted-foreground h-4 w-4" />
+            )}
           </button>
         );
       })}

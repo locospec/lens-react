@@ -1,29 +1,29 @@
-import { useRef, useCallback } from "react";
 import {
-  useReactTable,
-  getCoreRowModel,
-} from "@tanstack/react-table";
-import { useViewConfig } from "@lens2/hooks/use-view-config";
-import { useViewData } from "@lens2/components/views/shared/use-view-data";
-import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
-import { TableHeader } from "./table-header";
-import { TableBody, MemoizedTableBody } from "./table-body";
+  COLUMN_SIZES,
+  FETCH_CONFIG,
+} from "@lens2/components/views/shared/constants";
+import { EmptyState } from "@lens2/components/views/shared/empty-state";
+import { LoadingState } from "@lens2/components/views/shared/loading-state";
+import { useColumnResizeSave } from "@lens2/components/views/shared/use-column-resize-save";
 import { useColumnSizeVars } from "@lens2/components/views/shared/use-column-size-vars";
 import { useColumnState } from "@lens2/components/views/shared/use-column-state";
-import { useColumnResizeSave } from "@lens2/components/views/shared/use-column-resize-save";
-import { useRowVirtualizer } from "@lens2/components/views/shared/use-row-virtualizer";
 import { useContainerWidth } from "@lens2/components/views/shared/use-container-width";
-import { COLUMN_SIZES, FETCH_CONFIG } from "@lens2/components/views/shared/constants";
-import { LoadingState } from "@lens2/components/views/shared/loading-state";
-import { EmptyState } from "@lens2/components/views/shared/empty-state";
+import { useRowVirtualizer } from "@lens2/components/views/shared/use-row-virtualizer";
+import { useViewData } from "@lens2/components/views/shared/use-view-data";
 import { ViewHeader } from "@lens2/components/views/shared/view-header";
+import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useCallback, useRef } from "react";
+import { MemoizedTableBody, TableBody } from "./table-body";
+import { TableHeader } from "./table-header";
 
 export function ListView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const { updateConfigChange } = useViewConfig();
-  
+
   // Get data and config using shared hook
   const {
     attributes,
@@ -74,7 +74,10 @@ export function ListView() {
 
   // Row virtualizer
   const columnVisibilityKey = JSON.stringify(columnVisibility);
-  const rowVirtualizer = useRowVirtualizer({ rowCount: rows.length, containerRef });
+  const rowVirtualizer = useRowVirtualizer({
+    rowCount: rows.length,
+    containerRef,
+  });
 
   // Container width tracking
   const containerWidth = useContainerWidth(containerRef);
@@ -110,12 +113,16 @@ export function ListView() {
 
   return (
     <div ref={wrapperRef} className="flex h-full flex-col overflow-hidden">
-      <ViewHeader title="List View" loadedCount={flatData.length} totalCount={totalCount} />
+      <ViewHeader
+        title="List View"
+        loadedCount={flatData.length}
+        totalCount={totalCount}
+      />
 
       {/* Table container */}
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-auto @container/lens-table"
+        className="@container/lens-table relative flex-1 overflow-auto"
         onScroll={handleScroll}
       >
         <div

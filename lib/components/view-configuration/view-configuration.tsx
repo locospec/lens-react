@@ -1,5 +1,5 @@
-import React from 'react';
-import { ViewConfigSheet } from './view-config-sheet';
+import React from "react";
+import { ViewConfigSheet } from "./view-config-sheet";
 
 interface ViewConfigurationProps {
   containerRef: React.RefObject<HTMLElement | null>;

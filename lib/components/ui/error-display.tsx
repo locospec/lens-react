@@ -1,4 +1,3 @@
-
 interface ErrorDisplayProps {
   error: Error;
 }

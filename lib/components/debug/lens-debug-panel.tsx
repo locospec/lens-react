@@ -1,44 +1,67 @@
-import { useState, useEffect } from "react";
-import { useLensDebugClient, type DebugEntry } from "@lens2/contexts/lens-debug-context";
-import { NonModalSheet, NonModalSheetContent } from "@lens2/shadcn/components/ui/non-modal-sheet";
-import { SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@lens2/shadcn/components/ui/sheet";
+import {
+  useLensDebugClient,
+  type DebugEntry,
+} from "@lens2/contexts/lens-debug-context";
 import { Button } from "@lens2/shadcn/components/ui/button";
+import {
+  NonModalSheet,
+  NonModalSheetContent,
+} from "@lens2/shadcn/components/ui/non-modal-sheet";
+import {
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@lens2/shadcn/components/ui/sheet";
+import { useEffect, useState } from "react";
 
 // Helper functions
-const getEntryTitle = (entry: DebugEntry) => 
-  entry.type === 'api' ? `${entry.method} ${entry.endpoint.split("/").pop()}` : entry.message;
+const getEntryTitle = (entry: DebugEntry) =>
+  entry.type === "api"
+    ? `${entry.method} ${entry.endpoint.split("/").pop()}`
+    : entry.message;
 
 const getEntrySubtitle = (entry: DebugEntry) => {
-  if (entry.type === 'api') return entry.endpoint;
-  if (entry.type === 'log' && entry.data) {
+  if (entry.type === "api") return entry.endpoint;
+  if (entry.type === "log" && entry.data) {
     // For logs, show a brief summary instead of full JSON
-    if (typeof entry.data === 'string') return entry.data;
+    if (typeof entry.data === "string") return entry.data;
     if (entry.data.viewName) return `View: ${entry.data.viewName}`;
     if (entry.data.error) return `Error: ${entry.data.error}`;
-    return 'View details →';
+    return "View details →";
   }
-  return '';
+  return "";
 };
 
 const getBadgeColor = (entry: DebugEntry) => {
-  if (entry.type === 'api') return 'bg-purple-100 text-purple-700';
-  return entry.level === 'error' ? 'bg-red-100 text-red-700' :
-         entry.level === 'warn' ? 'bg-yellow-100 text-yellow-700' :
-         'bg-blue-100 text-blue-700';
+  if (entry.type === "api") return "bg-purple-100 text-purple-700";
+  return entry.level === "error"
+    ? "bg-red-100 text-red-700"
+    : entry.level === "warn"
+      ? "bg-yellow-100 text-yellow-700"
+      : "bg-blue-100 text-blue-700";
 };
 
-const getStatusColor = (status?: number) => 
+const getStatusColor = (status?: number) =>
   status && status >= 200 && status < 300 ? "text-green-600" : "text-red-600";
 
 const formatTimestamp = (date: Date) => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+  const milliseconds = date.getMilliseconds().toString().padStart(3, "0");
   return `${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
-const InfoRow = ({ label, value, className = "" }: { label: string; value: string | number; className?: string }) => (
+const InfoRow = ({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: string | number;
+  className?: string;
+}) => (
   <div className="flex justify-between text-sm">
     <span className="text-muted-foreground">{label}</span>
     <span className={className}>{value}</span>
@@ -53,7 +76,10 @@ export function LensDebugPanel() {
   const [activeTab, setActiveTab] = useState<"request" | "response">("request");
 
   useEffect(() => {
-    if (entries.length === 0 || (selectedEntry && !entries.find(e => e.id === selectedEntry.id))) {
+    if (
+      entries.length === 0 ||
+      (selectedEntry && !entries.find(e => e.id === selectedEntry.id))
+    ) {
       setSelectedEntry(null);
       setIsDetailOpen(false);
     }
@@ -68,13 +94,13 @@ export function LensDebugPanel() {
           <Button
             variant="outline"
             size="sm"
-            className="fixed bottom-4 right-4 z-50"
+            className="fixed right-4 bottom-4 z-50"
           >
             Debug ({entries.length})
           </Button>
         </SheetTrigger>
         <NonModalSheetContent
-          className={`w-[400px] sm:w-[540px] flex flex-col lg:h-[96vh] lg:top-1/2 lg:-translate-y-1/2 lg:rounded-md transition-all duration-300 ${
+          className={`flex w-[400px] flex-col transition-all duration-300 sm:w-[540px] lg:top-1/2 lg:h-[96vh] lg:-translate-y-1/2 lg:rounded-md ${
             isDetailOpen ? "lg:right-[420px]" : "lg:right-[1vw]"
           }`}
         >
@@ -84,9 +110,9 @@ export function LensDebugPanel() {
               View all API calls and logs from the Lens component
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-hidden flex flex-col px-4 pb-4">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-1 flex-col overflow-hidden px-4 pb-4">
+            <div className="flex items-center justify-between py-4">
+              <div className="text-muted-foreground flex gap-4 text-sm">
                 <span>Entries: {entries.length}</span>
                 <span>Records: {recordsLoaded}</span>
               </div>
@@ -101,48 +127,65 @@ export function LensDebugPanel() {
             </div>
             <div className="flex-1 space-y-2 overflow-y-auto p-2">
               {entries.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center text-sm">
                   No entries yet
                 </p>
               ) : (
                 entries.map(entry => (
                   <div
                     key={entry.id}
-                    className={`border rounded-lg p-3 space-y-1 text-sm overflow-hidden cursor-pointer hover:bg-accent transition-colors ${
-                      selectedEntry?.id === entry.id ? "ring-2 ring-primary" : ""
+                    className={`hover:bg-accent cursor-pointer space-y-1 overflow-hidden rounded-lg border p-3 text-sm transition-colors ${
+                      selectedEntry?.id === entry.id
+                        ? "ring-primary ring-2"
+                        : ""
                     }`}
-                    onClick={() => { setSelectedEntry(entry); setIsDetailOpen(true); }}
+                    onClick={() => {
+                      setSelectedEntry(entry);
+                      setIsDetailOpen(true);
+                    }}
                   >
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="space-y-1 flex-1 min-w-0">
-                        <div className="font-medium flex items-center gap-2">
-                          <span className={`text-xs px-2 py-0.5 rounded ${getBadgeColor(entry)}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-2 font-medium">
+                          <span
+                            className={`rounded px-2 py-0.5 text-xs ${getBadgeColor(entry)}`}
+                          >
                             {entry.type.toUpperCase()}
                           </span>
-                          <span className="truncate">{getEntryTitle(entry)}</span>
+                          <span className="truncate">
+                            {getEntryTitle(entry)}
+                          </span>
                         </div>
-                        <div className="text-xs text-muted-foreground break-all">
+                        <div className="text-muted-foreground text-xs break-all">
                           {getEntrySubtitle(entry)}
                         </div>
                       </div>
-                      {entry.type === 'api' && (
-                        <div className="text-right flex-shrink-0">
+                      {entry.type === "api" && (
+                        <div className="flex-shrink-0 text-right">
                           {entry.status && (
-                            <div className={`text-xs font-medium ${getStatusColor(entry.status)}`}>
+                            <div
+                              className={`text-xs font-medium ${getStatusColor(entry.status)}`}
+                            >
                               {entry.status}
                             </div>
                           )}
                           {entry.duration && (
-                            <div className="text-xs text-muted-foreground">{entry.duration}ms</div>
+                            <div className="text-muted-foreground text-xs">
+                              {entry.duration}ms
+                            </div>
                           )}
                         </div>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
                       <span>{formatTimestamp(entry.timestamp)}</span>
-                      {entry.type === 'api' && entry.response?.data && Array.isArray(entry.response.data) && (
-                        <span className="text-blue-600">• {entry.response.data.length} records</span>
-                      )}
+                      {entry.type === "api" &&
+                        entry.response?.data &&
+                        Array.isArray(entry.response.data) && (
+                          <span className="text-blue-600">
+                            • {entry.response.data.length} records
+                          </span>
+                        )}
                     </div>
                   </div>
                 ))
@@ -154,56 +197,80 @@ export function LensDebugPanel() {
 
       {selectedEntry && (
         <NonModalSheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-          <NonModalSheetContent className="w-[400px] sm:w-[540px] flex flex-col lg:h-[96vh] lg:top-1/2 lg:-translate-y-1/2 lg:right-[1vw] lg:rounded-md">
+          <NonModalSheetContent className="flex w-[400px] flex-col sm:w-[540px] lg:top-1/2 lg:right-[1vw] lg:h-[96vh] lg:-translate-y-1/2 lg:rounded-md">
             <SheetHeader>
-              <SheetTitle>{selectedEntry.type === 'api' ? 'API Call' : 'Log'} Details</SheetTitle>
-              <SheetDescription>{getEntryTitle(selectedEntry)}</SheetDescription>
+              <SheetTitle>
+                {selectedEntry.type === "api" ? "API Call" : "Log"} Details
+              </SheetTitle>
+              <SheetDescription>
+                {getEntryTitle(selectedEntry)}
+              </SheetDescription>
             </SheetHeader>
-            <div className="flex-1 overflow-hidden flex flex-col px-4 pb-4">
-              <div className="py-4 space-y-2 border-b">
-                {selectedEntry.type === 'api' ? (
+            <div className="flex flex-1 flex-col overflow-hidden px-4 pb-4">
+              <div className="space-y-2 border-b py-4">
+                {selectedEntry.type === "api" ? (
                   <>
-                    <InfoRow label="Status" value={selectedEntry.status || "N/A"} 
-                      className={`font-medium ${getStatusColor(selectedEntry.status)}`} />
-                    <InfoRow label="Duration" value={selectedEntry.duration ? `${selectedEntry.duration}ms` : "N/A"} />
+                    <InfoRow
+                      label="Status"
+                      value={selectedEntry.status || "N/A"}
+                      className={`font-medium ${getStatusColor(selectedEntry.status)}`}
+                    />
+                    <InfoRow
+                      label="Duration"
+                      value={
+                        selectedEntry.duration
+                          ? `${selectedEntry.duration}ms`
+                          : "N/A"
+                      }
+                    />
                   </>
                 ) : (
-                  <InfoRow label="Level" value={selectedEntry.level?.toUpperCase() || 'INFO'}
-                    className={`font-medium ${getBadgeColor(selectedEntry).replace('bg-', 'text-').replace('-100', '-600')}`} />
+                  <InfoRow
+                    label="Level"
+                    value={selectedEntry.level?.toUpperCase() || "INFO"}
+                    className={`font-medium ${getBadgeColor(selectedEntry).replace("bg-", "text-").replace("-100", "-600")}`}
+                  />
                 )}
-                <InfoRow label="Time" value={formatTimestamp(selectedEntry.timestamp)} />
+                <InfoRow
+                  label="Time"
+                  value={formatTimestamp(selectedEntry.timestamp)}
+                />
               </div>
 
-              <div className="flex-1 overflow-hidden mt-4">
-                {selectedEntry.type === 'api' ? (
-                  <div className="h-full flex flex-col">
-                    <div className="flex gap-2 mb-4">
-                      {['request', 'response'].map(tab => (
+              <div className="mt-4 flex-1 overflow-hidden">
+                {selectedEntry.type === "api" ? (
+                  <div className="flex h-full flex-col">
+                    <div className="mb-4 flex gap-2">
+                      {["request", "response"].map(tab => (
                         <Button
                           key={tab}
                           variant={activeTab === tab ? "default" : "outline"}
                           size="sm"
                           className="flex-1"
-                          disabled={tab === 'response' && !selectedEntry.response}
-                          onClick={() => setActiveTab(tab as "request" | "response")}
+                          disabled={
+                            tab === "response" && !selectedEntry.response
+                          }
+                          onClick={() =>
+                            setActiveTab(tab as "request" | "response")
+                          }
                         >
                           {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </Button>
                       ))}
                     </div>
-                    <pre className="flex-1 overflow-auto rounded-md bg-muted p-3 text-xs">
+                    <pre className="bg-muted flex-1 overflow-auto rounded-md p-3 text-xs">
                       {JSON.stringify(selectedEntry[activeTab] || {}, null, 2)}
                     </pre>
                   </div>
                 ) : (
-                  <div className="h-full flex flex-col">
-                    <div className="mb-4 p-3 rounded-md bg-muted">
+                  <div className="flex h-full flex-col">
+                    <div className="bg-muted mb-4 rounded-md p-3">
                       <p className="text-sm">{selectedEntry.message}</p>
                     </div>
                     {selectedEntry.data && (
                       <>
-                        <h3 className="text-sm font-medium mb-2">Data</h3>
-                        <pre className="flex-1 overflow-auto rounded-md bg-muted p-3 text-xs">
+                        <h3 className="mb-2 text-sm font-medium">Data</h3>
+                        <pre className="bg-muted flex-1 overflow-auto rounded-md p-3 text-xs">
                           {JSON.stringify(selectedEntry.data, null, 2)}
                         </pre>
                       </>

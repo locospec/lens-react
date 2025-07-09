@@ -16,7 +16,7 @@ export function useResizeObserver(
 
     const resizeObserver = new ResizeObserver(callback);
     resizeObserver.observe(element);
-    
+
     return () => resizeObserver.disconnect();
   }); // Run on every render to catch when ref.current changes
 }

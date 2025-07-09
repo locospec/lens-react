@@ -1,19 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { useViewContext } from "@lens2/contexts/view-context";
-import { useLensContext } from "@lens2/contexts/lens-context";
-import { useViewConfig } from "@lens2/hooks/use-view-config";
-import { Input } from "@lens2/shadcn/components/ui/input";
-import { Switch } from "@lens2/shadcn/components/ui/switch";
-import { Button } from "@lens2/shadcn/components/ui/button";
-import { Search } from "lucide-react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -21,6 +13,14 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useLensContext } from "@lens2/contexts/lens-context";
+import { useViewContext } from "@lens2/contexts/view-context";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import { Button } from "@lens2/shadcn/components/ui/button";
+import { Input } from "@lens2/shadcn/components/ui/input";
+import { Switch } from "@lens2/shadcn/components/ui/switch";
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { SortableColumnItem } from "./sortable-column-item";
 
 export function ColumnsConfig() {
@@ -107,11 +107,11 @@ export function ColumnsConfig() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Search */}
-      <div className="p-4 border-b">
+      <div className="border-b p-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search for new or existing columns"
             value={searchQuery}
@@ -122,17 +122,17 @@ export function ColumnsConfig() {
       </div>
 
       {/* Columns Lists */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {/* Shown Columns */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Shown</h4>
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-muted-foreground text-sm font-medium">Shown</h4>
             <Button variant="ghost" size="sm" className="text-xs">
               Hide all
             </Button>
           </div>
           {shownColumns.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
+            <p className="text-muted-foreground py-4 text-center text-sm">
               No columns
             </p>
           ) : (
@@ -162,11 +162,11 @@ export function ColumnsConfig() {
 
         {/* Hidden Columns */}
         <div>
-          <h4 className="text-sm font-medium text-muted-foreground mb-2">
+          <h4 className="text-muted-foreground mb-2 text-sm font-medium">
             Hidden
           </h4>
           {hiddenColumns.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
+            <p className="text-muted-foreground py-4 text-center text-sm">
               No hidden columns
             </p>
           ) : (
@@ -174,7 +174,7 @@ export function ColumnsConfig() {
               {hiddenColumns.map(column => (
                 <div
                   key={column.name}
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
+                  className="hover:bg-accent flex items-center gap-2 rounded-md p-2"
                 >
                   <div className="w-4" /> {/* Spacer for alignment */}
                   <span className="flex-1 text-sm">{column.label}</span>

@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import type { Table } from "@tanstack/react-table";
+import { useMemo } from "react";
 
 export interface UseColumnSizeVarsProps {
   table: Table<any>;
@@ -20,7 +20,6 @@ export function useColumnSizeVars({
       const isLast = header.column.getIsLastColumn();
       const currentSize = header.getSize();
       const remainingWidth = parentWidth ? parentWidth - totalWidth : 0;
-
 
       // If it's the last column and we have space left, expand it
       if (isLast && parentWidth && currentSize < remainingWidth) {

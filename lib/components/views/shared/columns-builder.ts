@@ -1,5 +1,5 @@
-import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
 import type { Attribute } from "@lens2/contexts/view-context";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 type RowData = Record<string, any>;
 

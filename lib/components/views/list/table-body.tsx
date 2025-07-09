@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { LOADING_CONFIG } from "@lens2/components/views/shared/constants";
+import { cn } from "@lens2/shadcn/lib/utils";
 import { Table, flexRender } from "@tanstack/react-table";
 import { Virtualizer } from "@tanstack/react-virtual";
-import { cn } from "@lens2/shadcn/lib/utils";
-import { LOADING_CONFIG } from "@lens2/components/views/shared/constants";
+import { memo } from "react";
 
 interface TableBodyProps {
   table: Table<any>;
@@ -37,7 +37,9 @@ export const TableBody = ({
   return (
     <div
       className="relative h-full w-full"
-      style={{ height: `${rowVirtualizer.getTotalSize() + (isFetching ? LOADING_CONFIG.INDICATOR_HEIGHT : 0)}px` }}
+      style={{
+        height: `${rowVirtualizer.getTotalSize() + (isFetching ? LOADING_CONFIG.INDICATOR_HEIGHT : 0)}px`,
+      }}
     >
       {rowVirtualizer.getVirtualItems().map(virtualRow => {
         const row = rows[virtualRow.index];
@@ -50,7 +52,7 @@ export const TableBody = ({
           />
         );
       })}
-      
+
       {isFetching && (
         <div
           className={cn(
@@ -62,9 +64,7 @@ export const TableBody = ({
             height: `${LOADING_CONFIG.INDICATOR_HEIGHT}px`,
           }}
         >
-          <div className="text-sm text-muted-foreground">
-            Loading more...
-          </div>
+          <div className="text-muted-foreground text-sm">Loading more...</div>
         </div>
       )}
     </div>
@@ -82,11 +82,11 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
   return (
     <div
       className={cn(
-        "absolute left-0 top-0 flex w-full border-b transition-colors",
+        "absolute top-0 left-0 flex w-full border-b transition-colors",
         "hover:bg-muted/50"
       )}
       data-index={virtualRow.index}
-      ref={(node) => {
+      ref={node => {
         if (node) rowVirtualizer.measureElement(node);
       }}
       style={{
@@ -100,9 +100,9 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
             data-cell-column-id={cell.column.id}
             className={cn(
               "flex items-center overflow-hidden",
-              "@lg/lens-table:px-2 @md/lens-table:px-1.5 @sm/lens-table:px-1",
-              "@lg/lens-table:py-3 @md/lens-table:py-2 @sm/lens-table:py-1.5",
-              "@lg/lens-table:text-sm @md/lens-table:text-xs @sm/lens-table:text-xs"
+              "@sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
+              "@sm/lens-table:py-1.5 @md/lens-table:py-2 @lg/lens-table:py-3",
+              "@sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm"
             )}
             style={{
               width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
@@ -121,12 +121,9 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
 TableRow.displayName = "TableRow";
 
 // Memoized version that only re-renders when data changes
-export const MemoizedTableBody = memo(
-  TableBody,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.table.options.data === nextProps.table.options.data &&
-      prevProps.isFetching === nextProps.isFetching
-    );
-  }
-);
+export const MemoizedTableBody = memo(TableBody, (prevProps, nextProps) => {
+  return (
+    prevProps.table.options.data === nextProps.table.options.data &&
+    prevProps.isFetching === nextProps.isFetching
+  );
+});

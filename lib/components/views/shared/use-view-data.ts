@@ -9,13 +9,13 @@ interface UseViewDataOptions {
 export function useViewData(options: UseViewDataOptions = {}) {
   const { config, endpoints, headers, query } = useLensContext();
   const { view, readPayload } = useViewContext();
-  
+
   const { defaultPerPage = 5 } = options;
-  
+
   // Get attributes directly from config
   const attributesObject = config?.attributes || {};
   const attributes = Object.values(attributesObject);
-  
+
   // Infinite fetch for data
   const {
     flatData,
@@ -32,20 +32,20 @@ export function useViewData(options: UseViewDataOptions = {}) {
     perPage: view.perPage || defaultPerPage,
     body: readPayload,
   });
-  
+
   return {
     // Config
     config,
     attributes,
     attributesObject,
-    
+
     // Context
     endpoints,
     headers,
     query,
     view,
     readPayload,
-    
+
     // Data
     flatData,
     fetchNextPage,
