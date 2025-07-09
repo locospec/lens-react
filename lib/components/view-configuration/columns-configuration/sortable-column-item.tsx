@@ -1,7 +1,7 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
-import { Switch } from '@lens2/shadcn/components/ui/switch';
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Switch } from "@lens2/shadcn/components/ui/switch";
+import { GripVertical } from "lucide-react";
 interface Attribute {
   name: string;
   label: string;
@@ -14,7 +14,11 @@ interface SortableColumnItemProps {
   onToggle: (columnName: string, checked: boolean) => void;
 }
 
-export function SortableColumnItem({ column, isVisible, onToggle }: SortableColumnItemProps) {
+export function SortableColumnItem({
+  column,
+  isVisible,
+  onToggle,
+}: SortableColumnItemProps) {
   const {
     attributes,
     listeners,
@@ -33,21 +37,17 @@ export function SortableColumnItem({ column, isVisible, onToggle }: SortableColu
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 p-2 rounded-md hover:bg-accent ${
-        isDragging ? 'opacity-50' : ''
+      className={`hover:bg-accent flex items-center gap-2 rounded-md p-2 ${
+        isDragging ? "opacity-50" : ""
       }`}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-move"
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-move">
+        <GripVertical className="text-muted-foreground h-4 w-4" />
       </div>
       <span className="flex-1 text-sm">{column.label}</span>
       <Switch
         checked={isVisible}
-        onCheckedChange={(checked) => onToggle(column.name, checked)}
+        onCheckedChange={checked => onToggle(column.name, checked)}
       />
     </div>
   );

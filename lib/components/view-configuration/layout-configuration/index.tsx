@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
-import { useViewConfig } from '@lens2/hooks/use-view-config';
-import { ChevronRight } from 'lucide-react';
-import { COLUMN_SIZES } from '@lens2/components/views/shared/constants';
+import { COLUMN_SIZES } from "@lens2/components/views/shared/constants";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import { ChevronRight } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 
 interface LayoutOption {
   id: string;
@@ -18,93 +18,103 @@ export function LayoutPanel() {
   // Create a canvas for text measurement
   const getMeasurementCanvas = useCallback(() => {
     if (!measurementCanvasRef.current) {
-      measurementCanvasRef.current = document.createElement('canvas');
+      measurementCanvasRef.current = document.createElement("canvas");
     }
-    return measurementCanvasRef.current.getContext('2d');
+    return measurementCanvasRef.current.getContext("2d");
   }, []);
 
   // Measure text width
-  const measureText = useCallback((text: string, font: string = '14px Inter, system-ui, sans-serif'): number => {
-    const context = getMeasurementCanvas();
-    if (!context) return 0;
-    
-    context.font = font;
-    const metrics = context.measureText(text);
-    return Math.ceil(metrics.width);
-  }, [getMeasurementCanvas]);
+  const measureText = useCallback(
+    (
+      text: string,
+      font: string = "14px Inter, system-ui, sans-serif"
+    ): number => {
+      const context = getMeasurementCanvas();
+      if (!context) return 0;
+
+      context.font = font;
+      const metrics = context.measureText(text);
+      return Math.ceil(metrics.width);
+    },
+    [getMeasurementCanvas]
+  );
 
   // Calculate optimal column width based on content
-  const calculateColumnWidth = useCallback((columnId: string): number => {
-    if (!table) return COLUMN_SIZES.DEFAULT;
-    
-    const column = table.getColumn(columnId);
-    if (!column) return COLUMN_SIZES.DEFAULT;
+  const calculateColumnWidth = useCallback(
+    (columnId: string): number => {
+      if (!table) return COLUMN_SIZES.DEFAULT;
 
-    // Start with header width + padding
-    const headerText = column.columnDef.header as string || '';
-    const headerWidth = measureText(headerText, '14px Inter, system-ui, sans-serif') + 40; // 40px for padding and sort icon
+      const column = table.getColumn(columnId);
+      if (!column) return COLUMN_SIZES.DEFAULT;
 
-    // Get all visible cells for this column
-    const rows = table.getRowModel().rows;
-    let maxContentWidth = headerWidth;
+      // Start with header width + padding
+      const headerText = (column.columnDef.header as string) || "";
+      const headerWidth =
+        measureText(headerText, "14px Inter, system-ui, sans-serif") + 40; // 40px for padding and sort icon
 
-    // Sample up to 100 rows for performance
-    const sampleSize = Math.min(rows.length, 100);
-    for (let i = 0; i < sampleSize; i++) {
-      const cell = rows[i].getAllCells().find(c => c.column.id === columnId);
-      if (cell) {
-        const value = cell.getValue();
-        const text = value != null ? String(value) : '';
-        const contentWidth = measureText(text) + 32; // 32px for cell padding
-        maxContentWidth = Math.max(maxContentWidth, contentWidth);
+      // Get all visible cells for this column
+      const rows = table.getRowModel().rows;
+      let maxContentWidth = headerWidth;
+
+      // Sample up to 100 rows for performance
+      const sampleSize = Math.min(rows.length, 100);
+      for (let i = 0; i < sampleSize; i++) {
+        const cell = rows[i].getAllCells().find(c => c.column.id === columnId);
+        if (cell) {
+          const value = cell.getValue();
+          const text = value != null ? String(value) : "";
+          const contentWidth = measureText(text) + 32; // 32px for cell padding
+          maxContentWidth = Math.max(maxContentWidth, contentWidth);
+        }
       }
-    }
 
-    // Apply min/max constraints
-    return Math.min(
-      Math.max(maxContentWidth, COLUMN_SIZES.MIN),
-      COLUMN_SIZES.MAX
-    );
-  }, [table, measureText]);
+      // Apply min/max constraints
+      return Math.min(
+        Math.max(maxContentWidth, COLUMN_SIZES.MIN),
+        COLUMN_SIZES.MAX
+      );
+    },
+    [table, measureText]
+  );
 
   const handleResetColumnWidths = async () => {
-    if (view.type !== 'table' || !table) return;
-    
+    if (view.type !== "table" || !table) return;
+
     try {
       setIsProcessing(true);
-      
+
       // Build default column sizes for all visible columns
       const allColumns = table.getAllColumns();
       const defaultSizes: Record<string, number> = {};
-      
+
       allColumns.forEach(column => {
-        if (column.getIsVisible() && column.id !== 'selection') {
+        if (column.getIsVisible() && column.id !== "selection") {
           defaultSizes[column.id] = COLUMN_SIZES.DEFAULT;
         }
       });
-      
+
       // Apply default sizes to table state immediately
       table.setColumnSizing(defaultSizes);
-      
+
       // Save default sizes to config
-      await updateConfigChange('columnSizes', defaultSizes);
+      await updateConfigChange("columnSizes", defaultSizes);
     } catch (error) {
-      console.error('Failed to reset column widths:', error);
+      console.error("Failed to reset column widths:", error);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleAutosizeAllColumns = async () => {
-    if (view.type !== 'table' || !table) return;
-    
+    if (view.type !== "table" || !table) return;
+
     try {
       setIsProcessing(true);
-      
+
       // Ensure we have data to measure
       const rows = table.getRowModel().rows;
       if (!rows.length) {
-        console.log('No data available for autosize');
+        console.log("No data available for autosize");
         return;
       }
 
@@ -113,7 +123,7 @@ export function LayoutPanel() {
 
       // Calculate optimal width for each visible column
       allColumns.forEach(column => {
-        if (column.getIsVisible() && column.id !== 'selection') {
+        if (column.getIsVisible() && column.id !== "selection") {
           const optimalWidth = calculateColumnWidth(column.id);
           columnSizes[column.id] = optimalWidth;
         }
@@ -123,9 +133,9 @@ export function LayoutPanel() {
       table.setColumnSizing(columnSizes);
 
       // Save the new sizes to config
-      await updateConfigChange('columnSizes', columnSizes);
+      await updateConfigChange("columnSizes", columnSizes);
     } catch (error) {
-      console.error('Failed to autosize columns:', error);
+      console.error("Failed to autosize columns:", error);
     } finally {
       setIsProcessing(false);
     }
@@ -133,36 +143,38 @@ export function LayoutPanel() {
 
   const layoutOptions: LayoutOption[] = [
     {
-      id: 'reset-widths',
-      label: 'Reset column widths',
-      description: 'Reset all columns to their default widths',
-      onClick: handleResetColumnWidths
+      id: "reset-widths",
+      label: "Reset column widths",
+      description: "Reset all columns to their default widths",
+      onClick: handleResetColumnWidths,
     },
     {
-      id: 'autosize-all',
-      label: 'Autosize all columns',
-      description: 'Automatically adjust column widths to fit content',
-      onClick: handleAutosizeAllColumns
-    }
+      id: "autosize-all",
+      label: "Autosize all columns",
+      description: "Automatically adjust column widths to fit content",
+      onClick: handleAutosizeAllColumns,
+    },
   ];
 
   return (
     <div className="p-4">
       <div className="space-y-1">
-        {layoutOptions.map((option) => (
+        {layoutOptions.map(option => (
           <button
             key={option.id}
-            className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors disabled:opacity-50"
+            className="hover:bg-accent flex w-full items-center justify-between rounded-lg p-3 transition-colors disabled:opacity-50"
             onClick={option.onClick}
             disabled={isProcessing}
           >
             <div className="text-left">
               <div className="text-sm font-medium">{option.label}</div>
               {option.description && (
-                <div className="text-xs text-muted-foreground">{option.description}</div>
+                <div className="text-muted-foreground text-xs">
+                  {option.description}
+                </div>
               )}
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground h-4 w-4" />
           </button>
         ))}
       </div>

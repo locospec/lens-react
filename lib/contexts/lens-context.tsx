@@ -1,15 +1,15 @@
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import type { Attribute, View } from "@lens2/contexts/view-context";
 import { useLensApi } from "@lens2/hooks/use-lens-api";
 import { createEndpoints, LensEndpoints } from "@lens2/utils/endpoints";
-import type { View, Attribute } from "@lens2/contexts/view-context";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 // View scoping configuration
 export interface ViewScoping {
@@ -88,7 +88,13 @@ export function LensProvider({
   );
 
   // Create API instance
-  const api = useLensApi({ endpoints, headers, query, enableViews, viewScoping });
+  const api = useLensApi({
+    endpoints,
+    headers,
+    query,
+    enableViews,
+    viewScoping,
+  });
 
   // Fetch config and views
   const {
@@ -102,7 +108,7 @@ export function LensProvider({
     error: viewsError,
     refetch: refetchViews,
   } = api.views();
-  
+
   // Create view mutation
   const createViewMutation = api.createView();
 
@@ -138,11 +144,11 @@ export function LensProvider({
   useEffect(() => {
     if (!viewsLoading && viewsData) {
       const viewCount = viewsData.views?.length || 0;
-      
+
       // If no views exist and views are enabled, create a default view
       if (viewCount === 0 && !createViewMutation.isPending && enableViews) {
         debugClient.addLog("No views found, creating default view", { query });
-        
+
         const viewPayload: any = {
           name: "Default View",
           type: "table",
@@ -151,7 +157,7 @@ export function LensProvider({
           belongs_to_value: query,
           config: {},
         };
-        
+
         // Add tenant_id and user_id if provided via viewScoping
         if (viewScoping?.tenantId) {
           viewPayload.tenant_id = viewScoping.tenantId;
@@ -159,23 +165,20 @@ export function LensProvider({
         if (viewScoping?.userId) {
           viewPayload.user_id = viewScoping.userId;
         }
-        
-        createViewMutation.mutate(
-          viewPayload,
-          {
-            onSuccess: () => {
-              debugClient.addLog("Successfully created default view");
-              refetchViews();
-            },
-            onError: (error) => {
-              debugClient.addLog(
-                "Failed to create default view",
-                { error: error.message },
-                "error"
-              );
-            },
-          }
-        );
+
+        createViewMutation.mutate(viewPayload, {
+          onSuccess: () => {
+            debugClient.addLog("Successfully created default view");
+            refetchViews();
+          },
+          onError: error => {
+            debugClient.addLog(
+              "Failed to create default view",
+              { error: error.message },
+              "error"
+            );
+          },
+        });
       } else {
         debugClient.addLog("Fetched views", {
           viewCount,
@@ -193,7 +196,15 @@ export function LensProvider({
         "error"
       );
     }
-  }, [viewsLoading, viewsData, viewsError, query, createViewMutation.isPending, viewScoping, enableViews]);
+  }, [
+    viewsLoading,
+    viewsData,
+    viewsError,
+    query,
+    createViewMutation.isPending,
+    viewScoping,
+    enableViews,
+  ]);
 
   // Check for valid config and attributes
   const attributesArray: Attribute[] = config?.attributes
@@ -201,7 +212,10 @@ export function LensProvider({
     : [];
 
   // Combine loading and error states
-  const isLoading = configLoading || viewsLoading || (enableViews && createViewMutation.isPending);
+  const isLoading =
+    configLoading ||
+    viewsLoading ||
+    (enableViews && createViewMutation.isPending);
   const configurationError =
     !isLoading && config && attributesArray.length === 0
       ? new Error(
@@ -226,7 +240,7 @@ export function LensProvider({
 
   // Get views from API - no need to create a fake default view
   const views: View[] = viewsData?.views || [];
-  
+
   // Process views and ensure we always have at least one view
   const viewsWithAttributes = useMemo(() => {
     if (!views || views.length === 0) {
@@ -234,17 +248,17 @@ export function LensProvider({
       // The useEffect above will create a default view
       return [];
     }
-    
+
     return views.map((view: any) => {
       const normalizedView: View = {
         ...view,
       };
-      
+
       // Add attributes to default view
       if (view.is_default) {
         normalizedView.attributes = attributesArray;
       }
-      
+
       return normalizedView;
     });
   }, [views, attributesArray]);

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import type { Attribute } from "@lens2/contexts/view-context";
 import { ColumnOrderState, VisibilityState } from "@tanstack/react-table";
+import { useEffect, useMemo, useState } from "react";
 import { buildTableColumns } from "./columns-builder";
 import { COLUMN_SIZES } from "./constants";
-import type { Attribute } from "@lens2/contexts/view-context";
 
 interface ViewConfig {
   visibleColumns?: string[];
@@ -15,15 +15,17 @@ interface UseColumnStateProps {
   viewConfig?: ViewConfig;
 }
 
-export function useColumnState({ attributes, viewConfig }: UseColumnStateProps) {
+export function useColumnState({
+  attributes,
+  viewConfig,
+}: UseColumnStateProps) {
   // Build columns with saved or default sizes
   const columns = useMemo(() => {
     const cols = buildTableColumns(attributes);
     // Set column sizes from saved config or defaults
     return cols.map(col => ({
       ...col,
-      size:
-        viewConfig?.columnSizes?.[col.id as string] || COLUMN_SIZES.DEFAULT,
+      size: viewConfig?.columnSizes?.[col.id as string] || COLUMN_SIZES.DEFAULT,
       minSize: COLUMN_SIZES.MIN,
       maxSize: COLUMN_SIZES.MAX,
     }));

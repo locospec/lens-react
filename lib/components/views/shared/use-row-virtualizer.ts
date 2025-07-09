@@ -7,7 +7,10 @@ interface UseRowVirtualizerProps {
   containerRef: RefObject<HTMLDivElement | null>;
 }
 
-export function useRowVirtualizer({ rowCount, containerRef }: UseRowVirtualizerProps) {
+export function useRowVirtualizer({
+  rowCount,
+  containerRef,
+}: UseRowVirtualizerProps) {
   return useVirtualizer({
     count: rowCount,
     estimateSize: () => ROW_CONFIG.ESTIMATED_HEIGHT,

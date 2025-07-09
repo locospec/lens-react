@@ -1,14 +1,15 @@
-import React from "react";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   ContainerSheet,
   ContainerSheetContent,
 } from "@lens2/shadcn/components/ui/container-sheet";
-import { useViewConfig } from "@lens2/hooks/use-view-config";
-import { ViewConfigNav } from "./view-config-nav";
-import { ColumnsConfig } from "./columns-configuration";
-import { LayoutPanel } from "./layout-configuration";
 import { ChevronLeft } from "lucide-react";
-import { Button } from "@lens2/shadcn/components/ui/button";
+import React from "react";
+import { ColumnsConfig } from "./columns-configuration";
+import { FilterConfig } from "./filter-configuration";
+import { LayoutPanel } from "./layout-configuration";
+import { ViewConfigNav } from "./view-config-nav";
 
 interface ViewConfigSheetProps {
   containerRef: React.RefObject<HTMLElement | null>;
@@ -26,6 +27,8 @@ export function ViewConfigSheet({ containerRef }: ViewConfigSheetProps) {
         return <ColumnsConfig />;
       case "layout":
         return <LayoutPanel />;
+      case "filter":
+        return <FilterConfig />;
       // Add more config panels here
       default:
         return <ViewConfigNav />;
@@ -40,6 +43,8 @@ export function ViewConfigSheet({ containerRef }: ViewConfigSheetProps) {
         return "Columns";
       case "layout":
         return "Layout Options";
+      case "filter":
+        return "Filters";
       default:
         return "Customize view";
     }
@@ -56,9 +61,9 @@ export function ViewConfigSheet({ containerRef }: ViewConfigSheetProps) {
     >
       <ContainerSheetContent
         containerRef={containerRef}
-        className="w-96 p-0 flex flex-col"
+        className="flex w-96 flex-col p-0"
       >
-        <div className="px-4 py-3 border-b">
+        <div className="border-b px-4 py-3">
           <div className="flex items-center gap-2">
             {activeConfigPanel !== "main" && (
               <Button

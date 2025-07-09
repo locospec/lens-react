@@ -1,23 +1,26 @@
-import { useState } from "react";
+import { isFiltersEmpty } from "@lens2/components/filters/utils/process-filters";
 import { useLensContext } from "@lens2/contexts/lens-context";
+import { useViewContext } from "@lens2/contexts/view-context";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
-import { ViewType } from "@lens2/types";
-import { Tabs, TabsList, TabsTrigger } from "@lens2/shadcn/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@lens2/shadcn/components/ui/dropdown-menu";
+import { Badge } from "@lens2/shadcn/components/ui/badge";
+import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@lens2/shadcn/components/ui/context-menu";
-import { Button } from "@lens2/shadcn/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@lens2/shadcn/components/ui/dropdown-menu";
 import { Input } from "@lens2/shadcn/components/ui/input";
-import { Plus, Settings2 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@lens2/shadcn/components/ui/tabs";
+import { ViewType } from "@lens2/types";
+import { Filter, Plus, Settings2, X } from "lucide-react";
+import { useState } from "react";
 
 interface ToolbarProps {
   activeViewId: string;
@@ -25,18 +28,22 @@ interface ToolbarProps {
 }
 
 const VIEW_TYPES = [
-  { type: 'table' as ViewType, label: 'Table', enabled: true },
-  { type: 'list' as ViewType, label: 'List', enabled: true },
-  { type: 'kanban' as ViewType, label: 'Kanban', enabled: false },
-  { type: 'grid' as ViewType, label: 'Grid', enabled: false },
-  { type: 'raw' as ViewType, label: 'Raw', enabled: false },
+  { type: "table" as ViewType, label: "Table", enabled: true },
+  { type: "list" as ViewType, label: "List", enabled: true },
+  { type: "kanban" as ViewType, label: "Kanban", enabled: false },
+  { type: "grid" as ViewType, label: "Grid", enabled: false },
+  { type: "raw" as ViewType, label: "Raw", enabled: false },
 ] as const;
 
 export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
   const { views, api, query, viewScoping } = useLensContext();
-  const { openConfig } = useViewConfig();
+  const { openConfig, navigateToPanel } = useViewConfig();
+  const { filters, clearFilters } = useViewContext();
   const [editingViewId, setEditingViewId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+
+  const hasFilters = !isFiltersEmpty(filters);
+  const filterCount = 'conditions' in filters ? filters.conditions.length : 0;
 
   const createViewMutation = api.createView({
     onSuccess: response => {
@@ -121,7 +128,7 @@ export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
   };
 
   return (
-    <div className="flex justify-between items-center p-2 border-b">
+    <div className="flex items-center justify-between border-b p-2">
       <div className="flex items-center gap-2">
         <Tabs value={activeViewId} onValueChange={onViewChange}>
           <TabsList>
@@ -141,7 +148,7 @@ export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
                             setEditingViewId(null);
                           }
                         }}
-                        className="h-6 px-2 min-w-[100px]"
+                        className="h-6 min-w-[100px] px-2"
                         onClick={e => e.stopPropagation()}
                         autoFocus
                       />
@@ -172,13 +179,13 @@ export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="mr-1 h-4 w-4" />
               Add View
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {VIEW_TYPES.map(({ type, label, enabled }) => (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 key={type}
                 onClick={() => handleCreateView(type)}
                 disabled={!enabled}
@@ -191,10 +198,46 @@ export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
         </DropdownMenu>
       </div>
 
-      <Button variant="outline" size="sm" onClick={() => openConfig()}>
-        <Settings2 className="h-4 w-4 mr-2" />
-        Customize view
-      </Button>
+      <div className="flex items-center gap-2">
+        {/* Filter button */}
+        <div className="flex items-center">
+          <Button
+            variant={hasFilters ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => {
+              openConfig();
+              navigateToPanel("filter");
+            }}
+            className="relative"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+            {hasFilters && (
+              <Badge variant="secondary" className="ml-2 h-5 px-1.5">
+                {filterCount}
+              </Badge>
+            )}
+          </Button>
+
+          {hasFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="ml-1 h-8 w-8 p-0"
+              title="Clear all filters"
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Customize view button */}
+        <Button variant="outline" size="sm" onClick={() => openConfig()}>
+          <Settings2 className="mr-2 h-4 w-4" />
+          Customize view
+        </Button>
+      </div>
     </div>
   );
 }

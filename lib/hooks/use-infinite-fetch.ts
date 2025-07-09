@@ -1,7 +1,7 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useMemo, useEffect } from "react";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
 import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 
 export interface UseInfiniteFetchParams {
   query: string;
@@ -33,7 +33,10 @@ interface PaginatedResponse {
   [key: string]: any;
 }
 
-const createFetchFn = (addApiCall: (call: any) => string, updateApiCall: (id: string, updates: any) => void) => {
+const createFetchFn = (
+  addApiCall: (call: any) => string,
+  updateApiCall: (id: string, updates: any) => void
+) => {
   return async ({
     pageParam,
     endpoint,
@@ -49,16 +52,16 @@ const createFetchFn = (addApiCall: (call: any) => string, updateApiCall: (id: st
         cursor: pageParam,
       },
     };
-    
+
     const startTime = Date.now();
-    
+
     // Add initial call
     const callId = addApiCall({
       method: "POST",
       endpoint,
       request: requestBody,
     });
-    
+
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -70,7 +73,7 @@ const createFetchFn = (addApiCall: (call: any) => string, updateApiCall: (id: st
     });
 
     const responseJson = await response.json();
-    
+
     // Update call with response
     updateApiCall(callId, {
       response: responseJson,
@@ -86,7 +89,7 @@ const createFetchFn = (addApiCall: (call: any) => string, updateApiCall: (id: st
     if (responseJson?.data && !Array.isArray(responseJson.data)) {
       throw new Error("Expected data to be an array");
     }
-    
+
     return responseJson;
   };
 };
@@ -101,15 +104,18 @@ export const useInfiniteFetch = ({
 }: UseInfiniteFetchParams) => {
   const { addApiCall, updateApiCall } = useLensDebugClient();
   const { setRecordsLoaded } = useLensContext();
-  
+
   // Build the request body - perPage goes into the body
   const requestBody = {
     ...body,
     perPage,
   };
-  
+
   // Create the fetch function with API tracking
-  const fetchFn = useMemo(() => createFetchFn(addApiCall, updateApiCall), [addApiCall, updateApiCall]);
+  const fetchFn = useMemo(
+    () => createFetchFn(addApiCall, updateApiCall),
+    [addApiCall, updateApiCall]
+  );
 
   // Create a stable query key by stringifying the body to ensure
   // consistent caching even when object references change
@@ -161,7 +167,8 @@ export const useInfiniteFetch = ({
 
   // Get total count if available in meta (check both 'total' and 'count')
   const totalCount = useMemo(
-    () => data?.pages?.[0]?.meta?.total || data?.pages?.[0]?.meta?.count || null,
+    () =>
+      data?.pages?.[0]?.meta?.total || data?.pages?.[0]?.meta?.count || null,
     [data]
   );
 
@@ -204,4 +211,4 @@ export const useInfiniteFetch = ({
 
 // Export types for consumers
 export type UseInfiniteFetchResult = ReturnType<typeof useInfiniteFetch>;
-export type { PaginatedResponse, FetchFnParams };
+export type { FetchFnParams, PaginatedResponse };

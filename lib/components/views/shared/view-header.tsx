@@ -4,11 +4,15 @@ interface ViewHeaderProps {
   totalCount?: number | null;
 }
 
-export function ViewHeader({ title, loadedCount, totalCount }: ViewHeaderProps) {
+export function ViewHeader({
+  title,
+  loadedCount,
+  totalCount,
+}: ViewHeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
+    <div className="flex flex-shrink-0 items-center justify-between border-b px-4 py-2">
       <h3 className="text-sm font-medium">{title}</h3>
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         {loadedCount} records loaded
         {totalCount && ` of ${totalCount}`}
       </div>

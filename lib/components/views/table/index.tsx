@@ -1,23 +1,27 @@
-import { useRef, useCallback, useState, useEffect } from "react";
-import { useReactTable, getCoreRowModel, ColumnSizingState } from "@tanstack/react-table";
-import { useViewConfig } from "@lens2/hooks/use-view-config";
-import { useViewData } from "@lens2/components/views/shared/use-view-data";
-import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
-import { TableHeader } from "./table-header";
-import { TableBody, MemoizedTableBody } from "./table-body";
-import { useColumnSizeVars } from "@lens2/components/views/shared/use-column-size-vars";
-import { useColumnState } from "@lens2/components/views/shared/use-column-state";
-import { useColumnResizeSave } from "@lens2/components/views/shared/use-column-resize-save";
-import { useRowVirtualizer } from "@lens2/components/views/shared/use-row-virtualizer";
-import { useContainerWidth } from "@lens2/components/views/shared/use-container-width";
-import { useViewContext } from "@lens2/contexts/view-context";
 import {
   COLUMN_SIZES,
   FETCH_CONFIG,
 } from "@lens2/components/views/shared/constants";
-import { LoadingState } from "@lens2/components/views/shared/loading-state";
 import { EmptyState } from "@lens2/components/views/shared/empty-state";
+import { LoadingState } from "@lens2/components/views/shared/loading-state";
+import { useColumnResizeSave } from "@lens2/components/views/shared/use-column-resize-save";
+import { useColumnSizeVars } from "@lens2/components/views/shared/use-column-size-vars";
+import { useColumnState } from "@lens2/components/views/shared/use-column-state";
+import { useContainerWidth } from "@lens2/components/views/shared/use-container-width";
+import { useRowVirtualizer } from "@lens2/components/views/shared/use-row-virtualizer";
+import { useViewData } from "@lens2/components/views/shared/use-view-data";
 import { ViewHeader } from "@lens2/components/views/shared/view-header";
+import { useViewContext } from "@lens2/contexts/view-context";
+import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import {
+  ColumnSizingState,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { MemoizedTableBody, TableBody } from "./table-body";
+import { TableHeader } from "./table-header";
 
 export function TableView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -135,10 +139,10 @@ export function TableView() {
       />
 
       {/* Table container with border wrapper */}
-      <div className="relative flex-1 overflow-hidden rounded-lg border mt-4">
+      <div className="relative mt-4 flex-1 overflow-hidden rounded-lg border">
         <div
           ref={containerRef}
-          className="relative h-full overflow-auto @container/lens-table"
+          className="@container/lens-table relative h-full overflow-auto"
           onScroll={handleScroll}
         >
           <div

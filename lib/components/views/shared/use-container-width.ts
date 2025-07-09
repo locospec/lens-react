@@ -1,7 +1,9 @@
-import { useState, useCallback, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { useResizeObserver } from "./use-resize-observer";
 
-export function useContainerWidth(wrapperRef: React.RefObject<HTMLDivElement | null>) {
+export function useContainerWidth(
+  wrapperRef: React.RefObject<HTMLDivElement | null>
+) {
   const [containerWidth, setContainerWidth] = useState(0);
 
   // Use ResizeObserver for subsequent updates

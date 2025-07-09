@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Avatar as AvatarPrimitive } from "radix-ui"
+import { Avatar as AvatarPrimitive } from "radix-ui";
+import * as React from "react";
 
-import { cn } from "@lens2/shadcn/lib/utils"
+import { cn } from "@lens2/shadcn/lib/utils";
 
 function Avatar({
   className,
@@ -18,7 +18,7 @@ function Avatar({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarImage({
@@ -31,7 +31,7 @@ function AvatarImage({
       className={cn("aspect-square size-full", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarFallback({
@@ -47,7 +47,7 @@ function AvatarFallback({
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Avatar, AvatarImage, AvatarFallback }
+export { Avatar, AvatarFallback, AvatarImage };

@@ -1,6 +1,6 @@
-import { Table, flexRender } from "@tanstack/react-table";
-import { cn } from "@lens2/shadcn/lib/utils";
 import { ResizeHandle } from "@lens2/components/views/shared/resize-handle";
+import { cn } from "@lens2/shadcn/lib/utils";
+import { Table, flexRender } from "@tanstack/react-table";
 
 interface TableHeaderProps {
   table: Table<any>;
@@ -8,7 +8,7 @@ interface TableHeaderProps {
 
 export const TableHeader = ({ table }: TableHeaderProps) => {
   return (
-    <div className="sticky top-0 z-10 flex bg-background border-b">
+    <div className="bg-background sticky top-0 z-10 flex border-b">
       {table.getHeaderGroups().map(headerGroup => (
         <div key={headerGroup.id} className="flex w-full">
           {headerGroup.headers
@@ -28,10 +28,10 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                   data-column-id={header.column.id}
                   className={cn(
                     "relative flex items-center text-left font-medium",
-                    "@lg/lens-table:h-10 @md/lens-table:h-9 @sm/lens-table:h-8",
-                    "@lg/lens-table:px-2 @md/lens-table:px-1.5 @sm/lens-table:px-1",
-                    "@lg/lens-table:text-sm @md/lens-table:text-xs @sm/lens-table:text-xs",
-                    "bg-gray-50 text-foreground transition-colors",
+                    "@sm/lens-table:h-8 @md/lens-table:h-9 @lg/lens-table:h-10",
+                    "@sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
+                    "@sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
+                    "text-foreground bg-gray-50 transition-colors",
                     "dark:bg-gray-900",
                     "group-data-[resizing=false]:hover:bg-gray-100 dark:group-data-[resizing=false]:hover:bg-gray-800"
                   )}

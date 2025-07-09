@@ -20,6 +20,9 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Card } from "@lens2/shadcn/components/ui/card";
+import { ScrollArea, ScrollBar } from "@lens2/shadcn/components/ui/scroll-area";
+import { cn } from "@lens2/shadcn/lib/utils";
 import {
   createContext,
   type HTMLAttributes,
@@ -29,9 +32,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import tunnel from "tunnel-rat";
-import { Card } from "@lens2/shadcn/components/ui/card";
-import { ScrollArea, ScrollBar } from "@lens2/shadcn/components/ui/scroll-area";
-import { cn } from "@lens2/shadcn/lib/utils";
 
 const t = tunnel();
 
@@ -77,7 +77,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        "flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all",
+        "bg-secondary flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border text-xs shadow-sm ring-2 transition-all",
         isOver ? "ring-primary" : "ring-transparent",
         className
       )}
@@ -126,19 +126,19 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
             className
           )}
         >
-          {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
+          {children ?? <p className="m-0 text-sm font-medium">{name}</p>}
         </Card>
       </div>
       {activeCardId === id && (
         <t.In>
           <Card
             className={cn(
-              "cursor-grab gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary",
+              "ring-primary cursor-grab gap-4 rounded-md p-3 shadow-sm ring-2",
               isDragging && "cursor-grabbing",
               className
             )}
           >
-            {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
+            {children ?? <p className="m-0 text-sm font-medium">{name}</p>}
           </Card>
         </t.In>
       )}
@@ -179,7 +179,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
 export type KanbanHeaderProps = HTMLAttributes<HTMLDivElement>;
 
 export const KanbanHeader = ({ className, ...props }: KanbanHeaderProps) => (
-  <div className={cn("m-0 p-2 font-semibold text-sm", className)} {...props} />
+  <div className={cn("m-0 p-2 text-sm font-semibold", className)} {...props} />
 );
 
 export type KanbanProviderProps<
