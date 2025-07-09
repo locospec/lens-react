@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../../../resources/css/shadverse.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@lens2/shadcn/components",
+    "utils": "@lens2/shadcn/lib/utils",
+    "ui": "@lens2/shadcn/components/ui",
+    "lib": "@lens2/shadcn/lib",
+    "hooks": "@lens2/shadcn/hooks"
+  },
+  "iconLibrary": "lucide"
+}
