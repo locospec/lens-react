@@ -1,6 +1,22 @@
-import type { ViewScoping } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import type { LensEndpoints, View } from "@lens2/types";
+import type {
+  ApiResponse,
+  ConfigResponse,
+  CreateCustomAttributePayload,
+  CreateViewRequestPayload,
+  CustomAttribute,
+  DeleteCustomAttributePayload,
+  DeleteViewRequestPayload,
+  Json,
+  LensEndpoints,
+  RelationOptionsResponse,
+  UpdateCustomAttributePayload,
+  UpdateRequestPayload,
+  UpdateViewRequestPayload,
+  View,
+  ViewScoping,
+  ViewsResponse,
+} from "@lens2/types";
 import {
   useMutation,
   UseMutationOptions,
@@ -72,12 +88,12 @@ export const useLensApi = ({
   };
 
   // Helper function to track API calls
-  const trackApiCall = async (
+  const trackApiCall = async <T>(
     method: string,
     endpoint: string,
-    body: any,
+    body: unknown,
     fetchFn: () => Promise<Response>
-  ) => {
+  ): Promise<T> => {
     // If debug is not enabled, just execute the fetch directly
     if (!debugEnabled) {
       const response = await fetchFn();
@@ -127,12 +143,12 @@ export const useLensApi = ({
     }
   };
 
-  const config = (options?: UseQueryOptions<any>) => {
-    return useQuery({
+  const useConfig = (options?: UseQueryOptions<ConfigResponse>) => {
+    return useQuery<ConfigResponse>({
       queryKey: ["lens", query, "config"],
       queryFn: async () => {
         const body = {};
-        const result = await trackApiCall(
+        const result = await trackApiCall<ApiResponse<ConfigResponse>>(
           "POST",
           endpoints.fetch_config,
           body,
@@ -150,8 +166,8 @@ export const useLensApi = ({
     });
   };
 
-  const views = (options?: UseQueryOptions<any>) => {
-    return useQuery({
+  const useViews = (options?: UseQueryOptions<ViewsResponse>) => {
+    return useQuery<ViewsResponse>({
       queryKey: ["lens", query, "views", enableViews],
       staleTime: enableViews ? 0 : Infinity, // Never refetch if views are disabled
       refetchOnMount: enableViews,
@@ -167,7 +183,7 @@ export const useLensApi = ({
             belongs_to_type: "query",
             belongs_to_value: query,
             config: {},
-          };
+          } as View;
           return {
             views: [defaultView],
             defaultView: defaultView,
@@ -214,7 +230,7 @@ export const useLensApi = ({
           },
         };
 
-        const result = await trackApiCall(
+        const result = await trackApiCall<ApiResponse<View[]>>(
           "POST",
           endpoints.list_views,
           body,
@@ -238,8 +254,10 @@ export const useLensApi = ({
     });
   };
 
-  const customAttributes = (options?: UseQueryOptions<any>) => {
-    return useQuery({
+  const useCustomAttributes = (
+    options?: UseQueryOptions<ApiResponse<CustomAttribute[]>>
+  ) => {
+    return useQuery<ApiResponse<CustomAttribute[]>>({
       queryKey: ["lens", query, "customAttributes"],
       queryFn: async () => {
         const body = {
@@ -272,12 +290,12 @@ export const useLensApi = ({
     });
   };
 
-  const relationOptions = (
+  const useRelationOptions = (
     field: string,
     search?: string,
-    options?: UseQueryOptions<any>
+    options?: UseQueryOptions<RelationOptionsResponse>
   ) => {
-    return useQuery({
+    return useQuery<RelationOptionsResponse>({
       queryKey: ["lens", query, "relationOptions", field, search],
       queryFn: async () => {
         const response = await fetch(endpoints.query_relation_options, {
@@ -299,14 +317,16 @@ export const useLensApi = ({
   };
 
   // Mutations
-  const updateData = (options?: UseMutationOptions<any, Error, any>) => {
+  const useUpdateData = (
+    options?: UseMutationOptions<ApiResponse<Json>, Error, UpdateRequestPayload>
+  ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<ApiResponse<Json>, Error, UpdateRequestPayload>({
       ...restOptions,
-      mutationFn: async (payload: any) => {
-        const result = await trackApiCall(
+      mutationFn: async (payload: UpdateRequestPayload) => {
+        const result = await trackApiCall<ApiResponse<Json>>(
           "POST",
           endpoints.update_data,
           payload,
@@ -324,13 +344,19 @@ export const useLensApi = ({
     });
   };
 
-  const createView = (options?: UseMutationOptions<any, Error, any>) => {
+  const useCreateView = (
+    options?: UseMutationOptions<
+      ApiResponse<View>,
+      Error,
+      CreateViewRequestPayload
+    >
+  ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<ApiResponse<View>, Error, CreateViewRequestPayload>({
       ...restOptions,
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: CreateViewRequestPayload) => {
         // If views are disabled, return the static default view
         if (!enableViews) {
           return {
@@ -342,7 +368,7 @@ export const useLensApi = ({
               belongs_to_type: "query",
               belongs_to_value: query,
               config: {},
-            },
+            } as View,
           };
         }
         const response = await fetch(endpoints.create_view, {
@@ -368,15 +394,21 @@ export const useLensApi = ({
     });
   };
 
-  const updateView = (options?: UseMutationOptions<any, Error, any>) => {
+  const useUpdateView = (
+    options?: UseMutationOptions<
+      ApiResponse<View>,
+      Error,
+      UpdateViewRequestPayload
+    >
+  ) => {
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<ApiResponse<View>, Error, UpdateViewRequestPayload>({
       ...restOptions,
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: UpdateViewRequestPayload) => {
         // If views are disabled, return success without doing anything
         if (!enableViews) {
-          return { success: true };
+          return { data: {} as View };
         }
         // For update, send {id, name} directly as JSON
         const response = await fetch(endpoints.update_view, {
@@ -402,15 +434,21 @@ export const useLensApi = ({
     });
   };
 
-  const deleteView = (options?: UseMutationOptions<any, Error, any>) => {
+  const useDeleteView = (
+    options?: UseMutationOptions<
+      ApiResponse<Json>,
+      Error,
+      DeleteViewRequestPayload
+    >
+  ) => {
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<ApiResponse<Json>, Error, DeleteViewRequestPayload>({
       ...restOptions,
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: DeleteViewRequestPayload) => {
         // If views are disabled, return success without doing anything
         if (!enableViews) {
-          return { success: true };
+          return { data: {} };
         }
         const response = await fetch(endpoints.delete_view, {
           method: "POST",
@@ -435,15 +473,23 @@ export const useLensApi = ({
     });
   };
 
-  const createCustomAttribute = (
-    options?: UseMutationOptions<any, Error, any>
+  const useCreateCustomAttribute = (
+    options?: UseMutationOptions<
+      ApiResponse<CustomAttribute>,
+      Error,
+      CreateCustomAttributePayload
+    >
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<
+      ApiResponse<CustomAttribute>,
+      Error,
+      CreateCustomAttributePayload
+    >({
       ...restOptions,
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: CreateCustomAttributePayload) => {
         const response = await fetch(endpoints.create_custom_attribute, {
           method: "POST",
           headers: defaultHeaders,
@@ -469,15 +515,23 @@ export const useLensApi = ({
     });
   };
 
-  const updateCustomAttribute = (
-    options?: UseMutationOptions<any, Error, any>
+  const useUpdateCustomAttribute = (
+    options?: UseMutationOptions<
+      ApiResponse<CustomAttribute>,
+      Error,
+      UpdateCustomAttributePayload
+    >
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<
+      ApiResponse<CustomAttribute>,
+      Error,
+      UpdateCustomAttributePayload
+    >({
       ...restOptions,
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: UpdateCustomAttributePayload) => {
         const response = await fetch(endpoints.update_custom_attribute, {
           method: "POST",
           headers: defaultHeaders,
@@ -503,19 +557,23 @@ export const useLensApi = ({
     });
   };
 
-  const deleteCustomAttribute = (
-    options?: UseMutationOptions<any, Error, any>
+  const useDeleteCustomAttribute = (
+    options?: UseMutationOptions<
+      ApiResponse<Json>,
+      Error,
+      DeleteCustomAttributePayload
+    >
   ) => {
     // Extract user's callbacks
     const { onSuccess: userOnSuccess, ...restOptions } = options || {};
 
-    return useMutation({
+    return useMutation<ApiResponse<Json>, Error, DeleteCustomAttributePayload>({
       ...restOptions,
-      mutationFn: async (id: string) => {
+      mutationFn: async (payload: DeleteCustomAttributePayload) => {
         const response = await fetch(endpoints.delete_custom_attribute, {
           method: "POST",
           headers: defaultHeaders,
-          body: JSON.stringify({ id }),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -539,17 +597,17 @@ export const useLensApi = ({
 
   return {
     // Queries
-    config,
-    views,
-    customAttributes,
-    relationOptions,
+    config: useConfig,
+    views: useViews,
+    customAttributes: useCustomAttributes,
+    relationOptions: useRelationOptions,
     // Mutations
-    updateData,
-    createView,
-    updateView,
-    deleteView,
-    createCustomAttribute,
-    updateCustomAttribute,
-    deleteCustomAttribute,
+    updateData: useUpdateData,
+    createView: useCreateView,
+    updateView: useUpdateView,
+    deleteView: useDeleteView,
+    createCustomAttribute: useCreateCustomAttribute,
+    updateCustomAttribute: useUpdateCustomAttribute,
+    deleteCustomAttribute: useDeleteCustomAttribute,
   };
 };

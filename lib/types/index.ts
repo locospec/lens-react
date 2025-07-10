@@ -1,5 +1,27 @@
-// Re-export all types
-export type { Config } from "../contexts/lens-context";
-export type { Attribute, Sort, View, ViewType } from "../contexts/view-context";
-export type { LensEndpoints } from "../utils/endpoints";
+/**
+ * Central export for all Lens types
+ */
+
+// Common types
+export * from "./common";
+
+// Attribute types
+export * from "./attributes";
+
+// View types
+export * from "./view";
+
+// Filter types
 export * from "./filters";
+
+// API types
+export * from "./api";
+
+// Configuration types
+export * from "./config";
+
+// Context types
+export * from "./context";
+
+// Lens component types
+export * from "./lens";
