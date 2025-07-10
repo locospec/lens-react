@@ -1,8 +1,13 @@
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import type { Attribute, View } from "@lens2/contexts/view-context";
 import { useLensApi } from "@lens2/hooks/use-lens-api";
-import { createEndpoints, LensEndpoints } from "@lens2/utils/endpoints";
-import React, {
+import type { CreateViewRequestPayload } from "@lens2/types/api";
+import type { Attribute } from "@lens2/types/attributes";
+import type { Json } from "@lens2/types/common";
+import type { LensEndpoints } from "@lens2/types/config";
+import type { LensContextValue, LensProviderProps } from "@lens2/types/context";
+import type { View } from "@lens2/types/view";
+import { createEndpoints } from "@lens2/utils/endpoints";
+import {
   createContext,
   useCallback,
   useContext,
@@ -11,49 +16,11 @@ import React, {
   useState,
 } from "react";
 
-// View scoping configuration
-export interface ViewScoping {
-  tenantId?: string;
-  userId?: string;
-}
-
-export interface Config {
-  attributes: Record<string, Attribute>;
-}
-
-// Core props needed by the provider
-export interface LensDataProps {
-  query: string;
-  baseUrl: string;
-  headers?: Record<string, string>;
-}
-
-interface LensContextValue {
-  query: string;
-  baseUrl: string;
-  endpoints: LensEndpoints;
-  headers?: Record<string, string>;
-  config: Config | null;
-  views: View[];
-  api: ReturnType<typeof useLensApi>;
-  isLoading: boolean;
-  error: Error | null;
-  globalContext: Record<string, any>;
-  setGlobalContext: (context: Record<string, any>) => void;
-  recordsLoaded: number;
-  setRecordsLoaded: (count: number) => void;
-  enableViews: boolean;
-  viewScoping?: ViewScoping;
-}
-
 const LensContext = createContext<LensContextValue | undefined>(undefined);
 
-interface LensProviderProps extends LensDataProps {
-  children: React.ReactNode;
-  globalContext?: Record<string, any>;
-  enableViews?: boolean;
-  viewScoping?: ViewScoping;
-}
+// Re-export types that are used by other components
+export type { Config, ViewScoping } from "@lens2/types";
+export type { LensDataProps } from "@lens2/types/config";
 
 export function LensProvider({
   children,
@@ -66,7 +33,7 @@ export function LensProvider({
 }: LensProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
-    useState<Record<string, any>>(initialGlobalContext);
+    useState<Record<string, Json>>(initialGlobalContext);
   const [recordsLoaded, setRecordsLoadedState] = useState(0);
 
   // Debug client
@@ -149,10 +116,9 @@ export function LensProvider({
       if (viewCount === 0 && !createViewMutation.isPending && enableViews) {
         debugClient.addLog("No views found, creating default view", { query });
 
-        const viewPayload: any = {
+        const viewPayload: CreateViewRequestPayload = {
           name: "Default View",
           type: "table",
-          is_default: true,
           belongs_to_type: "query",
           belongs_to_value: query,
           config: {},
@@ -249,7 +215,7 @@ export function LensProvider({
       return [];
     }
 
-    return views.map((view: any) => {
+    return views.map(view => {
       const normalizedView: View = {
         ...view,
       };

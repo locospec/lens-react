@@ -1,98 +1,28 @@
+import {
+  normalizeFilters,
+  processFiltersForAPI,
+} from "@lens2/filters/utils/process-filters";
+import type { ReadRequestPayload } from "@lens2/types/api";
+import type { Json, RowData } from "@lens2/types/common";
+import type { ViewContextValue, ViewProviderProps } from "@lens2/types/context";
+import type { Filter, FilterGroup } from "@lens2/types/filters";
+import type { Sort } from "@lens2/types/view";
 import type { Table } from "@tanstack/react-table";
-import React, {
+import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import { processFiltersForAPI } from "../components/filters/utils/process-filters";
-import type { Filter, FilterGroup } from "../types/filters";
 import { useLensContext } from "./lens-context";
-
-// View types
-export type ViewType = "table" | "kanban" | "list" | "grid" | "raw";
-
-export interface Attribute {
-  name: string;
-  label: string;
-  type:
-    | "string"
-    | "number"
-    | "decimal"
-    | "boolean"
-    | "date"
-    | "datetime"
-    | "text"
-    | "longtext";
-  primaryKey?: boolean;
-}
-
-export interface Sort {
-  field: string;
-  direction: "asc" | "desc";
-}
-
-export interface ViewConfig {
-  visibleColumns?: string[];
-  columnOrder?: string[];
-  columnSizes?: Record<string, number>;
-  filters?: FilterGroup;
-  sorts?: Sort[];
-}
-
-export interface View {
-  id: string;
-  name: string;
-  type: ViewType;
-  description?: string | null;
-
-  // Backend fields
-  belongs_to_type: string;
-  belongs_to_value: string;
-  config?: ViewConfig;
-  created_at?: string | null;
-  updated_at?: string | null;
-
-  // Display Configuration
-  attributes?: Attribute[]; // Optional - only default view has attributes
-
-  // Pagination - not persisted, just runtime
-  perPage?: number;
-
-  // View metadata
-  is_default?: boolean;
-}
-
-interface ViewContextValue {
-  view: View;
-  readPayload: any; // The complete payload for _read endpoint
-  search: string;
-  setSearch: (search: string) => void;
-  filters: Filter;
-  setFilters: (filters: Filter) => void;
-  sorts: Array<{ field: string; direction: "asc" | "desc" }>;
-  setSorts: (
-    sorts: Array<{ field: string; direction: "asc" | "desc" }>
-  ) => void;
-  // View configuration state
-  configSheetOpen: boolean;
-  setConfigSheetOpen: (open: boolean) => void;
-  activeConfigPanel: string;
-  setActiveConfigPanel: (panel: string) => void;
-  configChanges: Record<string, any>;
-  setConfigChanges: (changes: Record<string, any>) => void;
-  // Table instance for table views
-  table: Table<any> | null;
-  setTable: (table: Table<any> | null) => void;
-}
 
 const ViewContext = createContext<ViewContextValue | undefined>(undefined);
 
-interface ViewProviderProps {
-  view: View;
-  children: React.ReactNode;
-}
+// Re-export types that are used by other components
+export type { Attribute } from "@lens2/types/attributes";
+export type { Sort, View, ViewConfig, ViewType } from "@lens2/types/view";
 
 export function ViewProvider({
   view: initialView,
@@ -103,22 +33,94 @@ export function ViewProvider({
     throw new Error("ViewProvider requires a view prop");
   }
 
+  console.log("ViewProvider mount:", {
+    viewId: initialView.id,
+    hasFilters: !!initialView?.config?.filters,
+    filters: initialView?.config?.filters,
+  });
+
   const [view, setView] = useState(initialView);
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<Filter>(
-    initialView?.config?.filters || {}
+  const [filters, setFiltersState] = useState<Filter>(() => {
+    const initial = initialView?.config?.filters || {};
+    // Normalize filters to ensure consistent property order
+    const normalized =
+      Object.keys(initial).length > 0 ? normalizeFilters(initial) : initial;
+    console.log("Initial filters state:", {
+      raw: initial,
+      normalized,
+    });
+    return normalized;
+  });
+
+  // Get API from LensContext for updating view
+  const { api } = useLensContext();
+  const updateViewMutation = api.updateView();
+
+  // Custom setFilters that ensures state updates and saves to config
+  const setFilters = useCallback(
+    (newFilters: Filter) => {
+      console.log("setFilters called with:", newFilters);
+
+      // Check if this is an empty filter object (user cleared all filters)
+      const isEmpty = Object.keys(newFilters).length === 0;
+
+      // Process filters for API to get cleaned version
+      const hasFilters = "op" in newFilters && "conditions" in newFilters;
+      const processedFilters = hasFilters
+        ? processFiltersForAPI(newFilters as FilterGroup)
+        : null;
+
+      console.log("Processed filters:", processedFilters, "isEmpty:", isEmpty);
+
+      if (isEmpty) {
+        // User explicitly cleared filters - this is valid
+        console.log("Clearing filters");
+        setFiltersState({});
+
+        // Save cleared filters to view configuration
+        updateViewMutation
+          .mutateAsync({
+            id: view.id,
+            config: {
+              ...view.config,
+              filters: undefined, // Remove filters from config
+            },
+          })
+          .catch(error => {
+            console.error("Failed to clear filters in view config:", error);
+          });
+      } else if (processedFilters && processedFilters.conditions.length > 0) {
+        // We have valid filters with conditions
+        console.log("Setting filters state to:", processedFilters);
+        setFiltersState(processedFilters);
+
+        // Save cleaned filters to view configuration
+        updateViewMutation
+          .mutateAsync({
+            id: view.id,
+            config: {
+              ...view.config,
+              filters: processedFilters,
+            },
+          })
+          .catch(error => {
+            console.error("Failed to save filters to view config:", error);
+          });
+      }
+      // If filters are invalid (has op but no valid conditions), do nothing - keep existing filters
+    },
+    [updateViewMutation, view.id, view.config]
   );
-  const [sorts, setSorts] = useState<
-    Array<{ field: string; direction: "asc" | "desc" }>
-  >(initialView?.config?.sorts || []);
+  const [sorts, setSorts] = useState<Sort[]>(initialView?.config?.sorts || []);
 
   // View configuration state
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
   const [activeConfigPanel, setActiveConfigPanel] = useState("main");
-  const [configChanges, setConfigChanges] = useState<Record<string, any>>({});
+  const [configChanges, setConfigChanges] = useState<Record<string, Json>>({});
 
   // Table instance state (for table views)
-  const [table, setTable] = useState<Table<any> | null>(null);
+  const [table, setTable] = useState<Table<RowData> | null>(null);
 
   // Get globalContext from LensContext
   const { globalContext, views } = useLensContext();
@@ -128,13 +130,6 @@ export function ViewProvider({
     const updatedView = views.find(v => v.id === initialView.id);
     if (updatedView) {
       setView(updatedView);
-      // Update filters if they've changed in the view config
-      if (
-        updatedView.config?.filters &&
-        JSON.stringify(updatedView.config.filters) !== JSON.stringify(filters)
-      ) {
-        setFilters(updatedView.config.filters);
-      }
     }
   }, [views, initialView.id]);
 
@@ -145,6 +140,8 @@ export function ViewProvider({
       ? { ...globalContext, search }
       : globalContext;
 
+    console.log("readPayload", initialView.config, filters);
+
     // Process filters for API - removes empty conditions
     const hasFilters = "op" in filters && "conditions" in filters;
     const processedFilters = hasFilters
@@ -153,7 +150,7 @@ export function ViewProvider({
     const hasValidFilters =
       processedFilters && processedFilters.conditions.length > 0;
 
-    const payload: any = {
+    const payload: ReadRequestPayload = {
       globalContext: contextWithSearch,
       sorts: sorts.length > 0 ? sorts : view.config?.sorts || [],
     };
@@ -165,6 +162,22 @@ export function ViewProvider({
 
     return payload;
   }, [search, globalContext, filters, sorts, view.config?.sorts]);
+
+  // Helper methods
+  const clearFilters = useCallback(() => {
+    setFilters({}); // This will now properly clear filters and update the view
+  }, [setFilters]);
+
+  const clearSearch = useCallback(() => {
+    setSearch("");
+  }, []);
+
+  const resetView = useCallback(() => {
+    setSearch("");
+    setFilters(initialView?.config?.filters || {});
+    setSorts(initialView?.config?.sorts || []);
+    setConfigChanges({});
+  }, [initialView, setFilters]);
 
   return (
     <ViewContext.Provider
@@ -185,6 +198,9 @@ export function ViewProvider({
         setConfigChanges,
         table,
         setTable,
+        clearFilters,
+        clearSearch,
+        resetView,
       }}
     >
       {children}

@@ -8,6 +8,7 @@ export type Operator =
   | "not_contains"
   | "starts_with"
   | "ends_with"
+  | "matches_regex"
   | "is_empty"
   | "is_not_empty"
   // Number operators
@@ -20,6 +21,7 @@ export type Operator =
   // Date operators
   | "before"
   | "after"
+  | "is_relative"
   // Enum operators
   | "is_any_of"
   | "is_none_of"
@@ -40,18 +42,6 @@ export interface FilterGroup {
 
 export type EmptyFilter = Record<string, never>;
 export type Filter = FilterGroup | EmptyFilter;
-
-// Extend Attribute for filter-specific properties
-import type { Attribute } from "../contexts/view-context";
-
-export interface FilterAttribute extends Attribute {
-  // Filter-specific properties
-  dependsOn?: string[]; // For dependent dropdowns
-  relatedModelName?: string; // For API-based enum options
-  options?: Array<{ label: string; value: string }>; // Static enum options
-  selectionType?: "single" | "multiple"; // For enum fields
-  isNullable?: boolean; // Allow null values
-}
 
 // Operator metadata
 export interface OperatorDefinition {
