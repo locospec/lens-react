@@ -119,7 +119,7 @@ export function ListView() {
       {/* Table container */}
       <div
         ref={containerRef}
-        className="@container/lens-table relative flex-1 overflow-auto"
+        className="relative flex-1 overflow-auto"
         onScroll={handleScroll}
       >
         <div

@@ -88,7 +88,7 @@ function LensContent({ onError }: LensContentProps) {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="@container/lens-table flex h-full flex-col">
       <ViewProvider key={activeView.id} view={activeView}>
         {enableViews && (
           <Toolbar

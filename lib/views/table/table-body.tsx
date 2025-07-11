@@ -103,10 +103,11 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
             data-cell-column-id={cell.column.id}
             className={cn(
               "flex items-center overflow-hidden",
-              "@sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-              "@sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-3",
-              "@sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
+              "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
+              "py-1 @sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-3",
+              "text-xs @sm/lens-table:text-xs @md/lens-table:text-sm @lg/lens-table:text-sm",
               "text-foreground"
+              // "bg-blue-200 @sm/lens-table:bg-red-200 @md/lens-table:bg-yellow-200"
             )}
             style={{
               width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
