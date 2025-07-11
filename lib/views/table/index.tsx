@@ -136,7 +136,7 @@ export function TableView() {
       />
 
       {/* Table container with border wrapper */}
-      <div className="relative mt-4 flex-1 overflow-hidden rounded-lg border border-green-400 @sm/lens-table:border-blue-400 @md/lens-table:border-red-400">
+      <div className="relative mt-4 flex-1 overflow-hidden rounded-lg border">
         <div
           ref={containerRef}
           className="relative h-full overflow-auto"
