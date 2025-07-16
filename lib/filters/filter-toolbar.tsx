@@ -31,7 +31,7 @@ export function FilterToolbar() {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[600px] p-0" align="start">
+        <PopoverContent className="w-[800px] p-0" align="start">
           <FilterBuilder />
         </PopoverContent>
       </Popover>
