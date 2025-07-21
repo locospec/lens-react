@@ -1,7 +1,7 @@
 import React, {
   createContext,
+  use,
   useCallback,
-  useContext,
   useMemo,
   useState,
 } from "react";
@@ -48,9 +48,7 @@ interface LensDebugContextValue {
   setRecordsLoaded: (count: number) => void;
 }
 
-const LensDebugContext = createContext<LensDebugContextValue | undefined>(
-  undefined
-);
+const LensDebugContext = createContext<LensDebugContextValue | null>(null);
 
 interface LensDebugProviderProps {
   children: React.ReactNode;
@@ -134,7 +132,7 @@ export function LensDebugProvider({
   }, []);
 
   return (
-    <LensDebugContext.Provider
+    <LensDebugContext
       value={{
         entries: sortedEntries,
         addApiCall,
@@ -147,12 +145,12 @@ export function LensDebugProvider({
       }}
     >
       {children}
-    </LensDebugContext.Provider>
+    </LensDebugContext>
   );
 }
 
 export const useLensDebugClient = () => {
-  const context = useContext(LensDebugContext);
+  const context = use(LensDebugContext);
   if (!context) {
     // Return a no-op client when not wrapped in provider
     return {

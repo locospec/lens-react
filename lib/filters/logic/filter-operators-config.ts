@@ -5,7 +5,7 @@ import {
   NULL_OPERATORS,
   NUMBER_OPERATORS,
   STRING_OPERATORS,
-} from "@lens2/filters/constants/operators";
+} from "@lens2/filters/logic/operators";
 import type { AttributeType } from "@lens2/types/attributes";
 import type { Operator, OperatorDefinition } from "@lens2/types/filters";
 import {
@@ -37,9 +37,12 @@ export function returnOperators(
   type: AttributeType,
   isNullable: boolean
 ): OperatorDefinition[] {
-  let operators = TYPE_OPERATORS_MAP[type] || [];
+  const operators = TYPE_OPERATORS_MAP[type];
+  if (!operators) {
+    throw new Error(`No operators defined for type: ${type}`);
+  }
   if (isNullable) {
-    operators = [...operators, ...NULL_OPERATORS];
+    return [...operators, ...NULL_OPERATORS];
   }
   return operators;
 }
@@ -57,7 +60,10 @@ export function getDefaultOperator(type: AttributeType): string {
       return "contains";
     default: {
       const operators = TYPE_OPERATORS_MAP[type];
-      return operators?.[0]?.value || "is";
+      if (!operators || operators.length === 0) {
+        throw new Error(`No operators defined for type: ${type}`);
+      }
+      return operators[0].value;
     }
   }
 }

@@ -33,7 +33,7 @@ const VIEW_TYPES = [
   { type: "raw" as ViewType, label: "Raw", enabled: false },
 ] as const;
 
-export function Toolbar({ activeViewId, onViewChange }: ToolbarProps) {
+export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
   const { views, api, query, viewScoping } = useLensContext();
   const { openConfig } = useViewConfig();
   const [editingViewId, setEditingViewId] = useState<string | null>(null);

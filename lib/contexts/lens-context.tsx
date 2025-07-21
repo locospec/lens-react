@@ -7,16 +7,17 @@ import type { LensEndpoints } from "@lens2/types/config";
 import type { LensContextValue, LensProviderProps } from "@lens2/types/context";
 import type { View } from "@lens2/types/view";
 import { createEndpoints } from "@lens2/utils/endpoints";
+import { enrichAttributes } from "@lens2/utils/enrich-attributes";
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-const LensContext = createContext<LensContextValue | undefined>(undefined);
+const LensContext = createContext<LensContextValue | null>(null);
 
 // Re-export types that are used by other components
 export type { Config, ViewScoping } from "@lens2/types";
@@ -30,6 +31,7 @@ export function LensProvider({
   globalContext: initialGlobalContext = {},
   enableViews = true,
   viewScoping,
+  filterType = "advanced",
 }: LensProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
@@ -172,10 +174,15 @@ export function LensProvider({
     enableViews,
   ]);
 
-  // Check for valid config and attributes
-  const attributesArray: Attribute[] = config?.attributes
-    ? Object.values(config.attributes)
-    : [];
+  // Transform raw attributes into proper Attribute format
+  const attributes = useMemo<Record<string, Attribute>>(() => {
+    if (!config?.attributes) return {};
+
+    return enrichAttributes(config.attributes, config.aggregates || {});
+  }, [config]);
+
+  // Get attributes as array for backward compatibility
+  const attributesArray = Object.values(attributes);
 
   // Combine loading and error states
   const isLoading =
@@ -229,33 +236,54 @@ export function LensProvider({
     });
   }, [views, attributesArray]);
 
-  return (
-    <LensContext.Provider
-      value={{
-        query,
-        baseUrl,
-        endpoints,
-        headers,
-        config: config || null,
-        views: viewsWithAttributes,
-        api,
-        isLoading,
-        error: error instanceof Error ? error : null,
-        globalContext,
-        setGlobalContext,
-        recordsLoaded,
-        setRecordsLoaded,
-        enableViews,
-        viewScoping,
-      }}
-    >
-      {children}
-    </LensContext.Provider>
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo<LensContextValue>(
+    () => ({
+      query,
+      baseUrl,
+      endpoints,
+      headers,
+      config: config || null,
+      attributes,
+      aggregates: config?.aggregates || {},
+      views: viewsWithAttributes,
+      api,
+      isLoading,
+      error: error instanceof Error ? error : null,
+      globalContext,
+      setGlobalContext,
+      recordsLoaded,
+      setRecordsLoaded,
+      enableViews,
+      viewScoping,
+      filterType,
+    }),
+    [
+      query,
+      baseUrl,
+      endpoints,
+      headers,
+      config,
+      attributes,
+      viewsWithAttributes,
+      api,
+      isLoading,
+      error,
+      globalContext,
+      setGlobalContext,
+      recordsLoaded,
+      setRecordsLoaded,
+      enableViews,
+      viewScoping,
+      filterType,
+    ]
   );
+
+  return <LensContext value={contextValue}>{children}</LensContext>;
 }
 
 export const useLensContext = () => {
-  const context = useContext(LensContext);
+  const context = use(LensContext);
   if (!context) {
     throw new Error("useLensContext must be used within LensProvider");
   }

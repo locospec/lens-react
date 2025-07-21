@@ -29,10 +29,18 @@ export type Operator =
   | "is_true"
   | "is_false";
 
+export type ConditionValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | null;
+
 export interface Condition {
   attribute: string;
   op?: Operator;
-  value?: string | number | boolean | string[] | number[] | null;
+  value?: ConditionValue;
 }
 
 export interface FilterGroup {

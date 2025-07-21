@@ -1,55 +1,54 @@
+import { DynamicOptionsCombobox } from "@lens2/filters/advanced/dynamic-options-combobox";
 import { Combobox } from "@lens2/shadcn/components/ui/combobox";
 import { Input } from "@lens2/shadcn/components/ui/input";
-import type { AttributeType, FilterAttribute } from "@lens2/types/attributes";
+import type { Attribute, AttributeType } from "@lens2/types/attributes";
 import type { Condition } from "@lens2/types/filters";
 
 // Helper function to render value input based on attribute type
 export function renderValueInput(
   condition: Condition,
   onChange: (condition: Condition) => void,
-  attribute?: FilterAttribute
+  attribute?: Attribute
 ) {
-  const type = attribute?.type || "string";
-  const options = attribute?.options || [];
+  if (!attribute) {
+    return null;
+  }
+  const type = attribute.type;
+  const options = attribute.options || [];
+  const optionsAggregator = attribute?.optionsAggregator;
 
-  // For enum types with options, show a combobox
-  if (type === "enum" && options.length > 0) {
-    const isMultiple =
-      condition.op === "is_any_of" || condition.op === "is_none_of";
+  // Determine if multiple selection based on operator
+  const isMultiple =
+    condition.op === "is_any_of" || condition.op === "is_none_of";
 
-    if (isMultiple) {
-      // For multiple selection, we need a multi-select component
-      // For now, use comma-separated values in input
-      return (
-        <Input
-          value={
-            Array.isArray(condition.value)
-              ? condition.value.join(", ")
-              : (condition.value as string)
-          }
-          onChange={e => {
-            const values = e.target.value
-              .split(",")
-              .map(v => v.trim())
-              .filter(Boolean);
-            onChange({ ...condition, value: values });
-          }}
-          placeholder="Enter values separated by commas"
-          className="flex-1"
-        />
-      );
-    }
-
-    // Single selection
+  // Case 1: Use DynamicOptionsCombobox for dynamic selection (aggregator-based)
+  if (optionsAggregator) {
     return (
-      <Combobox
-        options={options}
-        value={condition.value as string}
+      <DynamicOptionsCombobox
+        attribute={condition.attribute}
+        value={condition.value as string | string[]}
         onValueChange={value => onChange({ ...condition, value })}
-        placeholder="Select value"
+        placeholder={isMultiple ? "Select values..." : "Select value"}
         searchPlaceholder="Search values..."
         emptyText="No value found."
         className="flex-1"
+        multiple={isMultiple}
+      />
+    );
+  }
+
+  // Case 2: Use regular Combobox when static options are present
+  if (options.length > 0) {
+    return (
+      <Combobox
+        options={options}
+        value={condition.value as string | string[]}
+        onValueChange={value => onChange({ ...condition, value })}
+        placeholder={isMultiple ? "Select values..." : "Select value"}
+        searchPlaceholder="Search values..."
+        emptyText="No value found."
+        className="flex-1"
+        multiple={isMultiple}
       />
     );
   }

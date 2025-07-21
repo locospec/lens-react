@@ -2,11 +2,13 @@
  * Configuration types for Lens
  */
 
+import type { AggregateDefinition } from "./api";
 import type { Attribute } from "./attributes";
 
 // Core Lens configuration
 export interface Config {
   attributes: Record<string, Attribute>;
+  aggregates?: Record<string, AggregateDefinition>;
 }
 
 // Lens endpoints configuration

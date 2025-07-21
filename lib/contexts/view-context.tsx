@@ -1,7 +1,8 @@
+import { mapFilterAttributes } from "@lens2/filters/logic/map-filter-attributes";
 import {
   normalizeFilters,
   processFiltersForAPI,
-} from "@lens2/filters/utils/process-filters";
+} from "@lens2/filters/logic/process-filters";
 import type { ReadRequestPayload } from "@lens2/types/api";
 import type { Json, RowData } from "@lens2/types/common";
 import type { ViewContextValue, ViewProviderProps } from "@lens2/types/context";
@@ -10,15 +11,15 @@ import type { Sort } from "@lens2/types/view";
 import type { Table } from "@tanstack/react-table";
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 import { useLensContext } from "./lens-context";
 
-const ViewContext = createContext<ViewContextValue | undefined>(undefined);
+const ViewContext = createContext<ViewContextValue | null>(null);
 
 // Re-export types that are used by other components
 export type { Attribute } from "@lens2/types/attributes";
@@ -33,12 +34,6 @@ export function ViewProvider({
     throw new Error("ViewProvider requires a view prop");
   }
 
-  console.log("ViewProvider mount:", {
-    viewId: initialView.id,
-    hasFilters: !!initialView?.config?.filters,
-    filters: initialView?.config?.filters,
-  });
-
   const [view, setView] = useState(initialView);
   const [search, setSearch] = useState("");
   const [filters, setFiltersState] = useState<Filter>(() => {
@@ -46,15 +41,15 @@ export function ViewProvider({
     // Normalize filters to ensure consistent property order
     const normalized =
       Object.keys(initial).length > 0 ? normalizeFilters(initial) : initial;
-    console.log("Initial filters state:", {
-      raw: initial,
-      normalized,
-    });
+    // console.log("Initial filters state:", {
+    //   raw: initial,
+    //   normalized,
+    // });
     return normalized;
   });
 
-  // Get API from LensContext for updating view
-  const { api } = useLensContext();
+  // Get API and globalContext from LensContext
+  const { api, globalContext: lensGlobalContext } = useLensContext();
   const updateViewMutation = api.updateView();
 
   // Custom setFilters that ensures state updates and saves to config
@@ -122,8 +117,8 @@ export function ViewProvider({
   // Table instance state (for table views)
   const [table, setTable] = useState<Table<RowData> | null>(null);
 
-  // Get globalContext from LensContext
-  const { globalContext, views } = useLensContext();
+  // Get views from LensContext
+  const { views } = useLensContext();
 
   // Update view when views are refetched
   useEffect(() => {
@@ -133,14 +128,26 @@ export function ViewProvider({
     }
   }, [views, initialView.id]);
 
+  // Log only on mount
+  useEffect(() => {
+    console.log("ViewProvider mount:", {
+      viewId: initialView.id,
+      hasFilters: !!initialView?.config?.filters,
+      filters: initialView?.config?.filters,
+    });
+  }, []);
+
+  // Get attributes from LensContext
+  const { attributes } = useLensContext();
+
   // Build the complete payload for _read endpoint
   const readPayload = useMemo(() => {
     // Build globalContext with search if search is not empty
     const contextWithSearch = search
-      ? { ...globalContext, search }
-      : globalContext;
+      ? { ...lensGlobalContext, search }
+      : lensGlobalContext;
 
-    console.log("readPayload", initialView.config, filters);
+    // console.log("readPayload", initialView.config, filters);
 
     // Process filters for API - removes empty conditions
     const hasFilters = "op" in filters && "conditions" in filters;
@@ -156,12 +163,21 @@ export function ViewProvider({
     };
 
     // Only include filters if they have valid conditions
-    if (hasValidFilters) {
-      payload.filters = processedFilters;
+    if (hasValidFilters && processedFilters) {
+      // Map filter attributes based on attribute configuration
+      const mappedFilters = mapFilterAttributes(processedFilters, attributes);
+      payload.filters = mappedFilters as FilterGroup;
     }
 
     return payload;
-  }, [search, globalContext, filters, sorts, view.config?.sorts]);
+  }, [
+    search,
+    lensGlobalContext,
+    filters,
+    sorts,
+    view.config?.sorts,
+    attributes,
+  ]);
 
   // Helper methods
   const clearFilters = useCallback(() => {
@@ -179,37 +195,57 @@ export function ViewProvider({
     setConfigChanges({});
   }, [initialView, setFilters]);
 
-  return (
-    <ViewContext.Provider
-      value={{
-        view,
-        readPayload,
-        search,
-        setSearch,
-        filters,
-        setFilters,
-        sorts,
-        setSorts,
-        configSheetOpen,
-        setConfigSheetOpen,
-        activeConfigPanel,
-        setActiveConfigPanel,
-        configChanges,
-        setConfigChanges,
-        table,
-        setTable,
-        clearFilters,
-        clearSearch,
-        resetView,
-      }}
-    >
-      {children}
-    </ViewContext.Provider>
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo<ViewContextValue>(
+    () => ({
+      view,
+      readPayload,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      sorts,
+      setSorts,
+      configSheetOpen,
+      setConfigSheetOpen,
+      activeConfigPanel,
+      setActiveConfigPanel,
+      configChanges,
+      setConfigChanges,
+      table,
+      setTable,
+      clearFilters,
+      clearSearch,
+      resetView,
+    }),
+    [
+      view,
+      readPayload,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      sorts,
+      setSorts,
+      configSheetOpen,
+      setConfigSheetOpen,
+      activeConfigPanel,
+      setActiveConfigPanel,
+      configChanges,
+      setConfigChanges,
+      table,
+      setTable,
+      clearFilters,
+      clearSearch,
+      resetView,
+    ]
   );
+
+  return <ViewContext value={contextValue}>{children}</ViewContext>;
 }
 
 export const useViewContext = () => {
-  const context = useContext(ViewContext);
+  const context = use(ViewContext);
   if (!context) {
     throw new Error("useViewContext must be used within ViewProvider");
   }

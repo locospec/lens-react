@@ -16,20 +16,23 @@ export type AttributeType =
   | "timestamp"
   | "enum";
 
-// Base attribute definition
+// Base attribute definition with all properties
 export interface Attribute {
   name: string;
   label: string;
   type: AttributeType;
   primaryKey?: boolean;
-}
 
-// Extended attribute for filter-specific properties
-export interface FilterAttribute extends Attribute {
   // Filter-specific properties
-  dependsOn?: string[]; // For dependent dropdowns
-  relatedModelName?: string; // For API-based enum options
-  options?: Array<{ label: string; value: string }>; // Static enum options
-  selectionType?: "single" | "multiple"; // For enum fields
-  isNullable?: boolean; // Allow null values
+  filterAttribute?: string; // The actual attribute to use when filtering (may differ from name)
+  defaultOperator: string; // Default operator for this attribute type
+  aggregatorKeys?: {
+    valueKey: string; // Key for the ID/value field in aggregator response
+    labelKey: string; // Key for the label/name field in aggregator response
+    countKey: string; // Key for the count field in aggregator response
+  };
+
+  // Optional properties for filters and advanced features
+  optionsAggregator?: string; // Aggregator name for dynamic options
+  options?: Array<{ label: string; value: string; count?: number }>; // Static enum options
 }
