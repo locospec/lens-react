@@ -10,6 +10,7 @@ export interface UseInfiniteFetchParams {
   headers?: Record<string, string>;
   body?: Record<string, any>;
   perPage?: number;
+  enabled?: boolean;
 }
 
 interface FetchFnParams {
@@ -101,6 +102,7 @@ export const useInfiniteFetch = ({
   headers,
   body = {},
   perPage = 10,
+  enabled = true,
 }: UseInfiniteFetchParams) => {
   const { addApiCall, updateApiCall } = useLensDebugClient();
   const { setRecordsLoaded } = useLensContext();
@@ -157,6 +159,7 @@ export const useInfiniteFetch = ({
     staleTime: Infinity, // Never consider data stale
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (v5 uses gcTime instead of cacheTime)
     placeholderData: previousData => previousData,
+    enabled,
   });
 
   // Flatten all pages data into a single array

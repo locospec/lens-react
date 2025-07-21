@@ -1,6 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
-import { ConditionRow } from "@lens2/filters/builder/condition-row";
-import { createEmptyCondition } from "@lens2/filters/utils/initialize-filter";
+import { ConditionRow } from "@lens2/filters/advanced/condition-row";
+import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   ToggleGroup,
@@ -30,10 +30,10 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
   maxDepth = 1,
   attributes,
 }) => {
-  const { config } = useLensContext();
+  const { attributes: contextAttributes } = useLensContext();
 
   const addCondition = () => {
-    const newCondition = createEmptyCondition("", config?.attributes || {});
+    const newCondition = createEmptyCondition("", contextAttributes);
     onChange({
       ...group,
       conditions: [...group.conditions, newCondition],
@@ -43,7 +43,7 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
   const addGroup = () => {
     const newGroup: FilterGroup = {
       op: "and",
-      conditions: [createEmptyCondition("", config?.attributes || {})],
+      conditions: [createEmptyCondition("", contextAttributes)],
     };
     onChange({
       ...group,
@@ -67,7 +67,7 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
     const newConditions = group.conditions.filter((_, i) => i !== index);
     if (newConditions.length === 0) {
       // If this would leave an empty group, add a default condition
-      newConditions.push(createEmptyCondition("", config?.attributes || {}));
+      newConditions.push(createEmptyCondition("", contextAttributes));
     }
     onChange({
       ...group,
@@ -153,7 +153,7 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
                     }
                     onDelete={() => deleteCondition(index)}
                     canDelete={group.conditions.length > 1}
-                    attributes={attributes}
+                    attributeOptions={attributes}
                   />
                 ) : (
                   <FilterGroupComponent
@@ -199,7 +199,7 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
 
             const newGroup: FilterGroup = {
               op: "and",
-              conditions: [createEmptyCondition("", config?.attributes || {})],
+              conditions: [createEmptyCondition("", contextAttributes)],
             };
 
             onChange({

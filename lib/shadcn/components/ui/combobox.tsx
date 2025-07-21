@@ -26,13 +26,14 @@ export interface ComboboxOption {
 
 export interface ComboboxProps {
   options: ComboboxOption[];
-  value?: string;
-  onValueChange?: (value: string) => void;
+  value?: string | string[];
+  onValueChange?: (value: string | string[]) => void;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
   className?: string;
   disabled?: boolean;
+  multiple?: boolean;
 }
 
 export function Combobox({
@@ -44,8 +45,15 @@ export function Combobox({
   emptyText = "No option found.",
   className,
   disabled = false,
+  multiple = false,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
+
+  // Normalize value to array for easier handling
+  const selectedValues = React.useMemo(() => {
+    if (!value) return [];
+    return Array.isArray(value) ? value : [value];
+  }, [value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,9 +65,15 @@ export function Combobox({
           className={cn("justify-between", className)}
           disabled={disabled}
         >
-          {value
-            ? options.find(option => option.value === value)?.label
-            : placeholder}
+          <span className="flex-1 truncate text-left">
+            {selectedValues.length === 0
+              ? placeholder
+              : multiple
+                ? selectedValues.length === 1
+                  ? options.find(opt => opt.value === selectedValues[0])?.label
+                  : `${selectedValues.length} selected`
+                : options.find(opt => opt.value === selectedValues[0])?.label}
+          </span>
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -74,14 +88,23 @@ export function Combobox({
                   key={option.value}
                   value={option.value}
                   onSelect={currentValue => {
-                    onValueChange?.(currentValue);
-                    setOpen(false);
+                    if (multiple) {
+                      const newValues = selectedValues.includes(currentValue)
+                        ? selectedValues.filter(v => v !== currentValue)
+                        : [...selectedValues, currentValue];
+                      onValueChange?.(newValues);
+                    } else {
+                      onValueChange?.(currentValue);
+                      setOpen(false);
+                    }
                   }}
                 >
                   <CheckIcon
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      selectedValues.includes(option.value)
+                        ? "opacity-100"
+                        : "opacity-0"
                     )}
                   />
                   {option.label}

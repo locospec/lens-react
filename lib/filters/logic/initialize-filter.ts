@@ -1,6 +1,10 @@
-import type { AttributeType, FilterAttribute } from "@lens2/types/attributes";
-import type { Filter, FilterGroup } from "@lens2/types/filters";
-import { getDefaultOperator } from "./filter-operators-config";
+import type { Attribute, AttributeType } from "@lens2/types/attributes";
+import type {
+  ConditionValue,
+  Filter,
+  FilterGroup,
+  Operator,
+} from "@lens2/types/filters";
 
 // Filter types that should be included in simple filters
 const SIMPLE_FILTER_TYPES: AttributeType[] = ["enum", "date", "boolean"];
@@ -10,7 +14,7 @@ const SIMPLE_FILTER_TYPES: AttributeType[] = ["enum", "date", "boolean"];
  * This creates a default filter with conditions for simple filter types
  */
 export function initializeFilter(
-  attributes: Record<string, FilterAttribute>
+  attributes: Record<string, Attribute>
 ): Filter {
   const attributeArray = Object.entries(attributes)
     .map(([key, attr]) => ({
@@ -26,19 +30,17 @@ export function initializeFilter(
   const filterGroup: FilterGroup = {
     op: "and",
     conditions: attributeArray.map(attr => {
-      const defaultOp = getDefaultOperator(attr.type);
-
       // Set default values based on type
-      let defaultValue: any = "";
+      let defaultValue: ConditionValue = "";
       if (attr.type === "boolean") {
-        defaultValue = undefined; // Boolean operators don't need values
-      } else if (attr.type === "enum" && defaultOp === "is_any_of") {
+        defaultValue = null; // Boolean operators don't need values
+      } else if (attr.type === "enum" && attr.defaultOperator === "is_any_of") {
         defaultValue = []; // Multiple selection starts with empty array
       }
 
       return {
         attribute: attr.value,
-        op: defaultOp as any,
+        op: attr.defaultOperator as Operator,
         value: defaultValue,
       };
     }),
@@ -52,7 +54,7 @@ export function initializeFilter(
  */
 export function createEmptyCondition(
   attributeKey: string,
-  attributes: Record<string, FilterAttribute>
+  attributes: Record<string, Attribute>
 ) {
   const attr = attributes[attributeKey];
   if (!attr) {
@@ -63,21 +65,21 @@ export function createEmptyCondition(
     };
   }
 
-  const defaultOp = getDefaultOperator(attr.type);
-  let defaultValue: any = "";
+  let defaultValue: ConditionValue = "";
 
   if (attr.type === "boolean") {
-    defaultValue = undefined;
+    defaultValue = null;
   } else if (
     attr.type === "enum" &&
-    (defaultOp === "is_any_of" || defaultOp === "is_none_of")
+    (attr.defaultOperator === "is_any_of" ||
+      attr.defaultOperator === "is_none_of")
   ) {
     defaultValue = [];
   }
 
   return {
     attribute: attributeKey,
-    op: defaultOp as any,
+    op: attr.defaultOperator as Operator,
     value: defaultValue,
   };
 }

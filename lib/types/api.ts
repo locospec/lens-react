@@ -72,8 +72,25 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+// Aggregate definition types
+export interface AggregateGroupBy {
+  source: string; // e.g., "city.district.state.uuid"
+  name: string; // e.g., "state_id"
+}
+
+export interface AggregateColumn {
+  function: string;
+  name: string;
+}
+
+export interface AggregateDefinition {
+  groupBy: AggregateGroupBy[];
+  columns: AggregateColumn[];
+}
+
 export interface ConfigResponse {
   attributes: Record<string, Attribute>;
+  aggregates?: Record<string, AggregateDefinition>;
 }
 
 export interface ViewsResponse {
