@@ -13,12 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@lens2/shadcn/components/ui/dropdown-menu";
-import { Input } from "@lens2/shadcn/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@lens2/shadcn/components/ui/tabs";
 import type { CreateViewRequestPayload } from "@lens2/types";
 import { ViewType } from "@lens2/types";
-import { Plus, Settings2 } from "lucide-react";
+import { Plus, Settings2, Table2, List, LayoutGrid, Code, Columns3, RefreshCw, Lock } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface ToolbarProps {
   activeViewId: string;
@@ -26,18 +25,20 @@ interface ToolbarProps {
 }
 
 const VIEW_TYPES = [
-  { type: "table" as ViewType, label: "Table", enabled: true },
-  { type: "list" as ViewType, label: "List", enabled: true },
-  { type: "kanban" as ViewType, label: "Kanban", enabled: false },
-  { type: "grid" as ViewType, label: "Grid", enabled: false },
-  { type: "raw" as ViewType, label: "Raw", enabled: false },
+  { type: "table" as ViewType, label: "Table", enabled: true, icon: Table2 },
+  { type: "list" as ViewType, label: "List", enabled: true, icon: List },
+  { type: "kanban" as ViewType, label: "Kanban", enabled: false, icon: Columns3 },
+  { type: "grid" as ViewType, label: "Grid", enabled: false, icon: LayoutGrid },
+  { type: "raw" as ViewType, label: "Raw", enabled: false, icon: Code },
 ] as const;
 
 export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
-  const { views, api, query, viewScoping } = useLensContext();
+  const { views, api, query, viewScoping, enableForceRefresh, onForceRefresh } = useLensContext();
   const { openConfig } = useViewConfig();
   const [editingViewId, setEditingViewId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [contextMenuOpenId, setContextMenuOpenId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const createViewMutation = api.createView({
     onSuccess: response => {
@@ -68,6 +69,7 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
     },
   });
 
+
   const handleCreateView = (type: ViewType) => {
     const defaultNames = {
       table: "Table",
@@ -83,6 +85,7 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
       type: type,
       name: defaultNames[type],
       config: {},
+      is_default: false, // User-created views are never default
     };
 
     // Add tenant_id and user_id if provided via viewScoping
@@ -121,70 +124,118 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
     setEditingViewId(null);
   };
 
+
+  // Helper to get icon for view type
+  const getViewIcon = (viewType: ViewType) => {
+    const viewConfig = VIEW_TYPES.find(v => v.type === viewType);
+    return viewConfig?.icon || Table2;
+  };
+
+
   return (
-    <div className="flex items-center justify-between border-b p-2">
-      <div className="flex items-center gap-2">
-        <Tabs value={activeViewId} onValueChange={onViewChange}>
-          <TabsList>
-            {views.map(view => (
-              <ContextMenu key={view.id}>
-                <ContextMenuTrigger>
-                  <TabsTrigger value={view.id} className="relative">
-                    {editingViewId === view.id ? (
-                      <Input
-                        value={editingName}
-                        onChange={e => setEditingName(e.target.value)}
-                        onBlur={finishEditing}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") {
-                            finishEditing();
-                          } else if (e.key === "Escape") {
-                            setEditingViewId(null);
-                          }
-                        }}
-                        className="h-6 min-w-[100px] px-2"
-                        onClick={e => e.stopPropagation()}
-                        autoFocus
+    <div className="flex items-center justify-between border-b">
+      <div className="flex items-center gap-2 -mb-px">
+        {/* Animated Tabs */}
+        <div className="flex space-x-2">
+          {views.map((view) => {
+            const Icon = getViewIcon(view.type);
+            const isContextMenuOpen = contextMenuOpenId === view.id;
+            
+            return (
+              <ContextMenu 
+                key={view.id}
+                onOpenChange={(open) => setContextMenuOpenId(open ? view.id : null)}
+              >
+                <ContextMenuTrigger asChild>
+                  <button
+                    onClick={() => onViewChange(view.id)}
+                    className={`
+                      relative px-3 pb-3 pt-2 text-sm transition-colors rounded-md
+                      outline-none focus-visible:outline-2 focus-visible:outline-ring
+                      ${activeViewId === view.id 
+                        ? "text-foreground font-semibold" 
+                        : "text-muted-foreground hover:text-foreground font-normal"
+                      }
+                      ${isContextMenuOpen ? "bg-muted" : ""}
+                    `}
+                    style={{
+                      WebkitTapHighlightColor: "transparent",
+                    }}
+                  >
+                    {activeViewId === view.id && (
+                      <motion.span
+                        layoutId="underline"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
-                    ) : (
-                      view.name
                     )}
-                  </TabsTrigger>
+                    <span className="relative z-20 flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {editingViewId === view.id ? (
+                        <input
+                          value={editingName}
+                          onChange={e => setEditingName(e.target.value)}
+                          onBlur={finishEditing}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              finishEditing();
+                            } else if (e.key === "Escape") {
+                              setEditingViewId(null);
+                            }
+                          }}
+                          className="min-w-[100px] px-1.5 py-0.5 text-sm bg-muted rounded-sm border-none outline-none ring-0 focus:ring-0 focus:outline-none focus:border-none shadow-none"
+                          onClick={e => e.stopPropagation()}
+                          autoFocus
+                        />
+                      ) : (
+                        <>
+                          {view.name}
+                          {view.isSystem && (
+                            <Lock className="h-3 w-3 ml-1 opacity-50" />
+                          )}
+                        </>
+                      )}
+                    </span>
+                  </button>
                 </ContextMenuTrigger>
                 <ContextMenuContent>
                   <ContextMenuItem
                     onClick={() => startEditing(view.id, view.name)}
+                    disabled={view.isSystem}
                   >
                     Rename
                   </ContextMenuItem>
                   <ContextMenuItem
                     onClick={() => handleDelete(view.id)}
                     className="text-red-600"
-                    disabled={view.is_default}
+                    disabled={view.is_default || view.isSystem}
                   >
                     Delete
                   </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
-            ))}
-          </TabsList>
-        </Tabs>
-
+            );
+          })}
+        </div>
+        
+        <div className="border h-4"></div>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              Add View
+              <Plus className="h-4 w-4" />
+              View
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {VIEW_TYPES.map(({ type, label, enabled }) => (
+            {VIEW_TYPES.map(({ type, label, enabled, icon: Icon }) => (
               <DropdownMenuItem
                 key={type}
                 onClick={() => handleCreateView(type)}
                 disabled={!enabled}
                 className={!enabled ? "opacity-50" : ""}
               >
+                <Icon className="mr-2 h-4 w-4" />
                 {label}
               </DropdownMenuItem>
             ))}
@@ -193,8 +244,27 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Refresh button - only show if enabled */}
+        {enableForceRefresh && onForceRefresh && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              setIsRefreshing(true);
+              try {
+                await onForceRefresh();
+              } finally {
+                setIsRefreshing(false);
+              }
+            }}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        )}
+        
         {/* Customize view button */}
-        <Button variant="outline" size="sm" onClick={() => openConfig()}>
+        <Button variant="ghost" size="sm" onClick={() => openConfig()}>
           <Settings2 className="mr-2 h-4 w-4" />
           Customize view
         </Button>

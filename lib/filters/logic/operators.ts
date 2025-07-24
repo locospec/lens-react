@@ -1,3 +1,4 @@
+import type { AttributeType } from "@lens2/types/attributes";
 import type { OperatorDefinition } from "@lens2/types/filters";
 
 // Null operators for nullable fields
@@ -112,3 +113,25 @@ export const ENUM_OPERATORS: OperatorDefinition[] = [
     multiple: true,
   },
 ];
+
+// Map lens-react-2 attribute types to operators
+export const TYPE_OPERATORS_MAP: Record<AttributeType, OperatorDefinition[]> = {
+  string: STRING_OPERATORS,
+  text: STRING_OPERATORS,
+  longtext: [
+    // Limited operators for longtext
+    { value: "contains", label: "Contains", requiresValue: true },
+    { value: "not_contains", label: "Does not contain", requiresValue: true },
+  ],
+  integer: NUMBER_OPERATORS,
+  number: NUMBER_OPERATORS,
+  decimal: NUMBER_OPERATORS,
+  date: DATE_OPERATORS,
+  datetime: DATE_OPERATORS,
+  timestamp: DATE_OPERATORS,
+  boolean: BOOLEAN_OPERATORS,
+  enum: ENUM_OPERATORS,
+};
+
+// Get list of supported attribute types from the operators map
+export const SUPPORTED_ATTRIBUTE_TYPES = Object.keys(TYPE_OPERATORS_MAP) as AttributeType[];

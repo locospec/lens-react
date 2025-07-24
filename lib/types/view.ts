@@ -52,6 +52,9 @@ export interface View {
   // View scoping fields
   tenant_id?: string;
   user_id?: string;
+
+  // System view indicator
+  isSystem?: boolean;
 }
 
 // View scoping configuration

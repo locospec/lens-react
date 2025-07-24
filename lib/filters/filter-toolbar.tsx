@@ -16,7 +16,7 @@ export function FilterToolbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 border-b p-2">
+    <div className="flex items-center gap-2">
       <SearchBox />
 
       {filterType === "chip" ? (

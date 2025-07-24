@@ -1,5 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useOptionsCache } from "@lens2/contexts/options-cache-context";
+import { STALE_TIME } from "@lens2/constants/cache";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -68,24 +69,31 @@ export const useSelectedOptionsHydration = ({
         return new Map<string, string>();
       }
 
-      const response = await fetch(`${baseUrl}/${query}/_aggregate`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          globalContext: globalContext || {},
-          options: attribute,
-          filters: {
-            op: "and",
-            conditions: [
-              {
-                attribute: filterAttribute,
-                op: "is_any_of",
-                value: idsNeedingHydration,
-              },
-            ],
+      const response = await fetch(
+        `${baseUrl}/${query}/_aggregate?purpose=hydrate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+            ...headers,
           },
-        }),
-      });
+          body: JSON.stringify({
+            globalContext: globalContext || {},
+            options: attribute,
+            filters: {
+              op: "and",
+              conditions: [
+                {
+                  attribute: filterAttribute,
+                  op: "is_any_of",
+                  value: idsNeedingHydration,
+                },
+              ],
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to hydrate options: ${response.statusText}`);
@@ -108,8 +116,8 @@ export const useSelectedOptionsHydration = ({
       return optionsMap;
     },
     enabled: idsNeedingHydration.length > 0,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: STALE_TIME.FILTER_OPTIONS,
+    // gcTime will be inherited from QueryClient's defaultOptions
   });
 
   // Merge cached and fetched options

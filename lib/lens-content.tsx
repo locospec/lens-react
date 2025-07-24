@@ -11,14 +11,14 @@ import { ViewContainer } from "@lens2/views/view-container";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function LensContent({ onError }: LensContentProps) {
-  const { views, isLoading, error, setRecordsLoaded, enableViews } =
+  const { views, isLoading, error, setRecordsLoaded, enableViews, initialViewId, onViewChange } =
     useLensContext();
   const debugClient = useLensDebugClient();
-  const [activeViewId, setActiveViewId] = useState<string>("");
+  const [activeViewId, setActiveViewId] = useState<string>(initialViewId || "");
   const viewContainerRef = useRef<HTMLDivElement>(null);
 
-  // Get default view - there should always be at least one view
-  const defaultView = views.find(v => v.is_default) || views[0];
+  // Get default view
+  const defaultView = views.find(v => v.is_default);
 
   // Find the active view - memoized to prevent unnecessary re-renders
   const activeView = useMemo(
@@ -26,18 +26,31 @@ export function LensContent({ onError }: LensContentProps) {
     [views, activeViewId, defaultView]
   );
 
-  // Set initial active view when views are loaded
+  // Set initial active view when views are loaded (only on mount or when views change)
   useEffect(() => {
-    if (!activeViewId && defaultView) {
-      setActiveViewId(defaultView.id);
-      debugClient.addLog("Activated default view", {
-        viewId: defaultView.id,
-        viewName: defaultView.name,
-        viewType: defaultView.type,
-        columnCount: defaultView.attributes?.length || 0,
-      });
+    if (views.length > 0 && !activeViewId) {
+      // If initialViewId is provided and exists in views, use it
+      if (initialViewId && views.find(v => v.id === initialViewId)) {
+        setActiveViewId(initialViewId);
+        const view = views.find(v => v.id === initialViewId)!;
+        debugClient.addLog("Activated initial view", {
+          viewId: view.id,
+          viewName: view.name,
+          viewType: view.type,
+          columnCount: view.attributes?.length || 0,
+        });
+      } else if (defaultView) {
+        // Otherwise use default view
+        setActiveViewId(defaultView.id);
+        debugClient.addLog("Activated default view", {
+          viewId: defaultView.id,
+          viewName: defaultView.name,
+          viewType: defaultView.type,
+          columnCount: defaultView.attributes?.length || 0,
+        });
+      }
     }
-  }, [activeViewId, defaultView, debugClient]);
+  }, [views]); // Only depend on views, not initialViewId
 
   // Enhanced view change handler with logging
   const handleViewChange = useCallback(
@@ -53,12 +66,22 @@ export function LensContent({ onError }: LensContentProps) {
           hasFilters: !!newView.config?.filters,
           hasSorts: !!newView.config?.sorts?.length,
         });
-        setActiveViewId(newViewId);
-        // Reset records loaded when switching views
-        setRecordsLoaded(0);
+      } else {
+        // View doesn't exist yet (might be newly created and still loading)
+        debugClient.addLog("Switching to pending view", {
+          fromViewId: activeViewId,
+          toViewId: newViewId,
+        });
       }
+      
+      // Always update the active view ID, even if the view doesn't exist yet
+      setActiveViewId(newViewId);
+      // Reset records loaded when switching views
+      setRecordsLoaded(0);
+      // Call the onViewChange callback if provided
+      onViewChange?.(newViewId);
     },
-    [activeViewId, views, debugClient, setRecordsLoaded]
+    [activeViewId, views, debugClient, setRecordsLoaded, onViewChange]
   );
 
   // Handle loading state
@@ -83,7 +106,7 @@ export function LensContent({ onError }: LensContentProps) {
   }
 
   return (
-    <div className="@container/lens-table flex h-full flex-col">
+    <div className="@container/lens-table flex h-full flex-col space-y-2">
       <ViewProvider key={activeView.id} view={activeView}>
         {enableViews && (
           <ViewsToolbar
@@ -91,11 +114,11 @@ export function LensContent({ onError }: LensContentProps) {
             onViewChange={handleViewChange}
           />
         )}
+        <FilterToolbar />
         <div
           ref={viewContainerRef}
           className="relative flex flex-1 flex-col overflow-hidden"
         >
-          <FilterToolbar />
           <ViewContainer />
         </div>
         <ViewConfiguration containerRef={viewContainerRef} />

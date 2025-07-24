@@ -1,4 +1,5 @@
 import { useViewContext } from "@lens2/contexts/view-context";
+import { useLensContext } from "@lens2/contexts/lens-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { COLUMN_SIZES, FETCH_CONFIG } from "@lens2/views/shared/constants";
@@ -19,6 +20,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MemoizedTableBody, TableBody } from "./table-body";
 import { TableHeader } from "./table-header";
+import { TableSkeleton } from "./table-skeleton";
 
 export function TableView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +28,7 @@ export function TableView() {
 
   const { updateConfigChange } = useViewConfig();
   const { setTable } = useViewContext();
+  const { interactions } = useLensContext();
 
   // Get data and config using shared hook
   const {
@@ -46,7 +49,7 @@ export function TableView() {
     setColumnVisibility,
     columnOrder,
     setColumnOrder,
-  } = useColumnState({ attributes, viewConfig: view.config });
+  } = useColumnState({ attributes, viewConfig: view.config, interactions });
 
   // Column sizing state
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(
@@ -120,7 +123,12 @@ export function TableView() {
   );
 
   if (isLoading) {
-    return <LoadingState />;
+    const columnCount = table.getVisibleLeafColumns().length || 5;
+    return (
+      <div className="relative h-full w-full">
+        <TableSkeleton rows={5} columns={columnCount} />
+      </div>
+    );
   }
 
   if (!columns.length) {
@@ -129,14 +137,8 @@ export function TableView() {
 
   return (
     <div ref={wrapperRef} className="flex h-full flex-col overflow-hidden">
-      <ViewHeader
-        title="Table View"
-        loadedCount={flatData.length}
-        totalCount={totalCount}
-      />
-
       {/* Table container with border wrapper */}
-      <div className="relative mt-4 flex-1 overflow-hidden rounded-lg border">
+      <div className="relative flex-1 overflow-hidden rounded-lg border">
         <div
           ref={containerRef}
           className="relative h-full overflow-auto"
@@ -171,6 +173,11 @@ export function TableView() {
           </div>
         </div>
       </div>
+      <ViewHeader
+        title="Table View"
+        loadedCount={flatData.length}
+        totalCount={totalCount}
+      />
     </div>
   );
 }

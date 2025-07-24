@@ -25,15 +25,12 @@ import { SortableColumnItem } from "./sortable-column-item";
 
 export function ColumnsConfig() {
   const { view } = useViewContext();
-  const { config } = useLensContext();
+  const { attributes: attributesRecord } = useLensContext();
   const { updateConfigChange } = useViewConfig();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Get attributes from config
-  const attributes = useMemo(
-    () => Object.values(config?.attributes || {}),
-    [config?.attributes]
-  );
+  // Convert attributes record to array for easier iteration
+  const attributes = Object.values(attributesRecord || {});
 
   // Initialize local state from view
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
@@ -48,10 +45,16 @@ export function ColumnsConfig() {
   );
 
   useEffect(() => {
-    const defaultColumns = attributes.map(attr => attr.name);
-    setVisibleColumns(view.config?.visibleColumns || defaultColumns);
-    setColumnOrder(view.config?.columnOrder || defaultColumns);
-  }, [view.config?.visibleColumns, view.config?.columnOrder, attributes]);
+    const allAttributeNames = Object.values(attributesRecord || {}).map(attr => attr.name);
+    
+    // If view has visibleColumns configured, use them. Otherwise, show all attributes
+    const configuredVisibleColumns = view.config?.visibleColumns;
+    setVisibleColumns(configuredVisibleColumns || allAttributeNames);
+    
+    // If view has columnOrder configured, use it. Otherwise, use attribute order
+    const configuredColumnOrder = view.config?.columnOrder;
+    setColumnOrder(configuredColumnOrder || allAttributeNames);
+  }, [view.config?.visibleColumns, view.config?.columnOrder, attributesRecord]);
 
   // Filter attributes based on search
   const filteredAttributes = attributes.filter(
@@ -60,14 +63,23 @@ export function ColumnsConfig() {
       attr.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Separate shown and hidden columns (respecting order)
-  const orderedAttributes = columnOrder
-    .map(colName => attributes.find(attr => attr.name === colName))
-    .filter((attr): attr is (typeof attributes)[0] => Boolean(attr));
-  const shownColumns = orderedAttributes.filter(
-    attr =>
-      visibleColumns.includes(attr.name) && filteredAttributes.includes(attr)
+  // Separate shown and hidden columns based on visibleColumns
+  // First, get all shown columns (those in visibleColumns)
+  const shownColumns = filteredAttributes.filter(
+    attr => visibleColumns.includes(attr.name)
   );
+  
+  // Then sort shown columns according to columnOrder
+  const sortedShownColumns = shownColumns.sort((a, b) => {
+    const aIndex = columnOrder.indexOf(a.name);
+    const bIndex = columnOrder.indexOf(b.name);
+    // If not in columnOrder, put at the end
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
+  
+  // Hidden columns are all attributes not in visibleColumns
   const hiddenColumns = filteredAttributes.filter(
     attr => !visibleColumns.includes(attr.name)
   );
@@ -79,11 +91,25 @@ export function ColumnsConfig() {
 
     setVisibleColumns(newVisibleColumns);
 
-    // Apply changes immediately
-    try {
-      await updateConfigChange("visibleColumns", newVisibleColumns);
-    } catch (error) {
-      console.error("Failed to update column visibility:", error);
+    // If making a column visible and it's not in columnOrder, add it
+    if (checked && !columnOrder.includes(columnName)) {
+      const newOrder = [...columnOrder, columnName];
+      setColumnOrder(newOrder);
+      
+      // Apply both changes
+      try {
+        await updateConfigChange("visibleColumns", newVisibleColumns);
+        await updateConfigChange("columnOrder", newOrder);
+      } catch (error) {
+        console.error("Failed to update column configuration:", error);
+      }
+    } else {
+      // Apply visibility change only
+      try {
+        await updateConfigChange("visibleColumns", newVisibleColumns);
+      } catch (error) {
+        console.error("Failed to update column visibility:", error);
+      }
     }
   };
 
@@ -91,17 +117,42 @@ export function ColumnsConfig() {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = columnOrder.indexOf(active.id as string);
-      const newIndex = columnOrder.indexOf(over.id as string);
+      // Get current order of shown columns
+      const currentShownOrder = sortedShownColumns.map(col => col.name);
+      const oldIndex = currentShownOrder.indexOf(active.id as string);
+      const newIndex = currentShownOrder.indexOf(over.id as string);
 
-      const newOrder = arrayMove(columnOrder, oldIndex, newIndex);
-      setColumnOrder(newOrder);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Update the order of shown columns
+        const newShownOrder = arrayMove(currentShownOrder, oldIndex, newIndex);
+        
+        // Create a new full column order that preserves hidden columns
+        // Start with the new order of shown columns
+        const newOrder = [...newShownOrder];
+        
+        // Add any columns that were in the original columnOrder but not shown
+        columnOrder.forEach(colName => {
+          if (!newShownOrder.includes(colName)) {
+            newOrder.push(colName);
+          }
+        });
+        
+        // Add any new columns that weren't in the original columnOrder
+        const allAttributeNames = Object.values(attributesRecord || {}).map(attr => attr.name);
+        allAttributeNames.forEach(colName => {
+          if (!newOrder.includes(colName)) {
+            newOrder.push(colName);
+          }
+        });
+        
+        setColumnOrder(newOrder);
 
-      // Apply changes immediately
-      try {
-        await updateConfigChange("columnOrder", newOrder);
-      } catch (error) {
-        console.error("Failed to update column order:", error);
+        // Apply changes immediately
+        try {
+          await updateConfigChange("columnOrder", newOrder);
+        } catch (error) {
+          console.error("Failed to update column order:", error);
+        }
       }
     }
   };
@@ -127,11 +178,25 @@ export function ColumnsConfig() {
         <div>
           <div className="mb-2 flex items-center justify-between">
             <h4 className="text-muted-foreground text-sm font-medium">Shown</h4>
-            <Button variant="ghost" size="sm" className="text-xs">
-              Hide all
-            </Button>
+            {sortedShownColumns.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs"
+                onClick={async () => {
+                  setVisibleColumns([]);
+                  try {
+                    await updateConfigChange("visibleColumns", []);
+                  } catch (error) {
+                    console.error("Failed to hide all columns:", error);
+                  }
+                }}
+              >
+                Hide all
+              </Button>
+            )}
           </div>
-          {shownColumns.length === 0 ? (
+          {sortedShownColumns.length === 0 ? (
             <p className="text-muted-foreground py-4 text-center text-sm">
               No columns
             </p>
@@ -142,11 +207,11 @@ export function ColumnsConfig() {
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={shownColumns.map(column => column.name)}
+                items={sortedShownColumns.map(column => column.name)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-1">
-                  {shownColumns.map(column => (
+                  {sortedShownColumns.map(column => (
                     <SortableColumnItem
                       key={column.name}
                       column={column}
@@ -162,9 +227,27 @@ export function ColumnsConfig() {
 
         {/* Hidden Columns */}
         <div>
-          <h4 className="text-muted-foreground mb-2 text-sm font-medium">
-            Hidden
-          </h4>
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-muted-foreground text-sm font-medium">Hidden</h4>
+            {hiddenColumns.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs"
+                onClick={async () => {
+                  const allAttributeNames = Object.values(attributesRecord || {}).map(attr => attr.name);
+                  setVisibleColumns(allAttributeNames);
+                  try {
+                    await updateConfigChange("visibleColumns", allAttributeNames);
+                  } catch (error) {
+                    console.error("Failed to show all columns:", error);
+                  }
+                }}
+              >
+                Show all
+              </Button>
+            )}
+          </div>
           {hiddenColumns.length === 0 ? (
             <p className="text-muted-foreground py-4 text-center text-sm">
               No hidden columns
