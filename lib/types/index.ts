@@ -25,3 +25,6 @@ export * from "./context";
 
 // Lens component types
 export * from "./lens";
+
+// Interaction types
+export * from "./interactions";

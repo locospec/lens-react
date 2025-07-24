@@ -73,39 +73,45 @@ export function ViewProvider({
         console.log("Clearing filters");
         setFiltersState({});
 
-        // Save cleared filters to view configuration
-        updateViewMutation
-          .mutateAsync({
-            id: view.id,
-            config: {
-              ...view.config,
-              filters: undefined, // Remove filters from config
-            },
-          })
-          .catch(error => {
-            console.error("Failed to clear filters in view config:", error);
-          });
+        // For system views, don't persist to backend
+        if (!view.isSystem) {
+          // Save cleared filters to view configuration
+          updateViewMutation
+            .mutateAsync({
+              id: view.id,
+              config: {
+                ...view.config,
+                filters: undefined, // Remove filters from config
+              },
+            })
+            .catch(error => {
+              console.error("Failed to clear filters in view config:", error);
+            });
+        }
       } else if (processedFilters && processedFilters.conditions.length > 0) {
         // We have valid filters with conditions
         console.log("Setting filters state to:", processedFilters);
         setFiltersState(processedFilters);
 
-        // Save cleaned filters to view configuration
-        updateViewMutation
-          .mutateAsync({
-            id: view.id,
-            config: {
-              ...view.config,
-              filters: processedFilters,
-            },
-          })
-          .catch(error => {
-            console.error("Failed to save filters to view config:", error);
-          });
+        // For system views, don't persist to backend
+        if (!view.isSystem) {
+          // Save cleaned filters to view configuration
+          updateViewMutation
+            .mutateAsync({
+              id: view.id,
+              config: {
+                ...view.config,
+                filters: processedFilters,
+              },
+            })
+            .catch(error => {
+              console.error("Failed to save filters to view config:", error);
+            });
+        }
       }
       // If filters are invalid (has op but no valid conditions), do nothing - keep existing filters
     },
-    [updateViewMutation, view.id, view.config]
+    [updateViewMutation, view.id, view.config, view.isSystem]
   );
   const [sorts, setSorts] = useState<Sort[]>(initialView?.config?.sorts || []);
 

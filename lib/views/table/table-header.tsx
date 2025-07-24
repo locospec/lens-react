@@ -8,8 +8,14 @@ interface TableHeaderProps {
 }
 
 export const TableHeader = ({ table }: TableHeaderProps) => {
+  const isAnyColumnResizing =
+    table.getState().columnSizingInfo.isResizingColumn !== null;
+
   return (
-    <div className="bg-background sticky top-0 z-10 flex">
+    <div
+      className="bg-background sticky top-0 z-10 flex border-b border-border group"
+      data-resizing={isAnyColumnResizing}
+    >
       {table.getHeaderGroups().map(headerGroup => (
         <div key={headerGroup.id} className="flex w-full">
           {headerGroup.headers
@@ -27,14 +33,16 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                 <div
                   key={header.id}
                   data-column-id={header.column.id}
+                  data-resizing={isResizing}
                   className={cn(
-                    "relative flex items-center text-left",
-                    "h-6 @sm/lens-table:h-8 @md/lens-table:h-9 @lg/lens-table:h-10",
+                    "group/header relative flex items-center text-left",
+                    "h-8 @sm/lens-table:h-9 @md/lens-table:h-10 @lg/lens-table:h-10",
                     "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
                     "text-xs @sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
                     "text-foreground font-medium",
                     "bg-muted transition-colors",
-                    "group-data-[resizing=false]:hover:bg-muted/80"
+                    "group-data-[resizing=false]:hover:bg-muted/80",
+                    isResizing && "bg-muted/50"
                   )}
                   style={{
                     width: `calc(var(--header-${header.id}-size) * 1px)`,

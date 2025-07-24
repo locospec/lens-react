@@ -1,5 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { STALE_TIME, REFETCH_OPTIONS } from "@lens2/constants/cache";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 
@@ -154,10 +155,10 @@ export const useInfiniteFetch = ({
     },
     getPreviousPageParam: (firstPage: PaginatedResponse) =>
       firstPage?.meta?.prev_cursor || null,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false, // Don't refetch when component mounts if we have data
-    staleTime: Infinity, // Never consider data stale
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (v5 uses gcTime instead of cacheTime)
+    refetchOnWindowFocus: REFETCH_OPTIONS.ON_WINDOW_FOCUS,
+    refetchOnMount: REFETCH_OPTIONS.ON_MOUNT, // Don't refetch when component mounts if we have data
+    staleTime: STALE_TIME.INFINITE_DATA, // Never consider data stale
+    // gcTime will be inherited from QueryClient's defaultOptions
     placeholderData: previousData => previousData,
     enabled,
   });

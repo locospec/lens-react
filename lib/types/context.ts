@@ -6,12 +6,13 @@ import type { useLensApi } from "@lens2/hooks/use-lens-api";
 import type { Table } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import type { AggregateDefinition, ReadRequestPayload } from "./api";
-import type { Attribute } from "./attributes";
+import type { Attribute, DisplayAttribute } from "./attributes";
 import type { Json, RowData } from "./common";
 import type { Config, LensDataProps, LensEndpoints } from "./config";
 import type { Filter } from "./filters";
 import type { FilterType } from "./lens";
 import type { Sort, View, ViewScoping } from "./view";
+import type { EntityInteractions } from "./interactions";
 
 // Lens Context Value
 export interface LensContextValue {
@@ -33,6 +34,18 @@ export interface LensContextValue {
   enableViews: boolean;
   viewScoping?: ViewScoping;
   filterType: FilterType;
+  interactions?: EntityInteractions;
+  // Force refresh functionality
+  enableForceRefresh?: boolean;
+  onForceRefresh?: () => Promise<void>;
+  // View configuration
+  initialViewId?: string;
+  onViewChange?: (viewId: string) => void;
+  // Attribute display configuration
+  displayAttributes?: DisplayAttribute[];
+  hideAttributes?: string[];
+  // System views
+  systemViews?: View[];
 }
 
 // Lens Provider Props
@@ -42,6 +55,18 @@ export interface LensProviderProps extends LensDataProps {
   enableViews?: boolean;
   viewScoping?: ViewScoping;
   filterType?: FilterType;
+  interactions?: EntityInteractions;
+  // Force refresh functionality
+  enableForceRefresh?: boolean;
+  onForceRefresh?: () => Promise<void>;
+  // View configuration
+  initialViewId?: string;
+  onViewChange?: (viewId: string) => void;
+  // Attribute display configuration
+  displayAttributes?: DisplayAttribute[];
+  hideAttributes?: string[];
+  // System views
+  systemViews?: View[];
 }
 
 // View Context Value

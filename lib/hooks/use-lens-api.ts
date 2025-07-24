@@ -1,4 +1,5 @@
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { STALE_TIME } from "@lens2/constants/cache";
 import type {
   ApiResponse,
   ConfigResponse,
@@ -146,6 +147,8 @@ export const useLensApi = ({
   const useConfig = (options?: UseQueryOptions<ConfigResponse>) => {
     return useQuery<ConfigResponse>({
       queryKey: ["lens", query, "config"],
+      staleTime: STALE_TIME.CONFIG,
+      // gcTime will be inherited from QueryClient defaults
       queryFn: async () => {
         const body = {};
         const result = await trackApiCall<ApiResponse<ConfigResponse>>(
@@ -169,24 +172,13 @@ export const useLensApi = ({
   const useViews = (options?: UseQueryOptions<ViewsResponse>) => {
     return useQuery<ViewsResponse>({
       queryKey: ["lens", query, "views", enableViews],
-      staleTime: enableViews ? 0 : Infinity, // Never refetch if views are disabled
-      refetchOnMount: enableViews,
-      refetchOnWindowFocus: false,
+      staleTime: enableViews ? STALE_TIME.VIEWS : STALE_TIME.DISABLED_FEATURE,
+      // gcTime, refetchOnMount, refetchOnWindowFocus will be inherited from QueryClient defaults
       queryFn: async () => {
-        // If views are disabled, return a static default view
+        // If views are disabled, skip API call and return empty
         if (!enableViews) {
-          const defaultView = {
-            id: "default-view",
-            name: "Default View",
-            type: "table",
-            is_default: true,
-            belongs_to_type: "query",
-            belongs_to_value: query,
-            config: {},
-          } as View;
           return {
-            views: [defaultView],
-            defaultView: defaultView,
+            views: [],
           };
         }
         const conditions = [
@@ -245,9 +237,6 @@ export const useLensApi = ({
         const viewsData = result.data || [];
         return {
           views: viewsData as View[],
-          defaultView: viewsData.find(
-            (v: View) => v.is_default || v.name === "Default"
-          ),
         };
       },
       ...options,
@@ -357,17 +346,14 @@ export const useLensApi = ({
     return useMutation<ApiResponse<View>, Error, CreateViewRequestPayload>({
       ...restOptions,
       mutationFn: async (payload: CreateViewRequestPayload) => {
-        // If views are disabled, return the static default view
+        // If views are disabled, return a mock response
         if (!enableViews) {
           return {
             data: {
-              id: "default-view",
-              name: "Default View",
-              type: "table",
-              is_default: true,
-              belongs_to_type: "query",
-              belongs_to_value: query,
-              config: {},
+              ...payload,
+              id: `mock-${Date.now()}`,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             } as View,
           };
         }
@@ -406,9 +392,9 @@ export const useLensApi = ({
     return useMutation<ApiResponse<View>, Error, UpdateViewRequestPayload>({
       ...restOptions,
       mutationFn: async (payload: UpdateViewRequestPayload) => {
-        // If views are disabled, return success without doing anything
+        // If views are disabled, return the payload as-is without calling backend
         if (!enableViews) {
-          return { data: {} as View };
+          return { data: payload as View };
         }
         // For update, send {id, name} directly as JSON
         const response = await fetch(endpoints.update_view, {
@@ -446,9 +432,9 @@ export const useLensApi = ({
     return useMutation<ApiResponse<Json>, Error, DeleteViewRequestPayload>({
       ...restOptions,
       mutationFn: async (payload: DeleteViewRequestPayload) => {
-        // If views are disabled, return success without doing anything
+        // If views are disabled, return success without calling backend
         if (!enableViews) {
-          return { data: {} };
+          return { data: { success: true } };
         }
         const response = await fetch(endpoints.delete_view, {
           method: "POST",

@@ -36,3 +36,9 @@ export interface Attribute {
   optionsAggregator?: string; // Aggregator name for dynamic options
   options?: Array<{ label: string; value: string; count?: number }>; // Static enum options
 }
+
+// Display configuration for attributes
+export interface DisplayAttribute {
+  attribute: string;
+  label?: string;
+}

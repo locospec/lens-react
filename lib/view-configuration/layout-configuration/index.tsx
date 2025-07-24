@@ -1,4 +1,5 @@
 import { useViewConfig } from "@lens2/hooks/use-view-config";
+import { useLensContext } from "@lens2/contexts/lens-context";
 import { COLUMN_SIZES } from "@lens2/views/shared/constants";
 import { ChevronRight } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
@@ -12,6 +13,7 @@ interface LayoutOption {
 
 export function LayoutPanel() {
   const { view, updateConfigChange, table } = useViewConfig();
+  const { interactions } = useLensContext();
   const [isProcessing, setIsProcessing] = useState(false);
   const measurementCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -56,6 +58,10 @@ export function LayoutPanel() {
       const rows = table.getRowModel().rows;
       let maxContentWidth = headerWidth;
 
+      // Get extra width from interactions if defined
+      const extraWidth =
+        interactions?.attributeInteractions?.[columnId]?.extraWidth || 0;
+
       // Sample up to 100 rows for performance
       const sampleSize = Math.min(rows.length, 100);
       for (let i = 0; i < sampleSize; i++) {
@@ -63,7 +69,7 @@ export function LayoutPanel() {
         if (cell) {
           const value = cell.getValue();
           const text = value != null ? String(value) : "";
-          const contentWidth = measureText(text) + 32; // 32px for cell padding
+          const contentWidth = measureText(text) + 32 + extraWidth; // 32px for cell padding + extra width
           maxContentWidth = Math.max(maxContentWidth, contentWidth);
         }
       }
@@ -74,7 +80,7 @@ export function LayoutPanel() {
         COLUMN_SIZES.MAX
       );
     },
-    [table, measureText]
+    [table, measureText, interactions]
   );
 
   const handleResetColumnWidths = async () => {

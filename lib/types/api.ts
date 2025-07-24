@@ -42,12 +42,12 @@ export interface CreateViewRequestPayload
     | "id"
     | "created_at"
     | "updated_at"
-    | "is_default"
     | "attributes"
     | "perPage"
     | "description"
   > {
   config: ViewConfig; // Required for creation (not optional like in View)
+  is_default?: boolean; // Allow is_default to be sent to backend
 }
 
 export interface UpdateViewRequestPayload {

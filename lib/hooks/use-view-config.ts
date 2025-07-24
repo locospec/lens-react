@@ -1,5 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useViewContext } from "@lens2/contexts/view-context";
+import type { Json } from "@lens2/types/common";
 import { useCallback } from "react";
 
 export function useViewConfig() {
@@ -46,6 +47,15 @@ export function useViewConfig() {
 
   const updateConfigChange = useCallback(
     async (key: string, value: any) => {
+      // For system views, only update local state, don't persist
+      if (view.isSystem) {
+        setConfigChanges({
+          ...configChanges,
+          [key]: value,
+        });
+        return;
+      }
+
       // Update the view directly with merged config
       try {
         await updateViewMutation.mutateAsync({
@@ -60,11 +70,18 @@ export function useViewConfig() {
         throw error;
       }
     },
-    [updateViewMutation, view.id, view.config]
+    [updateViewMutation, view.id, view.config, view.isSystem, setConfigChanges, configChanges]
   );
 
   const applyChanges = useCallback(async () => {
     if (Object.keys(configChanges).length === 0) {
+      closeConfig();
+      return;
+    }
+
+    // For system views, don't persist to backend
+    if (view.isSystem) {
+      // Changes are already in local state via configChanges
       closeConfig();
       return;
     }
@@ -80,7 +97,7 @@ export function useViewConfig() {
     } catch (error) {
       console.error("Failed to update view:", error);
     }
-  }, [configChanges, closeConfig, updateViewMutation, view.id]);
+  }, [configChanges, closeConfig, updateViewMutation, view.id, view.isSystem]);
 
   const cancelChanges = useCallback(() => {
     closeConfig();

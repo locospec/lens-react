@@ -32,6 +32,14 @@ export function LensProvider({
   enableViews = true,
   viewScoping,
   filterType = "advanced",
+  interactions,
+  enableForceRefresh = false,
+  onForceRefresh,
+  initialViewId,
+  onViewChange,
+  displayAttributes,
+  hideAttributes,
+  systemViews,
 }: LensProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
@@ -109,21 +117,25 @@ export function LensProvider({
     }
   }, [configLoading, !!config, !!configError]);
 
-  // Log views outcome and create default view if needed
+  // Create default view if needed when views are enabled
   useEffect(() => {
-    if (!viewsLoading && viewsData) {
-      const viewCount = viewsData.views?.length || 0;
+    if (!enableViews) return; // Skip if views are disabled
 
-      // If no views exist and views are enabled, create a default view
-      if (viewCount === 0 && !createViewMutation.isPending && enableViews) {
-        debugClient.addLog("No views found, creating default view", { query });
+    if (!viewsLoading && viewsData) {
+      const views = viewsData.views || [];
+      const hasDefaultView = views.some((v: View) => v.is_default);
+
+      // If no default view exists, create one
+      if (!hasDefaultView && !createViewMutation.isPending) {
+        debugClient.addLog("No default view found, creating one", { query });
 
         const viewPayload: CreateViewRequestPayload = {
-          name: "Default View",
+          name: "All",
           type: "table",
           belongs_to_type: "query",
           belongs_to_value: query,
           config: {},
+          is_default: true, // Mark this as the default view
         };
 
         // Add tenant_id and user_id if provided via viewScoping
@@ -137,7 +149,7 @@ export function LensProvider({
         createViewMutation.mutate(viewPayload, {
           onSuccess: () => {
             debugClient.addLog("Successfully created default view");
-            refetchViews();
+            refetchViews(); // Refetch to get the updated views list
           },
           onError: error => {
             debugClient.addLog(
@@ -149,9 +161,9 @@ export function LensProvider({
         });
       } else {
         debugClient.addLog("Fetched views", {
-          viewCount,
-          hasDefaultView: viewsData.views?.some((v: View) => v.is_default),
-          viewNames: viewsData.views?.map((v: View) => v.name) || [],
+          viewCount: views.length,
+          hasDefaultView,
+          viewNames: views.map((v: View) => v.name),
         });
       }
     } else if (!viewsLoading && viewsError) {
@@ -178,8 +190,13 @@ export function LensProvider({
   const attributes = useMemo<Record<string, Attribute>>(() => {
     if (!config?.attributes) return {};
 
-    return enrichAttributes(config.attributes, config.aggregates || {});
-  }, [config]);
+    return enrichAttributes(
+      config.attributes,
+      config.aggregates || {},
+      displayAttributes,
+      hideAttributes
+    );
+  }, [config, displayAttributes, hideAttributes]);
 
   // Get attributes as array for backward compatibility
   const attributesArray = Object.values(attributes);
@@ -216,25 +233,67 @@ export function LensProvider({
 
   // Process views and ensure we always have at least one view
   const viewsWithAttributes = useMemo(() => {
-    if (!views || views.length === 0) {
-      // If no views exist yet, return empty array
-      // The useEffect above will create a default view
-      return [];
+    // Process system views if provided
+    const processedSystemViews: View[] = (systemViews || []).map(view => ({
+      ...view,
+      isSystem: true,
+      belongs_to_type: view.belongs_to_type || "query",
+      belongs_to_value: view.belongs_to_value || query,
+    }));
+
+    // If views are disabled, create a client-side only default view
+    if (!enableViews) {
+      const clientSideView: View = {
+        id: "client-default-view",
+        name: "All",
+        type: "table",
+        belongs_to_type: "query",
+        belongs_to_value: query,
+        config: {},
+        attributes: attributesArray,
+        is_default: true,
+      };
+      // Order: default view first, then system views
+      return [clientSideView, ...processedSystemViews];
     }
 
-    return views.map(view => {
+    // When views are enabled, use backend views
+    if (!views || views.length === 0) {
+      // If no backend views exist yet, return system views
+      // The useEffect above will create a default view
+      return processedSystemViews;
+    }
+
+    // Normalize views
+    const normalizedViews = views.map(view => {
       const normalizedView: View = {
         ...view,
       };
 
-      // Add attributes to default view
+      // Add attributes to the default view
       if (view.is_default) {
         normalizedView.attributes = attributesArray;
       }
 
       return normalizedView;
     });
-  }, [views, attributesArray]);
+
+    // Find normalized default view
+    const normalizedDefaultView = normalizedViews.find(v => v.is_default);
+    const normalizedUserViews = normalizedViews.filter(v => !v.is_default);
+
+    // Order: default view first, then system views, then user views
+    const orderedViews: View[] = [];
+    
+    if (normalizedDefaultView) {
+      orderedViews.push(normalizedDefaultView);
+    }
+    
+    orderedViews.push(...processedSystemViews);
+    orderedViews.push(...normalizedUserViews);
+
+    return orderedViews;
+  }, [views, attributesArray, enableViews, query, systemViews]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo<LensContextValue>(
@@ -257,6 +316,14 @@ export function LensProvider({
       enableViews,
       viewScoping,
       filterType,
+      interactions,
+      enableForceRefresh,
+      onForceRefresh,
+      initialViewId,
+      onViewChange,
+      displayAttributes,
+      hideAttributes,
+      systemViews,
     }),
     [
       query,
@@ -276,6 +343,14 @@ export function LensProvider({
       enableViews,
       viewScoping,
       filterType,
+      interactions,
+      enableForceRefresh,
+      onForceRefresh,
+      initialViewId,
+      onViewChange,
+      displayAttributes,
+      hideAttributes,
+      systemViews,
     ]
   );
 
