@@ -10,11 +10,10 @@ export function ViewHeader({
   totalCount,
 }: ViewHeaderProps) {
   return (
-    <div className="flex flex-shrink-0 items-center justify-between border-b px-4 py-2">
-      <h3 className="text-sm font-medium">{title}</h3>
+    <div className="flex flex-shrink-0 items-center justify-between border-b py-2">
+      <h3 className="text-sm font-medium"></h3>
       <div className="text-muted-foreground text-sm">
         {loadedCount} records loaded
-        {totalCount && ` of ${totalCount}`}
       </div>
     </div>
   );

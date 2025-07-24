@@ -1,9 +1,10 @@
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { RowData } from "@lens2/types/common";
-import { LOADING_CONFIG } from "@lens2/views/shared/constants";
 import { flexRender, Row, Table } from "@tanstack/react-table";
 import { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
 import { memo } from "react";
+import { useRowInteractions } from "@lens2/hooks/use-row-interactions";
+import { TableSkeleton } from "./table-skeleton";
 
 interface TableBodyProps {
   table: Table<RowData>;
@@ -18,19 +19,28 @@ export const TableBody = ({
 }: TableBodyProps) => {
   const { rows } = table.getRowModel();
 
+  // Show skeleton for initial load when no rows but fetching
+  if (!rows.length && isFetching) {
+    const columnCount = table.getVisibleLeafColumns().length || 5;
+    return (
+      <div className="relative h-full w-full">
+        <TableSkeleton 
+          rows={5} 
+          columns={columnCount}
+        />
+      </div>
+    );
+  }
+
   if (!rows.length) {
     return (
       <div
         className={cn(
-          "relative h-full w-full p-4 pt-10 text-center",
+          "relative h-full w-full p-8 pt-16 text-center",
           "text-muted-foreground"
         )}
       >
-        {isFetching ? (
-          <div className="text-sm">Loading...</div>
-        ) : (
-          <div className="text-sm">No data available</div>
-        )}
+        <div className="text-sm font-medium">No data available</div>
       </div>
     );
   }
@@ -39,7 +49,7 @@ export const TableBody = ({
     <div
       className="relative h-full w-full"
       style={{
-        height: `${rowVirtualizer.getTotalSize() + (isFetching ? LOADING_CONFIG.INDICATOR_HEIGHT : 0)}px`,
+        height: `${rowVirtualizer.getTotalSize() + (isFetching ? 200 : 0)}px`,
       }}
     >
       {rowVirtualizer.getVirtualItems().map(virtualRow => {
@@ -56,16 +66,21 @@ export const TableBody = ({
 
       {isFetching && (
         <div
-          className={cn(
-            "absolute left-0 flex w-full items-center justify-center",
-            "animate-pulse"
-          )}
+          className="absolute left-0 w-full"
           style={{
             transform: `translateY(${rowVirtualizer.getTotalSize()}px)`,
-            height: `${LOADING_CONFIG.INDICATOR_HEIGHT}px`,
           }}
         >
-          <div className="text-muted-foreground text-sm">Loading more...</div>
+          <TableSkeleton 
+            rows={3} 
+            columns={table.getVisibleLeafColumns().length || 5}
+            className="opacity-60"
+          />
+          <div className="flex items-center justify-center py-2">
+            <div className="text-muted-foreground text-sm animate-pulse">
+              Loading more...
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -80,12 +95,23 @@ interface TableRowProps {
 }
 
 const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
-  return (
+  const {
+    handleRowClick,
+    getAttributeClickHandler,
+    getAttributeWrapper,
+    RowWrapper,
+    hasRowClickHandler,
+  } = useRowInteractions();
+  const rowData = row.original;
+
+  const rowContent = (
     <div
       className={cn(
-        "absolute top-0 left-0 flex w-full border-b transition-colors",
-        "hover:bg-muted/50",
-        "data-[state=selected]:bg-muted"
+        "absolute top-0 left-0 flex w-full border-b border-border",
+        virtualRow.index % 2 === 0 ? "" : "bg-muted/10",
+        "hover:bg-muted/30 hover:shadow-sm",
+        "data-[state=selected]:bg-muted/20",
+        hasRowClickHandler && "cursor-pointer"
       )}
       data-index={virtualRow.index}
       data-state={row.getIsSelected() && "selected"}
@@ -95,8 +121,19 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
       style={{
         transform: `translateY(${virtualRow.start}px)`,
       }}
+      onClick={e => handleRowClick(rowData, e)}
     >
       {row.getVisibleCells().map(cell => {
+        const columnId = cell.column.id;
+        const value = cell.getValue();
+        const CellWrapper =
+          getAttributeWrapper(columnId) || (({ children }: any) => children);
+        const handleCellClick = getAttributeClickHandler(
+          columnId,
+          value,
+          rowData
+        );
+
         return (
           <div
             key={cell.id}
@@ -104,22 +141,30 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
             className={cn(
               "flex items-center overflow-hidden",
               "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-              "py-1 @sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-3",
+              "py-1.5 @sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-2.5",
               "text-xs @sm/lens-table:text-xs @md/lens-table:text-sm @lg/lens-table:text-sm",
               "text-foreground"
-              // "bg-blue-200 @sm/lens-table:bg-red-200 @md/lens-table:bg-yellow-200"
             )}
             style={{
               width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
             }}
+            onClick={handleCellClick}
           >
-            <span className="truncate">
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </span>
+            <CellWrapper value={value} rowData={rowData}>
+              <span className="truncate">
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </span>
+            </CellWrapper>
           </div>
         );
       })}
     </div>
+  );
+
+  return (
+    <RowWrapper rowData={rowData} onClick={e => handleRowClick(rowData, e)}>
+      {rowContent}
+    </RowWrapper>
   );
 });
 

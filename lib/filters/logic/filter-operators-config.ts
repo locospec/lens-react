@@ -1,36 +1,10 @@
-import {
-  BOOLEAN_OPERATORS,
-  DATE_OPERATORS,
-  ENUM_OPERATORS,
-  NULL_OPERATORS,
-  NUMBER_OPERATORS,
-  STRING_OPERATORS,
-} from "@lens2/filters/logic/operators";
+import { NULL_OPERATORS, TYPE_OPERATORS_MAP } from "@lens2/filters/logic/operators";
 import type { AttributeType } from "@lens2/types/attributes";
 import type { Operator, OperatorDefinition } from "@lens2/types/filters";
 import {
   MULTIPLE_VALUE_OPERATORS,
   RANGE_OPERATORS,
 } from "@lens2/types/filters";
-
-// Map lens-react-2 attribute types to operators
-export const TYPE_OPERATORS_MAP: Record<AttributeType, OperatorDefinition[]> = {
-  string: STRING_OPERATORS,
-  text: STRING_OPERATORS,
-  longtext: [
-    // Limited operators for longtext
-    { value: "contains", label: "Contains", requiresValue: true },
-    { value: "not_contains", label: "Does not contain", requiresValue: true },
-  ],
-  integer: NUMBER_OPERATORS,
-  number: NUMBER_OPERATORS,
-  decimal: NUMBER_OPERATORS,
-  date: DATE_OPERATORS,
-  datetime: DATE_OPERATORS,
-  timestamp: DATE_OPERATORS,
-  boolean: BOOLEAN_OPERATORS,
-  enum: ENUM_OPERATORS,
-};
 
 // Get operators for a given attribute type with nullable support
 export function returnOperators(
@@ -39,7 +13,8 @@ export function returnOperators(
 ): OperatorDefinition[] {
   const operators = TYPE_OPERATORS_MAP[type];
   if (!operators) {
-    throw new Error(`No operators defined for type: ${type}`);
+    console.warn(`No operators defined for type: ${type}`);
+    return [];
   }
   if (isNullable) {
     return [...operators, ...NULL_OPERATORS];
@@ -61,7 +36,8 @@ export function getDefaultOperator(type: AttributeType): string {
     default: {
       const operators = TYPE_OPERATORS_MAP[type];
       if (!operators || operators.length === 0) {
-        throw new Error(`No operators defined for type: ${type}`);
+        console.warn(`No operators defined for type: ${type}`);
+        return "is"; // Default fallback operator
       }
       return operators[0].value;
     }

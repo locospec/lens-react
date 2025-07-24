@@ -23,13 +23,13 @@ export function ViewConfigNav() {
   // Define navigation items based on view type
   const getNavItems = (): NavItem[] => {
     const commonItems: NavItem[] = [
-      {
-        id: "settings",
-        label: "View Settings",
-        icon: Settings,
-        description: "Name, description, and permissions",
-        disabled: true,
-      },
+      // {
+      //   id: "settings",
+      //   label: "View Settings",
+      //   icon: Settings,
+      //   description: "Name, description, and permissions",
+      //   disabled: true,
+      // },
     ];
 
     if (view.type === "table") {
@@ -40,20 +40,20 @@ export function ViewConfigNav() {
           icon: Columns3,
           description: "Show, hide, and reorder columns",
         },
-        {
-          id: "group",
-          label: "Group",
-          icon: Group,
-          description: "Group rows by a field",
-          disabled: true,
-        },
-        {
-          id: "sort",
-          label: "Sort",
-          icon: SortAsc,
-          description: "Sort your data",
-          disabled: true,
-        },
+        // {
+        //   id: "group",
+        //   label: "Group",
+        //   icon: Group,
+        //   description: "Group rows by a field",
+        //   disabled: true,
+        // },
+        // {
+        //   id: "sort",
+        //   label: "Sort",
+        //   icon: SortAsc,
+        //   description: "Sort your data",
+        //   disabled: true,
+        // },
         {
           id: "layout",
           label: "Layout Options",

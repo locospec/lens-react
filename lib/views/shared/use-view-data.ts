@@ -7,13 +7,13 @@ interface UseViewDataOptions {
 }
 
 export function useViewData(options: UseViewDataOptions = {}) {
-  const { config, endpoints, headers, query } = useLensContext();
+  const { config, endpoints, headers, query, attributes: enrichedAttributes } = useLensContext();
   const { view, readPayload } = useViewContext();
 
   const { defaultPerPage = 5 } = options;
 
-  // Get attributes directly from config
-  const attributesObject = config?.attributes || {};
+  // Use enriched attributes from LensContext (which filters out unsupported types)
+  const attributesObject = enrichedAttributes || {};
   const attributes = Object.values(attributesObject);
 
   // Infinite fetch for data
