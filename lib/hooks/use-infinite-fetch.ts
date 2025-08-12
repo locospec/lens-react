@@ -1,6 +1,7 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
 import { STALE_TIME, REFETCH_OPTIONS } from "@lens2/constants/cache";
+import { FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 
@@ -50,7 +51,7 @@ const createFetchFn = (
       ...restBody,
       pagination: {
         type: "cursor",
-        per_page: perPage || 10,
+        per_page: perPage || FETCH_CONFIG.DEFAULT_PER_PAGE,
         cursor: pageParam,
       },
     };
@@ -102,7 +103,7 @@ export const useInfiniteFetch = ({
   endpoint,
   headers,
   body = {},
-  perPage = 10,
+  perPage = FETCH_CONFIG.DEFAULT_PER_PAGE,
   enabled = true,
 }: UseInfiniteFetchParams) => {
   const { addApiCall, updateApiCall } = useLensDebugClient();

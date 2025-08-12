@@ -6,7 +6,11 @@ import type { LensProps } from "@lens2/types/lens";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createLensPersister } from "@lens2/utils/create-lens-persister";
-import { CACHE_TIME, REFETCH_OPTIONS, calculateStaleTime } from "@lens2/constants/cache";
+import {
+  CACHE_TIME,
+  REFETCH_OPTIONS,
+  calculateStaleTime,
+} from "@lens2/constants/cache";
 import { useMemo, useState, useCallback } from "react";
 
 export function Lens({
@@ -29,6 +33,10 @@ export function Lens({
   displayAttributes,
   hideAttributes,
   systemViews,
+  perPage,
+  selectionType = "none",
+  defaultSelected,
+  onSelect,
 }: LensProps) {
   // State to track if we should force refresh
   const [forceRefreshKey, setForceRefreshKey] = useState(0);
@@ -90,6 +98,10 @@ export function Lens({
         displayAttributes={displayAttributes}
         hideAttributes={hideAttributes}
         systemViews={systemViews}
+        perPage={perPage}
+        selectionType={selectionType}
+        defaultSelected={defaultSelected}
+        onSelect={onSelect}
       >
         <LensContent onError={onError} />
       </LensProvider>
@@ -113,8 +125,6 @@ export function Lens({
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {content}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{content}</QueryClientProvider>
   );
 }

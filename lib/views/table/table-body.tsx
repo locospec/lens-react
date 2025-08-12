@@ -24,10 +24,7 @@ export const TableBody = ({
     const columnCount = table.getVisibleLeafColumns().length || 5;
     return (
       <div className="relative h-full w-full">
-        <TableSkeleton 
-          rows={5} 
-          columns={columnCount}
-        />
+        <TableSkeleton rows={5} columns={columnCount} />
       </div>
     );
   }
@@ -71,8 +68,8 @@ export const TableBody = ({
             transform: `translateY(${rowVirtualizer.getTotalSize()}px)`,
           }}
         >
-          <TableSkeleton 
-            rows={3} 
+          <TableSkeleton
+            rows={3}
             columns={table.getVisibleLeafColumns().length || 5}
             className="opacity-60"
           />
@@ -94,7 +91,7 @@ interface TableRowProps {
   rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
 }
 
-const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
+const TableRow = ({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
   const {
     handleRowClick,
     getAttributeClickHandler,
@@ -166,7 +163,7 @@ const TableRow = memo(({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
       {rowContent}
     </RowWrapper>
   );
-});
+};
 
 TableRow.displayName = "TableRow";
 

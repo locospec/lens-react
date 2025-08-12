@@ -22,5 +22,5 @@ export const LOADING_CONFIG = {
 
 // Data Fetching
 export const FETCH_CONFIG = {
-  DEFAULT_PER_PAGE: 5, // Number of items to fetch per page
+  DEFAULT_PER_PAGE: 20, // Number of items to fetch per page
 } as const;

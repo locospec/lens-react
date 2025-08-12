@@ -1,5 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useInfiniteFetch } from "@lens2/hooks/use-infinite-fetch";
+import { FETCH_CONFIG } from "@lens2/views/shared/constants";
 import type { Condition, FilterGroup } from "@lens2/types/filters";
 import { useMemo } from "react";
 
@@ -73,7 +74,7 @@ export const useAggregateOptions = ({
     endpoint,
     headers,
     body,
-    perPage: 10,
+    perPage: FETCH_CONFIG.DEFAULT_PER_PAGE,
     enabled,
   });
 

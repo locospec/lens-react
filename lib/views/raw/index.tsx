@@ -2,11 +2,12 @@ import { useLensContext } from "@lens2/contexts/lens-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useInfiniteFetch } from "@lens2/hooks/use-infinite-fetch";
+import { FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { useRef } from "react";
 
 export function RawDisplay() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { query, endpoints, headers } = useLensContext();
+  const { query, endpoints, headers, perPage: contextPerPage } = useLensContext();
   const { view, readPayload } = useViewContext();
 
   const {
@@ -21,7 +22,7 @@ export function RawDisplay() {
     viewId: view.id,
     endpoint: endpoints.query,
     headers: headers,
-    perPage: 5, // Changed to 5 as requested
+    perPage: contextPerPage || FETCH_CONFIG.DEFAULT_PER_PAGE,
     body: readPayload,
   });
 

@@ -40,11 +40,16 @@ export function LensProvider({
   displayAttributes,
   hideAttributes,
   systemViews,
+  perPage,
+  selectionType,
+  defaultSelected,
+  onSelect,
 }: LensProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
     useState<Record<string, Json>>(initialGlobalContext);
   const [recordsLoaded, setRecordsLoadedState] = useState(0);
+  const [selectionKey, setSelectionKey] = useState<string>();
 
   // Debug client
   const debugClient = useLensDebugClient();
@@ -138,9 +143,9 @@ export function LensProvider({
           is_default: true, // Mark this as the default view
         };
 
-        // Add tenant_id and user_id if provided via viewScoping
-        if (viewScoping?.tenantId) {
-          viewPayload.tenant_id = viewScoping.tenantId;
+        // Add scope_id and user_id if provided via viewScoping
+        if (viewScoping?.scopeId) {
+          viewPayload.scope_id = viewScoping.scopeId;
         }
         if (viewScoping?.userId) {
           viewPayload.user_id = viewScoping.userId;
@@ -190,6 +195,13 @@ export function LensProvider({
   const attributes = useMemo<Record<string, Attribute>>(() => {
     if (!config?.attributes) return {};
 
+    Object.keys(config.attributes).forEach(key => {
+      const attr = config.attributes[key];
+      if (attr.primaryKey) {
+        setSelectionKey(key);
+      }
+    });
+
     return enrichAttributes(
       config.attributes,
       config.aggregates || {},
@@ -237,8 +249,6 @@ export function LensProvider({
     const processedSystemViews: View[] = (systemViews || []).map(view => ({
       ...view,
       isSystem: true,
-      belongs_to_type: view.belongs_to_type || "query",
-      belongs_to_value: view.belongs_to_value || query,
     }));
 
     // If views are disabled, create a client-side only default view
@@ -284,11 +294,11 @@ export function LensProvider({
 
     // Order: default view first, then system views, then user views
     const orderedViews: View[] = [];
-    
+
     if (normalizedDefaultView) {
       orderedViews.push(normalizedDefaultView);
     }
-    
+
     orderedViews.push(...processedSystemViews);
     orderedViews.push(...normalizedUserViews);
 
@@ -324,6 +334,11 @@ export function LensProvider({
       displayAttributes,
       hideAttributes,
       systemViews,
+      perPage,
+      selectionType,
+      defaultSelected,
+      onSelect,
+      selectionKey,
     }),
     [
       query,
@@ -351,6 +366,11 @@ export function LensProvider({
       displayAttributes,
       hideAttributes,
       systemViews,
+      perPage,
+      selectionType,
+      defaultSelected,
+      onSelect,
+      selectionKey,
     ]
   );
 
