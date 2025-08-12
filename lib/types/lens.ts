@@ -33,6 +33,11 @@ export interface LensProps extends LensDataProps {
   hideAttributes?: string[]; // Hide specific attributes from display
   // System views configuration
   systemViews?: View[]; // Pre-configured views provided by developers
+  // Pagination configuration
+  perPage?: number; // Items per page (default: 20)
+  selectionType?: "none" | "single" | "multiple";
+  defaultSelected?: string[];
+  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // LensContent component props

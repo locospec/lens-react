@@ -88,9 +88,9 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
       is_default: false, // User-created views are never default
     };
 
-    // Add tenant_id and user_id if provided via viewScoping
-    if (viewScoping?.tenantId) {
-      viewPayload.tenant_id = viewScoping.tenantId;
+    // Add scope_id and user_id if provided via viewScoping
+    if (viewScoping?.scopeId) {
+      viewPayload.scope_id = viewScoping.scopeId;
     }
     if (viewScoping?.userId) {
       viewPayload.user_id = viewScoping.userId;

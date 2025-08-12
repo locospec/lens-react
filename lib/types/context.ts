@@ -46,6 +46,12 @@ export interface LensContextValue {
   hideAttributes?: string[];
   // System views
   systemViews?: View[];
+  // Pagination configuration
+  perPage?: number;
+  selectionType?: "none" | "single" | "multiple";
+  defaultSelected?: string[];
+  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
+  selectionKey?: string;
 }
 
 // Lens Provider Props
@@ -67,6 +73,12 @@ export interface LensProviderProps extends LensDataProps {
   hideAttributes?: string[];
   // System views
   systemViews?: View[];
+  // Pagination configuration
+  perPage?: number;
+  // Selection Configuration
+  selectionType?: "none" | "single" | "multiple";
+  defaultSelected?: string[];
+  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // View Context Value

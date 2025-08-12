@@ -34,8 +34,8 @@ export interface View {
   description?: string | null;
 
   // Backend fields
-  belongs_to_type: string;
-  belongs_to_value: string;
+  belongs_to_type?: string;
+  belongs_to_value?: string;
   config?: ViewConfig;
   created_at?: string | null;
   updated_at?: string | null;
@@ -50,7 +50,7 @@ export interface View {
   is_default?: boolean;
 
   // View scoping fields
-  tenant_id?: string;
+  scope_id?: string;
   user_id?: string;
 
   // System view indicator
@@ -59,7 +59,7 @@ export interface View {
 
 // View scoping configuration
 export interface ViewScoping {
-  tenantId?: string;
+  scopeId?: string;
   userId?: string;
 }
 

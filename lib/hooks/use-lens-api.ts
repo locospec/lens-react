@@ -195,11 +195,11 @@ export const useLensApi = ({
         ];
 
         // Add viewScoping filters if provided
-        if (viewScoping?.tenantId) {
+        if (viewScoping?.scopeId) {
           conditions.push({
-            attribute: "tenant_id",
+            attribute: "scope_id",
             op: "is",
-            value: viewScoping.tenantId,
+            value: viewScoping.scopeId,
           });
         }
         if (viewScoping?.userId) {

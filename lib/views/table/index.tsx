@@ -4,7 +4,6 @@ import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { COLUMN_SIZES, FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { EmptyState } from "@lens2/views/shared/empty-state";
-import { LoadingState } from "@lens2/views/shared/loading-state";
 import { useColumnResizeSave } from "@lens2/views/shared/use-column-resize-save";
 import { useColumnSizeVars } from "@lens2/views/shared/use-column-size-vars";
 import { useColumnState } from "@lens2/views/shared/use-column-state";
@@ -21,6 +20,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MemoizedTableBody, TableBody } from "./table-body";
 import { TableHeader } from "./table-header";
 import { TableSkeleton } from "./table-skeleton";
+import { useTableSyncSelection } from "~/locospec/lens-react-2/lib/hooks/use-table-sync-selection";
 
 export function TableView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +28,13 @@ export function TableView() {
 
   const { updateConfigChange } = useViewConfig();
   const { setTable } = useViewContext();
-  const { interactions } = useLensContext();
+  const {
+    interactions,
+    selectionType,
+    defaultSelected = [],
+    onSelect,
+    selectionKey = "",
+  } = useLensContext();
 
   // Get data and config using shared hook
   const {
@@ -49,7 +55,14 @@ export function TableView() {
     setColumnVisibility,
     columnOrder,
     setColumnOrder,
-  } = useColumnState({ attributes, viewConfig: view.config, interactions });
+    rowSelection,
+    setRowSelection,
+  } = useColumnState({
+    attributes,
+    viewConfig: view.config,
+    interactions,
+    selectionType,
+  });
 
   // Column sizing state
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(
@@ -61,14 +74,19 @@ export function TableView() {
     data: flatData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: row => row[selectionKey],
     manualPagination: true,
     debugTable: false,
     columnResizeMode: "onChange",
+    enableRowSelection: selectionType !== "none",
+    enableMultiRowSelection: selectionType === "multiple",
     state: {
       columnVisibility,
       columnOrder,
       columnSizing,
+      rowSelection,
     },
+    onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
     onColumnSizingChange: setColumnSizing,
@@ -76,6 +94,17 @@ export function TableView() {
       size: COLUMN_SIZES.DEFAULT,
       minSize: COLUMN_SIZES.MIN,
       maxSize: COLUMN_SIZES.MAX,
+    },
+  });
+
+  useTableSyncSelection({
+    selectedItems: defaultSelected,
+    selectedRows: rowSelection,
+    setRowSelection: value => {
+      return setRowSelection(value);
+    },
+    onSelect: (selected: string[]) => {
+      onSelect && onSelect(selected);
     },
   });
 
