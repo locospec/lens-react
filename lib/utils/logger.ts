@@ -42,28 +42,28 @@ function formatMessage(level: string, message: string): string {
   return `[${timestamp}] [LENS-${level}] ${message}`;
 }
 
-export function debug(message: string, data?: unknown) {
+export function debug(message: string, data?: any) {
   if (shouldLog(LogLevel.DEBUG)) {
     const formatted = formatMessage("DEBUG", message);
     console.log(`%c${formatted}`, colors.debug, data || "");
   }
 }
 
-export function info(message: string, data?: unknown) {
+export function info(message: string, data?: any) {
   if (shouldLog(LogLevel.INFO)) {
     const formatted = formatMessage("INFO", message);
     console.log(`%c${formatted}`, colors.info, data || "");
   }
 }
 
-export function warn(message: string, data?: unknown) {
+export function warn(message: string, data?: any) {
   if (shouldLog(LogLevel.WARN)) {
     const formatted = formatMessage("WARN", message);
     console.warn(`%c${formatted}`, colors.warn, data || "");
   }
 }
 
-export function error(message: string, errorData?: unknown) {
+export function error(message: string, errorData?: any) {
   if (shouldLog(LogLevel.ERROR)) {
     const formatted = formatMessage("ERROR", message);
     const errorDetails =
@@ -123,7 +123,7 @@ export function group(label: string, fn: () => void) {
   }
 }
 
-export function table(data: unknown) {
+export function table(data: any) {
   if (isEnabled && console.table) {
     console.table(data);
   }
@@ -140,7 +140,7 @@ export function time(label: string): () => void {
 
 // Expose to window for browser console access
 if (typeof window !== "undefined") {
-  (window as { lensLogger?: unknown }).lensLogger = {
+  (window as { lensLogger?: any }).lensLogger = {
     enable,
     disable,
     setLevel,

@@ -46,7 +46,7 @@ export function useViewConfig() {
   }, [setActiveConfigPanel]);
 
   const updateConfigChange = useCallback(
-    async (key: string, value: unknown) => {
+    async (key: string, value: any) => {
       // For system views, only update local state, don't persist
       if (view.isSystem) {
         setConfigChanges({
