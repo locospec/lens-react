@@ -5,7 +5,7 @@
 import type { Attribute } from "./attributes";
 import type { Json } from "./common";
 import type { FilterGroup } from "./filters";
-import type { SortDirection, View, ViewConfig } from "./view";
+import type { View, ViewConfig } from "./view";
 
 // Pagination configurations
 export interface CursorPagination {
@@ -26,7 +26,7 @@ export type Pagination = CursorPagination | OffsetPagination;
 export interface ReadRequestPayload {
   globalContext: Json;
   filters?: FilterGroup;
-  sorts?: Array<{ field: string; direction: SortDirection }>;
+  sorts?: Array<{ attribute: string; direction: "ASC" | "DESC" }>;
   pagination?: Pagination;
 }
 

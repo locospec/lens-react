@@ -1,6 +1,7 @@
+import { REFETCH_OPTIONS, STALE_TIME } from "@lens2/constants/cache";
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import { STALE_TIME, REFETCH_OPTIONS } from "@lens2/constants/cache";
+import * as logger from "@lens2/utils/logger";
 import { FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
@@ -10,7 +11,7 @@ export interface UseInfiniteFetchParams {
   viewId: string;
   endpoint: string;
   headers?: Record<string, string>;
-  body?: Record<string, any>;
+  body?: Record<string, unknown>;
   perPage?: number;
   enabled?: boolean;
 }
@@ -19,11 +20,11 @@ interface FetchFnParams {
   pageParam: string | null;
   endpoint: string;
   headers?: Record<string, string>;
-  body: Record<string, any>;
+  body: Record<string, unknown>;
 }
 
 interface PaginatedResponse {
-  data: any[];
+  data: unknown[];
   meta?: {
     next_cursor?: string | null;
     prev_cursor?: string | null;
@@ -31,14 +32,22 @@ interface PaginatedResponse {
     count?: number;
     per_page?: number;
     total?: number;
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const createFetchFn = (
-  addApiCall: (call: any) => string,
-  updateApiCall: (id: string, updates: any) => void
+  addApiCall: (
+    call: Omit<
+      import("@lens2/contexts/lens-debug-context").ApiCall,
+      "id" | "timestamp" | "type"
+    >
+  ) => string,
+  updateApiCall: (
+    id: string,
+    updates: Partial<import("@lens2/contexts/lens-debug-context").ApiCall>
+  ) => void
 ) => {
   return async ({
     pageParam,
@@ -85,7 +94,7 @@ const createFetchFn = (
     });
 
     if (!response.ok) {
-      console.error(`Error: ${response.status} - ${endpoint}`);
+      logger.error(`Error: ${response.status} - ${endpoint}`);
       return { data: [] };
     }
 

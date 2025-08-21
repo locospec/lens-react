@@ -10,6 +10,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@lens2/shadcn/components/ui/dropdown-menu";
+import * as logger from "@lens2/utils/logger";
 import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
 import { ChipValueInput } from "./chip-value-input";
@@ -28,11 +29,11 @@ export function ChipFilterCreator({
   onFilterUpdate,
   sessionFilters,
 }: ChipFilterCreatorProps) {
-  const { attributes } = useLensContext();
+  const { filterableAttributes } = useLensContext();
   const [open, setOpen] = useState(false);
 
   // Get attribute keys for iteration
-  const attributeKeys = Object.keys(attributes);
+  const attributeKeys = Object.keys(filterableAttributes);
 
   // Handle popover open/close
   const handleOpenChange = useCallback(
@@ -57,15 +58,15 @@ export function ChipFilterCreator({
   // Handle value change
   const handleValueChange = useCallback(
     (attributeKey: string, value: unknown) => {
-      const attribute = attributes[attributeKey];
+      const attribute = filterableAttributes[attributeKey];
       if (!attribute) {
-        console.error(`Attribute ${attributeKey} not found`);
+        logger.error(`Attribute ${attributeKey} not found`);
         return;
       }
 
       onFilterUpdate(attributeKey, value, attribute.defaultOperator);
     },
-    [attributes, onFilterUpdate]
+    [filterableAttributes, onFilterUpdate]
   );
 
   return (
@@ -81,7 +82,7 @@ export function ChipFilterCreator({
         className="max-h-96 w-64 overflow-y-auto"
       >
         {attributeKeys.map(key => {
-          const attr = attributes[key];
+          const attr = filterableAttributes[key];
           const currentFilter = sessionFilters.get(key);
 
           return (
@@ -92,11 +93,6 @@ export function ChipFilterCreator({
             >
               <DropdownMenuSubTrigger className="flex w-full items-center justify-between">
                 <span>{attr.label}</span>
-                {currentFilter && (
-                  <span className="text-muted-foreground ml-2 text-xs">
-                    {String(currentFilter.value)}
-                  </span>
-                )}
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent className="w-64">

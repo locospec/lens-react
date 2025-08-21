@@ -14,8 +14,6 @@ export function NonModalSheet({
 export function NonModalSheetContent({
   className,
   children,
-  onInteractOutside,
-  onEscapeKeyDown,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content>) {
   return (

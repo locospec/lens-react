@@ -5,6 +5,7 @@ import {
   applyChipFilters,
   lensFilterToChipFilters,
 } from "@lens2/filters/logic/chip-filter-logic";
+import * as logger from "@lens2/utils/logger";
 import { useCallback, useEffect, useState } from "react";
 import { ChipFilterCreator } from "./chip-filter-creator";
 import { ChipFilterList } from "./chip-filter-list";
@@ -58,7 +59,7 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
   const handleFilterUpdate = useCallback(
     (attribute: string, value: unknown, operator: string) => {
       if (!currentSessionId) {
-        console.error("No active session for filter update");
+        logger.error("No active session for filter update");
         return;
       }
 

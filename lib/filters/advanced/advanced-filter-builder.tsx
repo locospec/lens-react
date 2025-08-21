@@ -8,6 +8,7 @@ import { Button } from "@lens2/shadcn/components/ui/button";
 import { Switch } from "@lens2/shadcn/components/ui/switch";
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { Filter, FilterGroup } from "@lens2/types/filters";
+import * as logger from "@lens2/utils/logger";
 import { Code, Plus } from "lucide-react";
 import React, { useState } from "react";
 
@@ -27,22 +28,23 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
   onClose,
 }) => {
   const { filters: contextFilters, setFilters } = useViewContext();
-  const { attributes: contextAttributes } = useLensContext();
+  const { attributes: contextAttributes, filterableAttributes } =
+    useLensContext();
 
-  // Transform attributes for dropdown display
+  // Transform filterable attributes for dropdown display
   const attributes = React.useMemo(() => {
-    return Object.entries(contextAttributes).map(([key, attr]) => ({
+    return Object.entries(filterableAttributes).map(([key, attr]) => ({
       value: key,
       label: attr.label || key,
     }));
-  }, [contextAttributes]);
+  }, [filterableAttributes]);
 
   const [filter, setFilter] = useState<Filter>(() => {
     const initial = value || contextFilters || {};
     // Normalize filters to ensure consistent property order
     const normalized =
       Object.keys(initial).length > 0 ? normalizeFilters(initial) : initial;
-    console.log("FilterBuilder mount:", {
+    logger.debug("FilterBuilder mounted", {
       value,
       contextFilters,
       initial,
@@ -96,7 +98,7 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
   const isEmpty = !("op" in filter && "conditions" in filter);
 
   const handleApply = () => {
-    console.log("Applying filters:", filter);
+    logger.info("Applying filters", { filter });
 
     // Compare current filter with context filters to avoid unnecessary updates
     const newFilter = isEmpty ? {} : filter;

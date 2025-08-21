@@ -1,5 +1,5 @@
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
 import { STALE_TIME } from "@lens2/constants/cache";
+import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
 import type {
   ApiResponse,
   ConfigResponse,

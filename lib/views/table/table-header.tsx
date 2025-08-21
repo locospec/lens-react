@@ -1,7 +1,9 @@
+import { HeaderContextMenu } from "@lens2/components/table/header-context-menu";
+import { SortableHeaderCell } from "@lens2/components/table/sortable-header-cell";
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { RowData } from "@lens2/types/common";
 import { ResizeHandle } from "@lens2/views/shared/resize-handle";
-import { Table, flexRender } from "@tanstack/react-table";
+import { Header, Table, flexRender } from "@tanstack/react-table";
 
 interface TableHeaderProps {
   table: Table<RowData>;
@@ -13,7 +15,7 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
 
   return (
     <div
-      className="bg-background sticky top-0 z-10 flex border-b border-border group"
+      className="bg-background border-border group sticky top-0 z-10 flex border-b"
       data-resizing={isAnyColumnResizing}
     >
       {table.getHeaderGroups().map(headerGroup => (
@@ -29,35 +31,43 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                   ? minSize !== maxSize
                   : true;
 
+              const columnId = header.column.id;
+
               return (
                 <div
                   key={header.id}
-                  data-column-id={header.column.id}
+                  data-column-id={columnId}
                   data-resizing={isResizing}
                   className={cn(
-                    "group/header relative flex items-center text-left",
+                    "group/header relative flex cursor-pointer items-center text-left",
                     "h-8 @sm/lens-table:h-9 @md/lens-table:h-10 @lg/lens-table:h-10",
                     "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
                     "text-xs @sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
                     "text-foreground font-medium",
-                    "bg-muted transition-colors",
-                    "group-data-[resizing=false]:hover:bg-muted/80",
+                    "bg-muted transition-colors duration-200",
+                    "group-data-[resizing=false]:hover:bg-muted/60",
+                    "hover:shadow-sm",
                     isResizing && "bg-muted/50"
                   )}
                   style={{
                     width: `calc(var(--header-${header.id}-size) * 1px)`,
                   }}
                 >
-                  <span className="truncate">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </span>
+                  <HeaderContextMenu attribute={columnId}>
+                    <div className="flex w-full items-center justify-between">
+                      <span className="truncate">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </span>
+                      <SortableHeaderCell columnId={columnId} />
+                    </div>
+                  </HeaderContextMenu>
                   <ResizeHandle
-                    header={header}
+                    header={header as Header<unknown, unknown>}
                     isResizing={isResizing}
                     disabled={!enableResizeHandler}
                     isLast={isLast}

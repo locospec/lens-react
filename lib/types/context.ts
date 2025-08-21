@@ -10,9 +10,9 @@ import type { Attribute, DisplayAttribute } from "./attributes";
 import type { Json, RowData } from "./common";
 import type { Config, LensDataProps, LensEndpoints } from "./config";
 import type { Filter } from "./filters";
+import type { EntityInteractions } from "./interactions";
 import type { FilterType } from "./lens";
 import type { Sort, View, ViewScoping } from "./view";
-import type { EntityInteractions } from "./interactions";
 
 // Lens Context Value
 export interface LensContextValue {
@@ -22,6 +22,8 @@ export interface LensContextValue {
   headers?: Record<string, string>;
   config: Config | null;
   attributes: Record<string, Attribute>;
+  filterableAttributes: Record<string, Attribute>;
+  searchableAttributes: Record<string, Attribute>;
   aggregates: Record<string, AggregateDefinition>;
   views: View[];
   api: ReturnType<typeof useLensApi>;

@@ -8,6 +8,8 @@ import type { Json, RowData } from "@lens2/types/common";
 import type { ViewContextValue, ViewProviderProps } from "@lens2/types/context";
 import type { Filter, FilterGroup } from "@lens2/types/filters";
 import type { Sort } from "@lens2/types/view";
+import * as logger from "@lens2/utils/logger";
+import { convertSortsForAPI } from "@lens2/utils/sort-utils";
 import type { Table } from "@tanstack/react-table";
 import {
   createContext,
@@ -55,7 +57,7 @@ export function ViewProvider({
   // Custom setFilters that ensures state updates and saves to config
   const setFilters = useCallback(
     (newFilters: Filter) => {
-      console.log("setFilters called with:", newFilters);
+      logger.debug("setFilters called", { newFilters });
 
       // Check if this is an empty filter object (user cleared all filters)
       const isEmpty = Object.keys(newFilters).length === 0;
@@ -66,11 +68,11 @@ export function ViewProvider({
         ? processFiltersForAPI(newFilters as FilterGroup)
         : null;
 
-      console.log("Processed filters:", processedFilters, "isEmpty:", isEmpty);
+      logger.debug("Processed filters", { processedFilters, isEmpty });
 
       if (isEmpty) {
         // User explicitly cleared filters - this is valid
-        console.log("Clearing filters");
+        logger.debug("Clearing filters");
         setFiltersState({});
 
         // For system views, don't persist to backend
@@ -85,12 +87,12 @@ export function ViewProvider({
               },
             })
             .catch(error => {
-              console.error("Failed to clear filters in view config:", error);
+              logger.error("Failed to clear filters in view config", error);
             });
         }
       } else if (processedFilters && processedFilters.conditions.length > 0) {
         // We have valid filters with conditions
-        console.log("Setting filters state to:", processedFilters);
+        logger.debug("Setting filters state", { processedFilters });
         setFiltersState(processedFilters);
 
         // For system views, don't persist to backend
@@ -105,7 +107,7 @@ export function ViewProvider({
               },
             })
             .catch(error => {
-              console.error("Failed to save filters to view config:", error);
+              logger.error("Failed to save filters to view config", error);
             });
         }
       }
@@ -113,7 +115,42 @@ export function ViewProvider({
     },
     [updateViewMutation, view.id, view.config, view.isSystem]
   );
-  const [sorts, setSorts] = useState<Sort[]>(initialView?.config?.sorts || []);
+  const [sortsState, setSortsState] = useState<Sort[]>(
+    initialView?.config?.sorts || []
+  );
+
+  // setSorts with backend persistence
+  const setSorts = useCallback(
+    (newSorts: Sort[]) => {
+      logger.debug("setSorts called", { newSorts });
+
+      // Update state immediately for instant UI feedback
+      setSortsState(newSorts);
+
+      // For system views, don't persist to backend
+      if (!view.isSystem) {
+        // Prepare sorts for saving - remove empty sorts array to keep config clean
+        const sortsToSave = newSorts.length > 0 ? newSorts : undefined;
+
+        // Save to backend in background
+        updateViewMutation
+          .mutateAsync({
+            id: view.id,
+            config: {
+              ...view.config,
+              sorts: sortsToSave,
+            },
+          })
+          .catch(error => {
+            logger.error("Failed to save sorts to view config", error);
+          });
+      }
+    },
+    [updateViewMutation, view.id, view.config, view.isSystem]
+  );
+
+  // Current sorts value
+  const sorts = sortsState;
 
   // View configuration state
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
@@ -136,12 +173,13 @@ export function ViewProvider({
 
   // Log only on mount
   useEffect(() => {
-    console.log("ViewProvider mount:", {
+    logger.debug("ViewProvider mounted", {
       viewId: initialView.id,
       hasFilters: !!initialView?.config?.filters,
       filters: initialView?.config?.filters,
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only log on mount
 
   // Get attributes from LensContext
   const { attributes } = useLensContext();
@@ -165,8 +203,13 @@ export function ViewProvider({
 
     const payload: ReadRequestPayload = {
       globalContext: contextWithSearch,
-      sorts: sorts.length > 0 ? sorts : view.config?.sorts || [],
     };
+
+    // Include sorts if they exist - convert to backend format
+    const activeSorts = sorts.length > 0 ? sorts : view.config?.sorts || [];
+    if (activeSorts.length > 0) {
+      payload.sorts = convertSortsForAPI(activeSorts);
+    }
 
     // Only include filters if they have valid conditions
     if (hasValidFilters && processedFilters) {
@@ -199,7 +242,7 @@ export function ViewProvider({
     setFilters(initialView?.config?.filters || {});
     setSorts(initialView?.config?.sorts || []);
     setConfigChanges({});
-  }, [initialView, setFilters]);
+  }, [initialView, setFilters, setSorts]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo<ViewContextValue>(

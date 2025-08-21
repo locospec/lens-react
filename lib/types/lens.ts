@@ -2,11 +2,11 @@
  * Lens component types
  */
 
+import type { DisplayAttribute } from "./attributes";
 import type { Json } from "./common";
 import type { LensDataProps } from "./config";
-import type { View, ViewScoping } from "./view";
 import type { EntityInteractions } from "./interactions";
-import type { DisplayAttribute } from "./attributes";
+import type { View, ViewScoping } from "./view";
 
 // Filter type options
 export type FilterType = "advanced" | "chip";

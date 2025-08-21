@@ -13,7 +13,7 @@ export type SortDirection = "asc" | "desc";
 
 // Sort configuration
 export interface Sort {
-  field: string;
+  attribute: string;
   direction: SortDirection;
 }
 

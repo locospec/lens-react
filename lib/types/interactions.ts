@@ -7,23 +7,20 @@ import type { RowData } from "./common";
 // Entity interactions configuration
 export interface EntityInteractions {
   // Simple row click handler
-  onRowClick?: (params: {
-    rowData: RowData;
-    event?: React.MouseEvent;
-  }) => void;
-  
+  onRowClick?: (params: { rowData: RowData; event?: React.MouseEvent }) => void;
+
   // Column-specific interactions
   attributeInteractions?: {
     [attributeKey: string]: {
       clickable?: boolean;
       onClick?: (params: {
-        value: any;
+        value: unknown;
         rowData: RowData;
         event?: React.MouseEvent;
       }) => void;
       // Custom cell wrapper component
       wrapper?: React.ComponentType<{
-        value: any;
+        value: unknown;
         rowData: RowData;
         children: React.ReactNode;
       }>;
@@ -31,14 +28,14 @@ export interface EntityInteractions {
       extraWidth?: number;
     };
   };
-  
+
   // Row wrapper component
   rowWrapper?: React.ComponentType<{
     rowData: RowData;
     children: React.ReactNode;
     onClick?: (event: React.MouseEvent) => void;
   }>;
-  
+
   // Custom actions column (render only)
   actions?: {
     width?: number;

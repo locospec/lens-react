@@ -7,7 +7,12 @@ import { useRef } from "react";
 
 export function RawDisplay() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { query, endpoints, headers, perPage: contextPerPage } = useLensContext();
+  const {
+    query,
+    endpoints,
+    headers,
+    perPage: contextPerPage,
+  } = useLensContext();
   const { view, readPayload } = useViewContext();
 
   const {
@@ -54,7 +59,7 @@ export function RawDisplay() {
           <div className="py-4 text-center">Loading...</div>
         ) : (
           <>
-            {flatData.map((item: any, index: number) => (
+            {flatData.map((item, index: number) => (
               <div
                 key={item.id || index}
                 className="mb-1 overflow-x-auto rounded border bg-gray-50 p-2 font-mono text-xs whitespace-nowrap"

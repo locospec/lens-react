@@ -15,16 +15,16 @@ export const CACHE_TIME = {
 export const STALE_TIME = {
   // Config data changes rarely, keep fresh for longer
   CONFIG: 10 * MINUTE,
-  
+
   // Views can change more frequently
   VIEWS: 5 * MINUTE,
-  
+
   // Filter options (selected options hydration)
   FILTER_OPTIONS: 5 * MINUTE,
-  
+
   // Paginated data should never auto-refetch
   INFINITE_DATA: Infinity,
-  
+
   // For disabled features
   DISABLED_FEATURE: Infinity,
 } as const;

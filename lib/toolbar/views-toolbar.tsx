@@ -15,9 +15,20 @@ import {
 } from "@lens2/shadcn/components/ui/dropdown-menu";
 import type { CreateViewRequestPayload } from "@lens2/types";
 import { ViewType } from "@lens2/types";
-import { Plus, Settings2, Table2, List, LayoutGrid, Code, Columns3, RefreshCw, Lock } from "lucide-react";
-import { useState } from "react";
+import * as logger from "@lens2/utils/logger";
 import { motion } from "framer-motion";
+import {
+  Code,
+  Columns3,
+  LayoutGrid,
+  List,
+  Lock,
+  Plus,
+  RefreshCw,
+  Settings2,
+  Table2,
+} from "lucide-react";
+import { useState } from "react";
 
 interface ToolbarProps {
   activeViewId: string;
@@ -27,22 +38,30 @@ interface ToolbarProps {
 const VIEW_TYPES = [
   { type: "table" as ViewType, label: "Table", enabled: true, icon: Table2 },
   { type: "list" as ViewType, label: "List", enabled: true, icon: List },
-  { type: "kanban" as ViewType, label: "Kanban", enabled: false, icon: Columns3 },
+  {
+    type: "kanban" as ViewType,
+    label: "Kanban",
+    enabled: false,
+    icon: Columns3,
+  },
   { type: "grid" as ViewType, label: "Grid", enabled: false, icon: LayoutGrid },
   { type: "raw" as ViewType, label: "Raw", enabled: false, icon: Code },
 ] as const;
 
 export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
-  const { views, api, query, viewScoping, enableForceRefresh, onForceRefresh } = useLensContext();
+  const { views, api, query, viewScoping, enableForceRefresh, onForceRefresh } =
+    useLensContext();
   const { openConfig } = useViewConfig();
   const [editingViewId, setEditingViewId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
-  const [contextMenuOpenId, setContextMenuOpenId] = useState<string | null>(null);
+  const [contextMenuOpenId, setContextMenuOpenId] = useState<string | null>(
+    null
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const createViewMutation = api.createView({
     onSuccess: response => {
-      console.log("View created successfully:", response);
+      logger.info("View created successfully", { response });
       // Switch to the new view
       if (response?.data?.id) {
         onViewChange(response.data.id);
@@ -68,7 +87,6 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
       }
     },
   });
-
 
   const handleCreateView = (type: ViewType) => {
     const defaultNames = {
@@ -124,40 +142,36 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
     setEditingViewId(null);
   };
 
-
   // Helper to get icon for view type
   const getViewIcon = (viewType: ViewType) => {
     const viewConfig = VIEW_TYPES.find(v => v.type === viewType);
     return viewConfig?.icon || Table2;
   };
 
-
   return (
     <div className="flex items-center justify-between border-b">
-      <div className="flex items-center gap-2 -mb-px">
+      <div className="-mb-px flex items-center gap-2">
         {/* Animated Tabs */}
         <div className="flex space-x-2">
-          {views.map((view) => {
+          {views.map(view => {
             const Icon = getViewIcon(view.type);
             const isContextMenuOpen = contextMenuOpenId === view.id;
-            
+
             return (
-              <ContextMenu 
+              <ContextMenu
                 key={view.id}
-                onOpenChange={(open) => setContextMenuOpenId(open ? view.id : null)}
+                onOpenChange={open =>
+                  setContextMenuOpenId(open ? view.id : null)
+                }
               >
                 <ContextMenuTrigger asChild>
                   <button
                     onClick={() => onViewChange(view.id)}
-                    className={`
-                      relative px-3 pb-3 pt-2 text-sm transition-colors rounded-md
-                      outline-none focus-visible:outline-2 focus-visible:outline-ring
-                      ${activeViewId === view.id 
-                        ? "text-foreground font-semibold" 
+                    className={`focus-visible:outline-ring relative rounded-md px-3 pt-2 pb-3 text-sm transition-colors outline-none focus-visible:outline-2 ${
+                      activeViewId === view.id
+                        ? "text-foreground font-semibold"
                         : "text-muted-foreground hover:text-foreground font-normal"
-                      }
-                      ${isContextMenuOpen ? "bg-muted" : ""}
-                    `}
+                    } ${isContextMenuOpen ? "bg-muted" : ""} `}
                     style={{
                       WebkitTapHighlightColor: "transparent",
                     }}
@@ -165,8 +179,12 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
                     {activeViewId === view.id && (
                       <motion.span
                         layoutId="underline"
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        className="bg-primary absolute right-0 bottom-0 left-0 h-[2px]"
+                        transition={{
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.6,
+                        }}
                       />
                     )}
                     <span className="relative z-20 flex items-center gap-2">
@@ -183,7 +201,7 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
                               setEditingViewId(null);
                             }
                           }}
-                          className="min-w-[100px] px-1.5 py-0.5 text-sm bg-muted rounded-sm border-none outline-none ring-0 focus:ring-0 focus:outline-none focus:border-none shadow-none"
+                          className="bg-muted min-w-[100px] rounded-sm border-none px-1.5 py-0.5 text-sm shadow-none ring-0 outline-none focus:border-none focus:ring-0 focus:outline-none"
                           onClick={e => e.stopPropagation()}
                           autoFocus
                         />
@@ -191,7 +209,7 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
                         <>
                           {view.name}
                           {view.isSystem && (
-                            <Lock className="h-3 w-3 ml-1 opacity-50" />
+                            <Lock className="ml-1 h-3 w-3 opacity-50" />
                           )}
                         </>
                       )}
@@ -217,9 +235,9 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
             );
           })}
         </div>
-        
-        <div className="border h-4"></div>
-        
+
+        <div className="h-4 border"></div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
@@ -259,10 +277,12 @@ export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
             }}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
           </Button>
         )}
-        
+
         {/* Customize view button */}
         <Button variant="ghost" size="sm" onClick={() => openConfig()}>
           <Settings2 className="mr-2 h-4 w-4" />

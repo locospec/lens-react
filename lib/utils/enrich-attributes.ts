@@ -1,7 +1,13 @@
 import { getDefaultOperator } from "@lens2/filters/logic/filter-operators-config";
-import { SUPPORTED_ATTRIBUTE_TYPES } from "@lens2/filters/logic/operators";
+import {
+  FILTERABLE_ATTRIBUTE_TYPES,
+  SEARCHABLE_ATTRIBUTE_TYPES,
+  SORTABLE_ATTRIBUTE_TYPES,
+  SUPPORTED_ATTRIBUTE_TYPES,
+} from "@lens2/filters/logic/operators";
 import type { AggregateDefinition } from "@lens2/types/api";
 import type { Attribute, DisplayAttribute } from "@lens2/types/attributes";
+import * as logger from "@lens2/utils/logger";
 
 /**
  * Enrich attributes from backend with aggregator-aware properties
@@ -51,7 +57,7 @@ export function enrichAttributes(
   attributesToProcess.forEach(([key, attr]) => {
     // Skip unsupported attribute types
     if (!SUPPORTED_ATTRIBUTE_TYPES.includes(attr.type)) {
-      console.warn(
+      logger.warn(
         `Skipping attribute "${key}" with unsupported type: ${attr.type}`
       );
       return;
@@ -94,11 +100,16 @@ export function enrichAttributes(
     try {
       defaultOperator = getDefaultOperator(effectiveType);
     } catch (error) {
-      console.warn(
+      logger.warn(
         `Could not get default operator for type ${effectiveType}, skipping attribute "${key}"`
       );
       return;
     }
+
+    // Compute searchable, filterable, and sortable based on the effective (final) type
+    const isFilterable = FILTERABLE_ATTRIBUTE_TYPES.includes(effectiveType);
+    const isSearchable = SEARCHABLE_ATTRIBUTE_TYPES.includes(effectiveType);
+    const isSortable = SORTABLE_ATTRIBUTE_TYPES.includes(effectiveType);
 
     // Return enriched attribute
     enriched[key] = {
@@ -107,10 +118,13 @@ export function enrichAttributes(
       filterAttribute,
       aggregatorKeys,
       defaultOperator,
+      filterable: isFilterable,
+      searchable: isSearchable,
+      sortable: isSortable,
     };
   });
 
-  console.log("Enriched attributes:", enriched);
+  logger.debug("Enriched attributes", enriched);
 
   return enriched;
 }

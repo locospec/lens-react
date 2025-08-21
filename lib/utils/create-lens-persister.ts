@@ -1,10 +1,10 @@
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { openDB } from "idb";
 import { PERSISTER_CONFIG } from "@lens2/constants/cache";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import type {
   PersistedClient,
   Persister,
 } from "@tanstack/react-query-persist-client";
+import { openDB } from "idb";
 
 /**
  * Creates an IndexedDB persister for React Query
@@ -13,7 +13,7 @@ import type {
 export function createIDBPersister(): Persister {
   const getDB = () =>
     openDB(PERSISTER_CONFIG.DB_NAME, PERSISTER_CONFIG.DB_VERSION, {
-      upgrade(db: any) {
+      upgrade(db) {
         if (!db.objectStoreNames.contains(PERSISTER_CONFIG.STORE_NAME)) {
           db.createObjectStore(PERSISTER_CONFIG.STORE_NAME);
         }

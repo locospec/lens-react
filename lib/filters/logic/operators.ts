@@ -134,4 +134,31 @@ export const TYPE_OPERATORS_MAP: Record<AttributeType, OperatorDefinition[]> = {
 };
 
 // Get list of supported attribute types from the operators map
-export const SUPPORTED_ATTRIBUTE_TYPES = Object.keys(TYPE_OPERATORS_MAP) as AttributeType[];
+export const SUPPORTED_ATTRIBUTE_TYPES = Object.keys(
+  TYPE_OPERATORS_MAP
+) as AttributeType[];
+
+// Attribute types that support text-based searching (input box)
+export const SEARCHABLE_ATTRIBUTE_TYPES: AttributeType[] = [
+  "string",
+  "text",
+  "longtext",
+];
+
+// Attribute types that support filtering (dropdowns, pickers, selectors)
+export const FILTERABLE_ATTRIBUTE_TYPES: AttributeType[] = [
+  "enum",
+  "boolean",
+  "date",
+  "datetime",
+  "timestamp",
+  "integer",
+  "number",
+  "decimal",
+];
+
+export const SORTABLE_ATTRIBUTE_TYPES: AttributeType[] = [
+  "string",
+  "text",
+  "enum",
+];
