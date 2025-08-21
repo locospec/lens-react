@@ -2,7 +2,7 @@ import { cn } from "@lens2/shadcn/lib/utils";
 import type { Header } from "@tanstack/react-table";
 
 export interface ResizeHandleProps {
-  header: Header<unknown, unknown>;
+  header: Header<any, unknown>;
   isResizing: boolean;
   disabled?: boolean;
   isLast?: boolean;
