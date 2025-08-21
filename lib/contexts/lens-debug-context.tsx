@@ -18,8 +18,8 @@ export interface ApiCall extends BaseDebugEntry {
   type: "api";
   method: string;
   endpoint: string;
-  request?: unknown;
-  response?: unknown;
+  request?: any;
+  response?: any;
   status?: number;
   duration?: number;
 }
@@ -28,7 +28,7 @@ export interface LogEntry extends BaseDebugEntry {
   type: "log";
   message: string;
   level?: "info" | "warn" | "error";
-  data?: unknown;
+  data?: any;
 }
 
 export type DebugEntry = ApiCall | LogEntry;
@@ -39,7 +39,7 @@ interface LensDebugContextValue {
   updateApiCall: (id: string, updates: Partial<ApiCall>) => void;
   addLog: (
     message: string,
-    data?: unknown,
+    data?: any,
     level?: "info" | "warn" | "error"
   ) => void;
   clearEntries: () => void;
@@ -107,7 +107,7 @@ export function LensDebugProvider({
   const addLog = useCallback(
     (
       message: string,
-      data?: unknown,
+      data?: any,
       level: "info" | "warn" | "error" = "info"
     ) => {
       if (!enabled) return;

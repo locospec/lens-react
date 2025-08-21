@@ -11,7 +11,7 @@ export interface UseInfiniteFetchParams {
   viewId: string;
   endpoint: string;
   headers?: Record<string, string>;
-  body?: Record<string, unknown>;
+  body?: Record<string, any>;
   perPage?: number;
   enabled?: boolean;
 }
@@ -20,11 +20,11 @@ interface FetchFnParams {
   pageParam: string | null;
   endpoint: string;
   headers?: Record<string, string>;
-  body: Record<string, unknown>;
+  body: Record<string, any>;
 }
 
 interface PaginatedResponse {
-  data: unknown[];
+  data: any[];
   meta?: {
     next_cursor?: string | null;
     prev_cursor?: string | null;
@@ -32,9 +32,9 @@ interface PaginatedResponse {
     count?: number;
     per_page?: number;
     total?: number;
-    [key: string]: unknown;
+    [key: string]: any;
   };
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 const createFetchFn = (
