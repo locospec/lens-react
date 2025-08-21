@@ -3,7 +3,7 @@ import { SortableHeaderCell } from "@lens2/components/table/sortable-header-cell
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { RowData } from "@lens2/types/common";
 import { ResizeHandle } from "@lens2/views/shared/resize-handle";
-import { Table, flexRender } from "@tanstack/react-table";
+import { Header, Table, flexRender } from "@tanstack/react-table";
 
 interface TableHeaderProps {
   table: Table<RowData>;
@@ -67,7 +67,7 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                     </div>
                   </HeaderContextMenu>
                   <ResizeHandle
-                    header={header}
+                    header={header as Header<unknown, unknown>}
                     isResizing={isResizing}
                     disabled={!enableResizeHandler}
                     isLast={isLast}

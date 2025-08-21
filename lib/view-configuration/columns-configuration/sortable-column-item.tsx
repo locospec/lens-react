@@ -5,7 +5,7 @@ import { GripVertical } from "lucide-react";
 interface Attribute {
   name: string;
   label: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface SortableColumnItemProps {

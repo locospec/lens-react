@@ -14,13 +14,13 @@ export interface EntityInteractions {
     [attributeKey: string]: {
       clickable?: boolean;
       onClick?: (params: {
-        value: any;
+        value: unknown;
         rowData: RowData;
         event?: React.MouseEvent;
       }) => void;
       // Custom cell wrapper component
       wrapper?: React.ComponentType<{
-        value: any;
+        value: unknown;
         rowData: RowData;
         children: React.ReactNode;
       }>;

@@ -10,13 +10,13 @@ export interface UseRowInteractionsResult {
   // Attribute/cell handlers
   getAttributeClickHandler: (
     attributeKey: string,
-    value: any,
+    value: unknown,
     rowData: RowData
   ) => ((event: React.MouseEvent) => void) | undefined;
   isAttributeClickable: (attributeKey: string) => boolean;
   getAttributeWrapper: (attributeKey: string) =>
     | React.ComponentType<{
-        value: any;
+        value: unknown;
         rowData: RowData;
         children: React.ReactNode;
       }>
@@ -66,7 +66,7 @@ export function useRowInteractions(): UseRowInteractionsResult {
 
   // Get click handler for attribute
   const getAttributeClickHandler = useCallback(
-    (attributeKey: string, value: any, rowData: RowData) => {
+    (attributeKey: string, value: unknown, rowData: RowData) => {
       if (!interactions?.attributeInteractions) return undefined;
 
       const attributeInteraction =
