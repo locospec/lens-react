@@ -1,17 +1,18 @@
 import type { Attribute } from "@lens2/contexts/view-context";
+import { Checkbox } from "@lens2/shadcn/components/ui/checkbox";
+import { Radio } from "@lens2/shadcn/components/ui/radio";
 import type { RowData } from "@lens2/types/common";
-import type { ViewConfig } from "@lens2/types/view";
 import type { EntityInteractions } from "@lens2/types/interactions";
+import type { ViewConfig } from "@lens2/types/view";
+import * as logger from "@lens2/utils/logger";
 import {
   ColumnDef,
   ColumnOrderState,
-  VisibilityState,
   RowSelectionState,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
 import { COLUMN_SIZES } from "./constants";
-import { Checkbox } from "@lens2/shadcn/components/ui/checkbox";
-import { Radio } from "@lens2/shadcn/components/ui/radio";
 
 interface UseColumnStateProps {
   attributes: Attribute[];
@@ -26,7 +27,7 @@ function buildTableColumns(
   selectionType?: "none" | "single" | "multiple"
 ): ColumnDef<RowData>[] {
   if (!attributes || attributes.length === 0) {
-    console.warn("No attributes available for table view");
+    logger.warn("No attributes available for table view");
     return [];
   }
 
@@ -71,7 +72,7 @@ function buildTableColumns(
       enableResizing: false,
       cell: ({ row }) => (
         <Radio
-          className="rounded-full cursor-pointer transition-colors"
+          className="cursor-pointer rounded-full transition-colors"
           value={row.id}
           checked={row.getIsSelected()}
           onClick={e => {
@@ -202,7 +203,8 @@ export function useColumnState({
       }
       return prev;
     });
-  }, [viewConfig?.visibleColumns, viewConfig?.columnOrder, columns.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewConfig?.visibleColumns, viewConfig?.columnOrder, columns.length]); // columns and interactions?.actions are intentionally excluded
 
   const [rowSelection, _setRowSelection] = useState<RowSelectionState>({});
 

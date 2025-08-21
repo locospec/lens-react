@@ -11,8 +11,15 @@ import { ViewContainer } from "@lens2/views/view-container";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function LensContent({ onError }: LensContentProps) {
-  const { views, isLoading, error, setRecordsLoaded, enableViews, initialViewId, onViewChange } =
-    useLensContext();
+  const {
+    views,
+    isLoading,
+    error,
+    setRecordsLoaded,
+    enableViews,
+    initialViewId,
+    onViewChange,
+  } = useLensContext();
   const debugClient = useLensDebugClient();
   const [activeViewId, setActiveViewId] = useState<string>(initialViewId || "");
   const viewContainerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +57,7 @@ export function LensContent({ onError }: LensContentProps) {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [views]); // Only depend on views, not initialViewId
 
   // Enhanced view change handler with logging
@@ -73,7 +81,7 @@ export function LensContent({ onError }: LensContentProps) {
           toViewId: newViewId,
         });
       }
-      
+
       // Always update the active view ID, even if the view doesn't exist yet
       setActiveViewId(newViewId);
       // Reset records loaded when switching views

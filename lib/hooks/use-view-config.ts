@@ -1,6 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useViewContext } from "@lens2/contexts/view-context";
-import type { Json } from "@lens2/types/common";
+import * as logger from "@lens2/utils/logger";
 import { useCallback } from "react";
 
 export function useViewConfig() {
@@ -46,7 +46,7 @@ export function useViewConfig() {
   }, [setActiveConfigPanel]);
 
   const updateConfigChange = useCallback(
-    async (key: string, value: any) => {
+    async (key: string, value: unknown) => {
       // For system views, only update local state, don't persist
       if (view.isSystem) {
         setConfigChanges({
@@ -66,11 +66,18 @@ export function useViewConfig() {
           },
         });
       } catch (error) {
-        console.error("Failed to update view config:", error);
+        logger.error("Failed to update view config:", error);
         throw error;
       }
     },
-    [updateViewMutation, view.id, view.config, view.isSystem, setConfigChanges, configChanges]
+    [
+      updateViewMutation,
+      view.id,
+      view.config,
+      view.isSystem,
+      setConfigChanges,
+      configChanges,
+    ]
   );
 
   const applyChanges = useCallback(async () => {
@@ -95,7 +102,7 @@ export function useViewConfig() {
       // ViewProvider will update the view state when views are refetched
       closeConfig();
     } catch (error) {
-      console.error("Failed to update view:", error);
+      logger.error("Failed to update view:", error);
     }
   }, [configChanges, closeConfig, updateViewMutation, view.id, view.isSystem]);
 

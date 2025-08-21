@@ -40,7 +40,8 @@ const useFetchMoreOnScroll = ({
 
   useEffect(() => {
     fetchMoreOnBottomReached(containerRef.current);
-  }, [fetchMoreOnBottomReached]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchMoreOnBottomReached]); // containerRef is a ref and doesn't need to be in deps
 
   return { fetchMoreOnBottomReached };
 };

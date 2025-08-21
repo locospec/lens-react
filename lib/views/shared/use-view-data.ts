@@ -8,7 +8,14 @@ interface UseViewDataOptions {
 }
 
 export function useViewData(options: UseViewDataOptions = {}) {
-  const { config, endpoints, headers, query, attributes: enrichedAttributes, perPage: contextPerPage } = useLensContext();
+  const {
+    config,
+    endpoints,
+    headers,
+    query,
+    attributes: enrichedAttributes,
+    perPage: contextPerPage,
+  } = useLensContext();
   const { view, readPayload } = useViewContext();
 
   const { defaultPerPage = FETCH_CONFIG.DEFAULT_PER_PAGE } = options;

@@ -1,12 +1,5 @@
 import { useViewConfig } from "@lens2/hooks/use-view-config";
-import {
-  ChevronRight,
-  Columns3,
-  Group,
-  Layout,
-  Settings,
-  SortAsc,
-} from "lucide-react";
+import { ChevronRight, Columns3, Layout } from "lucide-react";
 import React from "react";
 
 interface NavItem {

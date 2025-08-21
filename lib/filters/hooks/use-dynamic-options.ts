@@ -4,6 +4,7 @@ import { useSelectedOptionsHydration } from "@lens2/filters/hooks/use-selected-o
 import { handleOptionSelection } from "@lens2/filters/logic/dynamic-options-selection";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import type { FilterGroup } from "@lens2/types/filters";
+import * as logger from "@lens2/utils/logger";
 import * as React from "react";
 
 export interface UseDynamicOptionsParams {
@@ -103,6 +104,8 @@ export function useDynamicOptions({
   // Handle option selection
   const handleSelect = React.useCallback(
     (optionValue: string) => {
+      logger.info("Dynamic option selected", { optionValue });
+
       handleOptionSelection({
         optionValue,
         options,

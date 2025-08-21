@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from "react";
 import { useLensContext } from "@lens2/contexts/lens-context";
 import type { RowData } from "@lens2/types/common";
+import { useCallback, useMemo } from "react";
 
 export interface UseRowInteractionsResult {
   // Row handlers
@@ -10,13 +10,13 @@ export interface UseRowInteractionsResult {
   // Attribute/cell handlers
   getAttributeClickHandler: (
     attributeKey: string,
-    value: any,
+    value: unknown,
     rowData: RowData
   ) => ((event: React.MouseEvent) => void) | undefined;
   isAttributeClickable: (attributeKey: string) => boolean;
   getAttributeWrapper: (attributeKey: string) =>
     | React.ComponentType<{
-        value: any;
+        value: unknown;
         rowData: RowData;
         children: React.ReactNode;
       }>
@@ -66,7 +66,7 @@ export function useRowInteractions(): UseRowInteractionsResult {
 
   // Get click handler for attribute
   const getAttributeClickHandler = useCallback(
-    (attributeKey: string, value: any, rowData: RowData) => {
+    (attributeKey: string, value: unknown, rowData: RowData) => {
       if (!interactions?.attributeInteractions) return undefined;
 
       const attributeInteraction =
@@ -99,26 +99,28 @@ export function useRowInteractions(): UseRowInteractionsResult {
 
   // Get row wrapper component
   const RowWrapper = useMemo(() => {
-    return interactions?.rowWrapper || (({ children }: any) => children);
+    return (
+      interactions?.rowWrapper ||
+      (({ children }: { children: React.ReactNode }) => children)
+    );
   }, [interactions]);
 
   // Parse actions configuration
-  const { hasActions, actionsWidth, renderActions } =
-    useMemo(() => {
-      if (!interactions?.actions) {
-        return {
-          hasActions: false,
-          actionsWidth: 100,
-          renderActions: undefined,
-        };
-      }
-
+  const { hasActions, actionsWidth, renderActions } = useMemo(() => {
+    if (!interactions?.actions) {
       return {
-        hasActions: true,
-        actionsWidth: interactions.actions.width || 100,
-        renderActions: interactions.actions.render,
+        hasActions: false,
+        actionsWidth: 100,
+        renderActions: undefined,
       };
-    }, [interactions]);
+    }
+
+    return {
+      hasActions: true,
+      actionsWidth: interactions.actions.width || 100,
+      renderActions: interactions.actions.render,
+    };
+  }, [interactions]);
 
   return {
     handleRowClick,

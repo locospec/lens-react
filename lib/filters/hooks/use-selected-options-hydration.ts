@@ -1,6 +1,7 @@
+import { STALE_TIME } from "@lens2/constants/cache";
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useOptionsCache } from "@lens2/contexts/options-cache-context";
-import { STALE_TIME } from "@lens2/constants/cache";
+import * as logger from "@lens2/utils/logger";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -65,7 +66,7 @@ export const useSelectedOptionsHydration = ({
       }
 
       if (!keys) {
-        console.error(`Missing aggregatorKeys for attribute: ${attribute}`);
+        logger.error(`Missing aggregatorKeys for attribute: ${attribute}`);
         return new Map<string, string>();
       }
 

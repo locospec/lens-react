@@ -36,7 +36,8 @@ const useTableSyncSelection = ({
       setTimeout(() => setRowSelection(selectionMap), 100);
       // setRowSelection(selectionMap);
     }
-  }, [selectedItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedItems]); // Intentionally exclude areSelectionsDifferent and setRowSelection
 
   // Sync selectedRows → selectedData → onSelect
   useEffect(() => {
@@ -45,7 +46,8 @@ const useTableSyncSelection = ({
     const selectedKeys = Object.keys(selectedRows);
 
     onSelect(selectedKeys);
-  }, [selectedRows]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRows]); // Intentionally exclude areSelectionsDifferent and onSelect
 };
 
 useTableSyncSelection.displayName = "useTableSyncSelection";

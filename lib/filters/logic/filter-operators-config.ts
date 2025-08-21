@@ -1,10 +1,14 @@
-import { NULL_OPERATORS, TYPE_OPERATORS_MAP } from "@lens2/filters/logic/operators";
+import {
+  NULL_OPERATORS,
+  TYPE_OPERATORS_MAP,
+} from "@lens2/filters/logic/operators";
 import type { AttributeType } from "@lens2/types/attributes";
 import type { Operator, OperatorDefinition } from "@lens2/types/filters";
 import {
   MULTIPLE_VALUE_OPERATORS,
   RANGE_OPERATORS,
 } from "@lens2/types/filters";
+import * as logger from "@lens2/utils/logger";
 
 // Get operators for a given attribute type with nullable support
 export function returnOperators(
@@ -13,7 +17,7 @@ export function returnOperators(
 ): OperatorDefinition[] {
   const operators = TYPE_OPERATORS_MAP[type];
   if (!operators) {
-    console.warn(`No operators defined for type: ${type}`);
+    logger.warn(`No operators defined for type: ${type}`);
     return [];
   }
   if (isNullable) {
@@ -36,7 +40,7 @@ export function getDefaultOperator(type: AttributeType): string {
     default: {
       const operators = TYPE_OPERATORS_MAP[type];
       if (!operators || operators.length === 0) {
-        console.warn(`No operators defined for type: ${type}`);
+        logger.warn(`No operators defined for type: ${type}`);
         return "is"; // Default fallback operator
       }
       return operators[0].value;

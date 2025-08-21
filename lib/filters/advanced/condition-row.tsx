@@ -9,6 +9,7 @@ import {
 } from "@lens2/filters/logic/filter-operators-config";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import type { Condition, Operator } from "@lens2/types/filters";
+import * as logger from "@lens2/utils/logger";
 import { Trash2 } from "lucide-react";
 import React, { useMemo } from "react";
 
@@ -52,7 +53,7 @@ const ConditionRowComponent: React.FC<ConditionRowProps> = ({
     const newAttribute = attributes[value];
 
     if (!newAttribute) {
-      console.error(`Attribute "${value}" not found in enriched attributes`);
+      logger.error(`Attribute "${value}" not found in enriched attributes`);
       return;
     }
 

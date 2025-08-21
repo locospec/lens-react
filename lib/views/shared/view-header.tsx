@@ -4,11 +4,7 @@ interface ViewHeaderProps {
   totalCount?: number | null;
 }
 
-export function ViewHeader({
-  title,
-  loadedCount,
-  totalCount,
-}: ViewHeaderProps) {
+export function ViewHeader({ loadedCount }: ViewHeaderProps) {
   return (
     <div className="flex flex-shrink-0 items-center justify-between border-b py-2">
       <h3 className="text-sm font-medium"></h3>

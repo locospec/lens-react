@@ -1,5 +1,6 @@
-import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { useLensContext } from "@lens2/contexts/lens-context";
+import { useViewConfig } from "@lens2/hooks/use-view-config";
+import * as logger from "@lens2/utils/logger";
 import { COLUMN_SIZES } from "@lens2/views/shared/constants";
 import { ChevronRight } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
@@ -105,7 +106,7 @@ export function LayoutPanel() {
       // Save default sizes to config
       await updateConfigChange("columnSizes", defaultSizes);
     } catch (error) {
-      console.error("Failed to reset column widths:", error);
+      logger.error("Failed to reset column widths", error);
     } finally {
       setIsProcessing(false);
     }
@@ -120,7 +121,7 @@ export function LayoutPanel() {
       // Ensure we have data to measure
       const rows = table.getRowModel().rows;
       if (!rows.length) {
-        console.log("No data available for autosize");
+        logger.debug("No data available for autosize");
         return;
       }
 
@@ -141,7 +142,7 @@ export function LayoutPanel() {
       // Save the new sizes to config
       await updateConfigChange("columnSizes", columnSizes);
     } catch (error) {
-      console.error("Failed to autosize columns:", error);
+      logger.error("Failed to autosize columns", error);
     } finally {
       setIsProcessing(false);
     }

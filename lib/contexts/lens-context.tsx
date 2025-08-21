@@ -8,6 +8,7 @@ import type { LensContextValue, LensProviderProps } from "@lens2/types/context";
 import type { View } from "@lens2/types/view";
 import { createEndpoints } from "@lens2/utils/endpoints";
 import { enrichAttributes } from "@lens2/utils/enrich-attributes";
+import * as logger from "@lens2/utils/logger";
 import {
   createContext,
   use,
@@ -97,9 +98,14 @@ export function LensProvider({
   // Log Lens Provider initialization
   useEffect(() => {
     debugClient.addLog("Initialized Lens Provider", { query, baseUrl });
+    logger.info("Lens Provider initialized", { query, baseUrl });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
 
   // Log config outcome
+  const hasConfig = !!config;
+  const hasConfigError = !!configError;
+
   useEffect(() => {
     if (!configLoading) {
       if (config) {
@@ -120,7 +126,8 @@ export function LensProvider({
         );
       }
     }
-  }, [configLoading, !!config, !!configError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configLoading, hasConfig, hasConfigError]); // Intentionally exclude config, configError, debugClient, and query
 
   // Create default view if needed when views are enabled
   useEffect(() => {
@@ -181,6 +188,7 @@ export function LensProvider({
         "error"
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     viewsLoading,
     viewsData,
@@ -189,7 +197,7 @@ export function LensProvider({
     createViewMutation.isPending,
     viewScoping,
     enableViews,
-  ]);
+  ]); // Intentionally exclude createViewMutation, debugClient, and refetchViews
 
   // Transform raw attributes into proper Attribute format
   const attributes = useMemo<Record<string, Attribute>>(() => {
@@ -212,6 +220,19 @@ export function LensProvider({
 
   // Get attributes as array for backward compatibility
   const attributesArray = Object.values(attributes);
+
+  // Create filtered attribute objects for common use cases
+  const filterableAttributes = useMemo<Record<string, Attribute>>(() => {
+    return Object.fromEntries(
+      Object.entries(attributes).filter(([, attr]) => attr.filterable === true)
+    );
+  }, [attributes]);
+
+  const searchableAttributes = useMemo<Record<string, Attribute>>(() => {
+    return Object.fromEntries(
+      Object.entries(attributes).filter(([, attr]) => attr.searchable === true)
+    );
+  }, [attributes]);
 
   // Combine loading and error states
   const isLoading =
@@ -238,10 +259,11 @@ export function LensProvider({
         "error"
       );
     }
-  }, [!!configurationError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!configurationError]); // Intentionally exclude configurationError, debugClient, and query
 
   // Get views from API - no need to create a fake default view
-  const views: View[] = viewsData?.views || [];
+  const views: View[] = useMemo(() => viewsData?.views || [], [viewsData]);
 
   // Process views and ensure we always have at least one view
   const viewsWithAttributes = useMemo(() => {
@@ -314,6 +336,8 @@ export function LensProvider({
       headers,
       config: config || null,
       attributes,
+      filterableAttributes,
+      searchableAttributes,
       aggregates: config?.aggregates || {},
       views: viewsWithAttributes,
       api,
@@ -347,6 +371,8 @@ export function LensProvider({
       headers,
       config,
       attributes,
+      filterableAttributes,
+      searchableAttributes,
       viewsWithAttributes,
       api,
       isLoading,

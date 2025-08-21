@@ -1,9 +1,9 @@
+import { useRowInteractions } from "@lens2/hooks/use-row-interactions";
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { RowData } from "@lens2/types/common";
 import { flexRender, Row, Table } from "@tanstack/react-table";
 import { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
 import { memo } from "react";
-import { useRowInteractions } from "@lens2/hooks/use-row-interactions";
 import { TableSkeleton } from "./table-skeleton";
 
 interface TableBodyProps {
@@ -74,7 +74,7 @@ export const TableBody = ({
             className="opacity-60"
           />
           <div className="flex items-center justify-center py-2">
-            <div className="text-muted-foreground text-sm animate-pulse">
+            <div className="text-muted-foreground animate-pulse text-sm">
               Loading more...
             </div>
           </div>
@@ -104,7 +104,7 @@ const TableRow = ({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
   const rowContent = (
     <div
       className={cn(
-        "absolute top-0 left-0 flex w-full border-b border-border",
+        "border-border absolute top-0 left-0 flex w-full border-b",
         virtualRow.index % 2 === 0 ? "" : "bg-muted/10",
         "hover:bg-muted/30 hover:shadow-sm",
         "data-[state=selected]:bg-muted/20",
@@ -124,7 +124,8 @@ const TableRow = ({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
         const columnId = cell.column.id;
         const value = cell.getValue();
         const CellWrapper =
-          getAttributeWrapper(columnId) || (({ children }: any) => children);
+          getAttributeWrapper(columnId) ||
+          (({ children }: { children: React.ReactNode }) => children);
         const handleCellClick = getAttributeClickHandler(
           columnId,
           value,

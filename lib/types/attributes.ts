@@ -35,6 +35,9 @@ export interface Attribute {
   // Optional properties for filters and advanced features
   optionsAggregator?: string; // Aggregator name for dynamic options
   options?: Array<{ label: string; value: string; count?: number }>; // Static enum options
+  filterable?: boolean; // Whether this attribute can be used for filtering
+  searchable?: boolean; // Whether this attribute can be used for searching
+  sortable?: boolean; // Whether this attribute can be used for sorting
 }
 
 // Display configuration for attributes

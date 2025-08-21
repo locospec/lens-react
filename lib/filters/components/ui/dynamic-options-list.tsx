@@ -247,7 +247,7 @@ const OptionItem: FC<{
             <Checkbox
               id={id}
               checked={isSelected}
-              onCheckedChange={() => onSelect(value)}
+              // onCheckedChange={() => onSelect(value)}
               onClick={e => e.stopPropagation()}
             />
           ) : (

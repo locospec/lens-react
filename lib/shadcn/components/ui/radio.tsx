@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { Dot } from "lucide-react"; // Optional visual indicator
 import { cn } from "@lens2/shadcn/lib/utils";
+import { Dot } from "lucide-react"; // Optional visual indicator
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
+import * as React from "react";
 
 function Radio({
   className,
@@ -22,7 +22,7 @@ function Radio({
         data-slot="radio-indicator"
         className="flex items-center justify-center text-current transition-none"
       >
-        <Dot className="size-2 rounded-full bg-background" />
+        <Dot className="bg-background size-2 rounded-full" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

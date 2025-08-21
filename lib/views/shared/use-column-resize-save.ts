@@ -1,4 +1,5 @@
 import type { Json, RowData } from "@lens2/types/common";
+import * as logger from "@lens2/utils/logger";
 import type { Table } from "@tanstack/react-table";
 import { useEffect, useRef } from "react";
 
@@ -47,13 +48,13 @@ export function useColumnResizeSave({
           Object.keys(allColumnSizes).length > 0 &&
           sizesString !== lastSavedSizesRef.current
         ) {
-          console.log("Saving all column sizes:", allColumnSizes);
+          logger.info("Saving all column sizes:", allColumnSizes);
           lastSavedSizesRef.current = sizesString;
 
           try {
             await updateConfigChange("columnSizes", allColumnSizes);
           } catch (error) {
-            console.error("Failed to save column sizes:", error);
+            logger.error("Failed to save column sizes:", error);
             // Reset on error so it can be retried
             lastSavedSizesRef.current = "";
           }
@@ -71,7 +72,8 @@ export function useColumnResizeSave({
         columnSizeTimeoutRef.current = null;
       }
     };
-  }, [isResizing, updateConfigChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isResizing, updateConfigChange]); // table is intentionally excluded as it's the TanStack table instance
 
   return { isResizing };
 }
