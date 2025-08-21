@@ -1,6 +1,7 @@
-import { useViewContext } from "@lens2/contexts/view-context";
 import { useLensContext } from "@lens2/contexts/lens-context";
+import { useViewContext } from "@lens2/contexts/view-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
+import { useTableSyncSelection } from "@lens2/hooks/use-table-sync-selection";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { COLUMN_SIZES, FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { EmptyState } from "@lens2/views/shared/empty-state";
@@ -20,7 +21,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MemoizedTableBody, TableBody } from "./table-body";
 import { TableHeader } from "./table-header";
 import { TableSkeleton } from "./table-skeleton";
-import { useTableSyncSelection } from "~/locospec/lens-react-2/lib/hooks/use-table-sync-selection";
 
 export function TableView() {
   const containerRef = useRef<HTMLDivElement>(null);
