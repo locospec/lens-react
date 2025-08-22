@@ -2,7 +2,7 @@ import { useTableSorting } from "@lens2/hooks/use-table-sorting";
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { SortDirection } from "@lens2/types/view";
 import * as logger from "@lens2/utils/logger";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SortIndicatorProps {
   isSorted: boolean;
@@ -21,9 +21,19 @@ function SortIndicator({
     if (isSorted) {
       // Show actual sort direction
       if (direction === "asc") {
-        return <ArrowUp className="text-foreground h-3 w-3" />;
+        return (
+          <div className="flex flex-col items-center">
+            <ChevronUp className="text-foreground h-4 w-4" />
+            <div className="text-foreground transform text-[6px]">ASC</div>
+          </div>
+        );
       } else {
-        return <ArrowDown className="text-foreground h-3 w-3" />;
+        return (
+          <div className="flex flex-col items-center">
+            <ChevronDown className="text-foreground h-4 w-4" />
+            <div className="text-foreground transform text-[6px]">DESC</div>
+          </div>
+        );
       }
     }
 
