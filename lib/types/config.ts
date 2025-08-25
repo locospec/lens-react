@@ -4,6 +4,7 @@
 
 import type { AggregateDefinition } from "./api";
 import type { Attribute } from "./attributes";
+import type { Json } from "./common";
 
 // Core Lens configuration
 export interface Config {
@@ -68,3 +69,29 @@ export interface LayoutConfig {
   striped?: boolean;
   highlightOnHover?: boolean;
 }
+
+/**
+ * Cache and refresh configuration
+ */
+export interface CacheConfiguration {
+  cacheTime?: number;
+  enablePersistentCache?: boolean;
+  enableForceRefresh?: boolean;
+  onForceRefresh?: () => Promise<void>;
+  onRefresh?: () => void;
+}
+
+/**
+ * Core lens behavior configuration
+ */
+export interface CoreLensConfiguration {
+  globalContext?: Record<string, Json>;
+  perPage?: number;
+}
+
+/**
+ * Complete lens configuration combining all aspects from different domains
+ */
+export interface LensConfiguration
+  extends CacheConfiguration,
+    CoreLensConfiguration {}

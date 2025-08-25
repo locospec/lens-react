@@ -82,3 +82,14 @@ export interface ViewState {
   page: number;
   cursor?: string | null;
 }
+
+/**
+ * View-related configuration shared across components
+ */
+export interface ViewConfiguration {
+  enableViews?: boolean;
+  viewScoping?: ViewScoping;
+  initialViewId?: string;
+  onViewChange?: (viewId: string) => void;
+  systemViews?: View[];
+}
