@@ -202,7 +202,7 @@ export function ViewProvider({
       processedFilters && processedFilters.conditions.length > 0;
 
     const payload: ReadRequestPayload = {
-      globalContext: contextWithSearch,
+      globalContext: contextWithSearch || {},
     };
 
     // Include sorts if they exist - convert to backend format

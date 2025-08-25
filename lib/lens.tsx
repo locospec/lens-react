@@ -7,7 +7,7 @@ import { LensProvider } from "@lens2/contexts/lens-context";
 import { LensDebugProvider } from "@lens2/contexts/lens-debug-context";
 import { LensDebugPanel } from "@lens2/debug/lens-debug-panel";
 import { LensContent } from "@lens2/lens-content";
-import type { LensProps } from "@lens2/types/lens";
+import type { LensProps } from "@lens2/types/config";
 import { createLensPersister } from "@lens2/utils/create-lens-persister";
 import * as logger from "@lens2/utils/logger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
