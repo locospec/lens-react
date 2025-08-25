@@ -23,8 +23,7 @@ export * from "./config";
 // Context types
 export * from "./context";
 
-// Lens component types
-export * from "./lens";
+// Lens component types (now in config.ts)
 
 // Interaction types
 export * from "./interactions";

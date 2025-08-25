@@ -3,7 +3,7 @@ import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
 import { ViewProvider } from "@lens2/contexts/view-context";
 import { FilterToolbar } from "@lens2/filters/filter-toolbar";
 import { ViewsToolbar } from "@lens2/toolbar/views-toolbar";
-import type { LensContentProps } from "@lens2/types/lens";
+import type { LensContentProps } from "@lens2/types/config";
 import { ErrorDisplay } from "@lens2/ui/error-display";
 import { Loading } from "@lens2/ui/loading";
 import { ViewConfiguration } from "@lens2/view-configuration/view-configuration";

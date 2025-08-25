@@ -3,8 +3,11 @@
  */
 
 import type { AggregateDefinition } from "./api";
-import type { Attribute } from "./attributes";
+import type { Attribute, AttributeDisplayConfiguration } from "./attributes";
 import type { Json } from "./common";
+import type { FilterType } from "./filters";
+import type { SelectionConfiguration } from "./interactions";
+import type { ViewConfiguration } from "./view";
 
 // Core Lens configuration
 export interface Config {
@@ -87,11 +90,48 @@ export interface CacheConfiguration {
 export interface CoreLensConfiguration {
   globalContext?: Record<string, Json>;
   perPage?: number;
+  filterType?: FilterType;
 }
 
 /**
- * Complete lens configuration combining all aspects from different domains
+ * Base lens configuration - core settings that belong in config.ts
+ *
+ * This includes:
+ * - CoreLensConfiguration (globalContext, perPage, filterType)
+ * - CacheConfiguration (cache settings, refresh callbacks)
+ *
+ * NOTE: This is NOT the complete configuration. Other domain-specific configs
+ * are defined in their respective files and composed in LensProps/LensProviderProps
  */
 export interface LensConfiguration
   extends CacheConfiguration,
     CoreLensConfiguration {}
+
+// === COMPONENT INTERFACES ===
+
+/**
+ * Main Lens component props - combines all configuration interfaces
+ *
+ * Available props include (among others):
+ * - query: string (required)
+ * - baseUrl: string (required)
+ * - filterType?: "advanced" | "chip"
+ * - enableViews?: boolean
+ * - globalContext?: Record<string, Json>
+ * - selectionType?: "none" | "single" | "multiple"
+ */
+export interface LensProps
+  extends LensDataProps,
+    LensConfiguration,
+    ViewConfiguration,
+    AttributeDisplayConfiguration,
+    SelectionConfiguration {
+  // Component-specific props (not shared config)
+  onError?: (error: Error) => void;
+  enableDebug?: boolean;
+}
+
+// LensContent component props
+export interface LensContentProps {
+  onError?: (error: Error) => void;
+}
