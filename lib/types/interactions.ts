@@ -42,3 +42,14 @@ export interface EntityInteractions {
     render: (rowData: RowData) => React.ReactNode;
   };
 }
+
+/**
+ * Selection and interaction configuration
+ */
+export interface SelectionConfiguration {
+  selectionType?: "none" | "single" | "multiple";
+  defaultSelected?: string[];
+  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
+  selectionKey?: string;
+  interactions?: EntityInteractions;
+}

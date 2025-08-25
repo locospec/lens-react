@@ -45,3 +45,11 @@ export interface DisplayAttribute {
   attribute: string;
   label?: string;
 }
+
+/**
+ * Display configuration for attributes
+ */
+export interface AttributeDisplayConfiguration {
+  displayAttributes?: DisplayAttribute[];
+  hideAttributes?: string[];
+}

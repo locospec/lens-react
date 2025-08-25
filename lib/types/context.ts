@@ -6,81 +6,72 @@ import type { useLensApi } from "@lens2/hooks/use-lens-api";
 import type { Table } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import type { AggregateDefinition, ReadRequestPayload } from "./api";
-import type { Attribute, DisplayAttribute } from "./attributes";
+import type { Attribute, AttributeDisplayConfiguration } from "./attributes";
 import type { Json, RowData } from "./common";
-import type { Config, LensDataProps, LensEndpoints } from "./config";
-import type { Filter } from "./filters";
-import type { EntityInteractions } from "./interactions";
-import type { FilterType } from "./lens";
-import type { Sort, View, ViewScoping } from "./view";
+import type {
+  Config,
+  LensConfiguration,
+  LensDataProps,
+  LensEndpoints,
+} from "./config";
+import type { Filter, FilterType } from "./filters";
+import type { SelectionConfiguration } from "./interactions";
+import type { Sort, View, ViewConfiguration } from "./view";
 
-// Lens Context Value
-export interface LensContextValue {
+/**
+ * Lens Context Value extends all configurations plus core runtime data
+ *
+ * This interface combines:
+ * - Configuration properties (from various Configuration interfaces) - user settings and preferences
+ * - Runtime state properties (defined below) - live data and API state
+ */
+export interface LensContextValue
+  extends LensConfiguration,
+    ViewConfiguration,
+    AttributeDisplayConfiguration,
+    SelectionConfiguration {
+  // === CORE API PROPERTIES ===
+  // Connection and API configuration
   query: string;
   baseUrl: string;
   endpoints: LensEndpoints;
   headers?: Record<string, string>;
+  api: ReturnType<typeof useLensApi>;
+
+  // === RUNTIME STATE - LOADED DATA ===
+  // Configuration and schema loaded from server
   config: Config | null;
   attributes: Record<string, Attribute>;
   filterableAttributes: Record<string, Attribute>;
   searchableAttributes: Record<string, Attribute>;
   aggregates: Record<string, AggregateDefinition>;
-  views: View[];
-  api: ReturnType<typeof useLensApi>;
+  views: View[]; // List of available views fetched from API
+
+  // === RUNTIME STATE - REQUEST STATUS ===
+  // Loading and error states
   isLoading: boolean;
   error: Error | null;
-  globalContext: Record<string, Json>;
-  setGlobalContext: (context: Record<string, Json>) => void;
   recordsLoaded: number;
+
+  // === CONFIGURATION OVERRIDES ===
+  // Properties that are optional in config but required at runtime (resolved with defaults)
+  enableViews: boolean; // Resolved from ViewConfiguration.enableViews (optional, default: true)
+  filterType: FilterType; // Resolved from filter configuration (optional, default: "advanced")
+
+  // === STATE MANAGEMENT FUNCTIONS ===
+  // Context manipulation functions
+  setGlobalContext: (context: Record<string, Json>) => void;
   setRecordsLoaded: (count: number) => void;
-  enableViews: boolean;
-  viewScoping?: ViewScoping;
-  filterType: FilterType;
-  interactions?: EntityInteractions;
-  // Force refresh functionality
-  enableForceRefresh?: boolean;
-  onForceRefresh?: () => Promise<void>;
-  // View configuration
-  initialViewId?: string;
-  onViewChange?: (viewId: string) => void;
-  // Attribute display configuration
-  displayAttributes?: DisplayAttribute[];
-  hideAttributes?: string[];
-  // System views
-  systemViews?: View[];
-  // Pagination configuration
-  perPage?: number;
-  selectionType?: "none" | "single" | "multiple";
-  defaultSelected?: string[];
-  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
-  selectionKey?: string;
 }
 
 // Lens Provider Props
-export interface LensProviderProps extends LensDataProps {
+export interface LensProviderProps
+  extends LensDataProps,
+    LensConfiguration,
+    ViewConfiguration,
+    AttributeDisplayConfiguration,
+    SelectionConfiguration {
   children: ReactNode;
-  globalContext?: Record<string, Json>;
-  enableViews?: boolean;
-  viewScoping?: ViewScoping;
-  filterType?: FilterType;
-  interactions?: EntityInteractions;
-  // Force refresh functionality
-  enableForceRefresh?: boolean;
-  onForceRefresh?: () => Promise<void>;
-  // View configuration
-  initialViewId?: string;
-  onViewChange?: (viewId: string) => void;
-  // Attribute display configuration
-  displayAttributes?: DisplayAttribute[];
-  hideAttributes?: string[];
-  // System views
-  systemViews?: View[];
-  // Pagination configuration
-  perPage?: number;
-  // Selection Configuration
-  selectionType?: "none" | "single" | "multiple";
-  defaultSelected?: string[];
-  onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // View Context Value
