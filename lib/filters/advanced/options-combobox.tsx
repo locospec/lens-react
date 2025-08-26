@@ -3,8 +3,8 @@
 import { ChevronsUpDownIcon, Loader2 } from "lucide-react";
 import * as React from "react";
 
-import { DynamicOptionsSelector } from "@lens2/filters/components/ui/dynamic-options-selector";
-import { useDynamicOptions } from "@lens2/filters/hooks/use-dynamic-options";
+import { OptionsSelector } from "@lens2/filters/components/ui/options-selector";
+import { useOptions } from "@lens2/filters/hooks/use-options";
 import { getDisplayText } from "@lens2/filters/logic/dynamic-options-selection";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import {
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { FilterGroup } from "@lens2/types/filters";
 
-export interface DynamicOptionsComboboxProps {
+export interface OptionsComboboxProps {
   attribute: string;
   value?: string | string[];
   onValueChange?: (value: string | string[]) => void;
@@ -35,7 +35,7 @@ export interface DynamicOptionsComboboxProps {
   staticOptions?: Array<{ label: string; value: string; count?: number }>; // For static options
 }
 
-export function DynamicOptionsCombobox({
+export function OptionsCombobox({
   attribute,
   value,
   onValueChange,
@@ -47,7 +47,7 @@ export function DynamicOptionsCombobox({
   dependentFilters,
   multiple = false,
   staticOptions,
-}: DynamicOptionsComboboxProps) {
+}: OptionsComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
   const {
@@ -64,7 +64,7 @@ export function DynamicOptionsCombobox({
     handleScroll,
     handleSelect: baseHandleSelect,
     enableFetching,
-  } = useDynamicOptions({
+  } = useOptions({
     attribute,
     value,
     onValueChange,
@@ -150,7 +150,7 @@ export function DynamicOptionsCombobox({
           )}
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-          <DynamicOptionsSelector
+          <OptionsSelector
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             searchPlaceholder={searchPlaceholder}

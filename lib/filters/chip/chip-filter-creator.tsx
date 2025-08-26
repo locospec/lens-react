@@ -13,8 +13,8 @@ import {
 import * as logger from "@lens2/utils/logger";
 import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
-import { ChipValueInput } from "./chip-value-input";
 import { ChipFilter } from "./types";
+import { ChipValueInput } from "./value-input";
 
 interface ChipFilterCreatorProps {
   onSessionStart: () => string;

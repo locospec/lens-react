@@ -1,4 +1,6 @@
-import type { DynamicOption } from "@lens2/filters/components/ui/dynamic-options-selector";
+import type { Option } from "@lens2/filters/components/ui/options-selector";
+
+type DynamicOption = Option;
 
 export interface SelectionHandlerParams {
   optionValue: string;

@@ -10,12 +10,34 @@ import type { Attribute, DisplayAttribute } from "@lens2/types/attributes";
 import * as logger from "@lens2/utils/logger";
 
 /**
+ * Transform static options from backend format to frontend format
+ * Backend format: { title: "Pending", const: "pending" }
+ * Frontend format: { label: "Pending", value: "pending" }
+ * Only includes options that have both const and title properties
+ */
+function transformStaticOptions(
+  backendOptions:
+    | Array<{ title?: string; const?: string; id?: string }>
+    | undefined
+): Array<{ label: string; value: string; count?: number }> {
+  if (!backendOptions) return [];
+
+  return backendOptions
+    .filter(option => option.const && option.title)
+    .map(option => ({
+      label: option.title!,
+      value: option.const!,
+    }));
+}
+
+/**
  * Enrich attributes from backend with aggregator-aware properties
  *
  * This function takes attributes from the backend and adds computed properties
  * based on aggregator definitions, specifically:
  * - filterAttribute: The actual field to use for filtering (from aggregator's groupBy)
  * - aggregatorKeys: Mapping of response fields (valueKey, labelKey, countKey)
+ * - Static options transformation from backend format to frontend format
  */
 
 export function enrichAttributes(
@@ -92,8 +114,25 @@ export function enrichAttributes(
       };
     }
 
-    // If attribute has optionsAggregator, treat it as enum type
-    const effectiveType = optionsAggregator ? "enum" : attr.type;
+    // Transform static options from backend format to frontend format
+    let transformedOptions = attr.options;
+    const hasStaticOptions = attr.options && attr.options.length > 0;
+
+    if (hasStaticOptions) {
+      logger.debug(`Transforming options for attribute "${key}"`, {
+        originalOptions: attr.options,
+        originalType: attr.type,
+      });
+      transformedOptions = transformStaticOptions(attr.options as any);
+      logger.debug(`Transformed options for attribute "${key}"`, {
+        transformedOptions,
+        transformedCount: transformedOptions.length,
+      });
+    }
+
+    // If attribute has optionsAggregator or static options, treat it as enum type
+    const effectiveType =
+      optionsAggregator || hasStaticOptions ? "enum" : attr.type;
 
     // Get default operator for this attribute type
     let defaultOperator: string;
@@ -111,9 +150,10 @@ export function enrichAttributes(
     const isSearchable = SEARCHABLE_ATTRIBUTE_TYPES.includes(effectiveType);
     const isSortable = SORTABLE_ATTRIBUTE_TYPES.includes(effectiveType);
 
-    // Return enriched attribute
-    enriched[key] = {
+    // Create the enriched attribute
+    const enrichedAttribute = {
       ...attr,
+      name: key, // Ensure name property is set
       type: effectiveType,
       filterAttribute,
       aggregatorKeys,
@@ -121,7 +161,14 @@ export function enrichAttributes(
       filterable: isFilterable,
       searchable: isSearchable,
       sortable: isSortable,
+      options: transformedOptions,
     };
+
+    // Log the enriched attribute
+    logger.debug(`Enriched attribute "${key}"`, enrichedAttribute);
+
+    // Return enriched attribute
+    enriched[key] = enrichedAttribute;
   });
 
   logger.debug("Enriched attributes", enriched);

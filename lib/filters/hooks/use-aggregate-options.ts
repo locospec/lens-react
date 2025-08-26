@@ -81,6 +81,11 @@ export const useAggregateOptions = ({
 
   // Transform the data to match expected format
   const options = useMemo(() => {
+    // Return empty array if no data to process
+    if (!result.flatData || result.flatData.length === 0) {
+      return [];
+    }
+
     // Get the aggregator keys from attribute config
     const attributeConfig = attributes[attribute];
     const keys = attributeConfig?.aggregatorKeys;

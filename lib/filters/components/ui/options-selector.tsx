@@ -1,4 +1,4 @@
-import { DynamicOptionsList } from "@lens2/filters/components/ui/dynamic-options-list";
+import { OptionsList } from "@lens2/filters/components/ui/options-list";
 import {
   Command,
   CommandInput,
@@ -6,20 +6,20 @@ import {
 } from "@lens2/shadcn/components/ui/command";
 import type { RefObject } from "react";
 
-export interface DynamicOption {
+export interface Option {
   value: string;
   label: string;
   count?: number;
 }
 
-export interface DynamicOptionsSelectorProps {
+export interface OptionsSelectorProps {
   // Search
   searchQuery: string;
   onSearchChange: (query: string) => void;
   searchPlaceholder?: string;
 
   // Options
-  options: DynamicOption[];
+  options: Option[];
   selectedValues: string[];
   hydratedOptions: Map<string, string>;
 
@@ -41,7 +41,7 @@ export interface DynamicOptionsSelectorProps {
   className?: string;
 }
 
-export function DynamicOptionsSelector({
+export function OptionsSelector({
   searchQuery,
   onSearchChange,
   searchPlaceholder = "Search...",
@@ -57,7 +57,7 @@ export function DynamicOptionsSelector({
   onScroll,
   emptyText = "No options found.",
   className = "w-full",
-}: DynamicOptionsSelectorProps) {
+}: OptionsSelectorProps) {
   return (
     <Command shouldFilter={false} className={className}>
       <CommandInput
@@ -70,7 +70,7 @@ export function DynamicOptionsSelector({
         onScroll={onScroll}
         className="max-h-[300px] overflow-y-auto"
       >
-        <DynamicOptionsList
+        <OptionsList
           options={options}
           selectedValues={selectedValues}
           hydratedOptions={hydratedOptions}
