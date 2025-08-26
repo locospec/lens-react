@@ -12,14 +12,14 @@ import {
 import { Loader2 } from "lucide-react";
 import type { FC } from "react";
 
-export interface DynamicOption {
+export interface Option {
   value: string;
   label: string;
   count?: number;
 }
 
-export interface DynamicOptionsListProps {
-  options: DynamicOption[];
+export interface OptionsListProps {
+  options: Option[];
   selectedValues: string[];
   hydratedOptions: Map<string, string>; // Just map ID to label
   multiple: boolean;
@@ -31,8 +31,9 @@ export interface DynamicOptionsListProps {
 }
 
 /**
- * A shared component for rendering dynamic options with pagination support.
+ * A shared component for rendering options with pagination support.
  * Handles both single and multiple selection modes with appropriate UI controls.
+ * Works with both static and dynamic options.
  *
  * Features:
  * - Shows selected items that aren't in the current page
@@ -41,7 +42,7 @@ export interface DynamicOptionsListProps {
  * - Shows loading states for initial load and pagination
  * - Hydrates selected values that aren't in the current options
  */
-export const DynamicOptionsList: FC<DynamicOptionsListProps> = ({
+export const OptionsList: FC<OptionsListProps> = ({
   options,
   selectedValues,
   hydratedOptions,
@@ -118,7 +119,7 @@ export const DynamicOptionsList: FC<DynamicOptionsListProps> = ({
 // Sub-component for selected items section
 const SelectedItemsSection: FC<{
   selectedValues: string[];
-  options: DynamicOption[];
+  options: Option[];
   hydratedOptions: Map<string, string>;
   onSelect: (value: string) => void;
 }> = ({ selectedValues, options, hydratedOptions, onSelect }) => {
@@ -156,7 +157,7 @@ const SelectedItemsSection: FC<{
 
 // Sub-component for multiple selection list
 const MultipleSelectionList: FC<{
-  options: DynamicOption[];
+  options: Option[];
   selectedValues: string[];
   onSelect: (value: string) => void;
 }> = ({ options, selectedValues, onSelect }) => {
@@ -179,7 +180,7 @@ const MultipleSelectionList: FC<{
 
 // Sub-component for single selection list
 const SingleSelectionList: FC<{
-  options: DynamicOption[];
+  options: Option[];
   selectedValues: string[];
   hydratedOptions: Map<string, string>;
   onSelect: (value: string) => void;

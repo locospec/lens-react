@@ -1,7 +1,13 @@
-import { DynamicOptionsCombobox } from "@lens2/filters/advanced/dynamic-options-combobox";
-import { Combobox } from "@lens2/shadcn/components/ui/combobox";
+import { OptionsCombobox } from "@lens2/filters/advanced/options-combobox";
+import { operatorExpectsMultiple } from "@lens2/filters/logic/filter-operators-config";
+import {
+  determineInputStrategy,
+  getInputTypeForAttributeType,
+  getPlaceholderForType,
+  getSelectionPlaceholder,
+} from "@lens2/filters/logic/value-input-factory";
 import { Input } from "@lens2/shadcn/components/ui/input";
-import type { Attribute, AttributeType } from "@lens2/types/attributes";
+import type { Attribute } from "@lens2/types/attributes";
 import type { Condition } from "@lens2/types/filters";
 
 // Helper function to render value input based on attribute type
@@ -17,18 +23,23 @@ export function renderValueInput(
   const options = attribute.options || [];
   const optionsAggregator = attribute?.optionsAggregator;
 
-  // Determine if multiple selection based on operator
-  const isMultiple =
-    condition.op === "is_any_of" || condition.op === "is_none_of";
+  // Use factory functions for shared logic
+  const isMultiple = condition.op
+    ? operatorExpectsMultiple(condition.op)
+    : false;
+  const inputStrategy = determineInputStrategy({
+    options,
+    optionsAggregator,
+  });
 
-  // Case 1: Use DynamicOptionsCombobox for dynamic selection (aggregator-based)
-  if (optionsAggregator) {
+  // Case 1: Use OptionsCombobox for dynamic selection (aggregator-based)
+  if (inputStrategy === "dynamic_options") {
     return (
-      <DynamicOptionsCombobox
+      <OptionsCombobox
         attribute={condition.attribute}
         value={condition.value as string | string[]}
         onValueChange={value => onChange({ ...condition, value })}
-        placeholder={isMultiple ? "Select values..." : "Select value"}
+        placeholder={getSelectionPlaceholder(isMultiple)}
         searchPlaceholder="Search values..."
         emptyText="No value found."
         className="flex-1"
@@ -37,18 +48,19 @@ export function renderValueInput(
     );
   }
 
-  // Case 2: Use regular Combobox when static options are present
-  if (options.length > 0) {
+  // Case 2: Use OptionsCombobox for static options (unified approach)
+  if (inputStrategy === "static_options") {
     return (
-      <Combobox
-        options={options}
+      <OptionsCombobox
+        attribute={condition.attribute}
         value={condition.value as string | string[]}
         onValueChange={value => onChange({ ...condition, value })}
-        placeholder={isMultiple ? "Select values..." : "Select value"}
+        placeholder={getSelectionPlaceholder(isMultiple)}
         searchPlaceholder="Search values..."
         emptyText="No value found."
         className="flex-1"
         multiple={isMultiple}
+        staticOptions={options}
       />
     );
   }
@@ -66,38 +78,10 @@ export function renderValueInput(
   );
 }
 
-// Get appropriate input type based on attribute type
-export function getInputTypeForAttributeType(type: AttributeType): string {
-  switch (type) {
-    case "integer":
-    case "number":
-    case "decimal":
-      return "number";
-    case "date":
-      return "date";
-    case "datetime":
-    case "timestamp":
-      return "datetime-local";
-    default:
-      return "text";
-  }
-}
-
-// Get placeholder text based on attribute type
-export function getPlaceholderForType(type: AttributeType): string {
-  switch (type) {
-    case "integer":
-    case "number":
-    case "decimal":
-      return "Enter number";
-    case "date":
-      return "Select date";
-    case "datetime":
-    case "timestamp":
-      return "Select date and time";
-    case "boolean":
-      return "true or false";
-    default:
-      return "Enter value";
-  }
-}
+// These functions are now imported from the factory
+// Keeping them here for backward compatibility with any direct imports
+// TODO: Remove these once all imports are updated to use the factory directly
+export {
+  getInputTypeForAttributeType,
+  getPlaceholderForType,
+} from "@lens2/filters/logic/value-input-factory";

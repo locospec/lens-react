@@ -1,8 +1,7 @@
-import { DynamicOptionsSelector } from "@lens2/filters/components/ui/dynamic-options-selector";
-import { useDynamicOptions } from "@lens2/filters/hooks/use-dynamic-options";
+import { OptionsSelector } from "@lens2/filters/components/ui/options-selector";
+import { useOptions } from "@lens2/filters/hooks/use-options";
 import { getDisplayText } from "@lens2/filters/logic/dynamic-options-selection";
 import { Button } from "@lens2/shadcn/components/ui/button";
-import { CommandItem } from "@lens2/shadcn/components/ui/command";
 import {
   Tooltip,
   TooltipContent,
@@ -10,7 +9,6 @@ import {
   TooltipTrigger,
 } from "@lens2/shadcn/components/ui/tooltip";
 import { cn } from "@lens2/shadcn/lib/utils";
-import { Check } from "lucide-react";
 import * as React from "react";
 
 interface ChipOptionsSelectorProps {
@@ -52,7 +50,7 @@ export function ChipOptionsSelector({
     handleSelect,
     useStaticOptions,
     enableFetching,
-  } = useDynamicOptions({
+  } = useOptions({
     attribute,
     value,
     onValueChange,
@@ -61,9 +59,12 @@ export function ChipOptionsSelector({
   });
 
   // Enable fetching immediately for chip filters (no dropdown to open)
+  // But only for dynamic options, not static ones
   React.useEffect(() => {
-    enableFetching();
-  }, [enableFetching]);
+    if (!useStaticOptions) {
+      enableFetching();
+    }
+  }, [enableFetching, useStaticOptions]);
 
   // Get display text for current value
   const displayInfo = React.useMemo(
@@ -122,40 +123,9 @@ export function ChipOptionsSelector({
     );
   }
 
-  // For static options without search, show a simple list
-  if (useStaticOptions && !searchQuery) {
-    return (
-      <div className={cn("space-y-1", className)}>
-        {options.map(option => (
-          <CommandItem
-            key={option.value}
-            value={option.value}
-            onSelect={() => handleSelect(option.value)}
-            className="cursor-pointer"
-          >
-            <Check
-              className={cn(
-                "mr-2 h-4 w-4",
-                selectedValues.includes(option.value)
-                  ? "opacity-100"
-                  : "opacity-0"
-              )}
-            />
-            {option.label}
-            {option.count !== undefined && (
-              <span className="text-muted-foreground ml-auto text-xs">
-                {option.count}
-              </span>
-            )}
-          </CommandItem>
-        ))}
-      </div>
-    );
-  }
-
-  // For dynamic options or when searching, use the full selector
+  // Use OptionsSelector for both static and dynamic options
   return (
-    <DynamicOptionsSelector
+    <OptionsSelector
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
       searchPlaceholder={searchPlaceholder}

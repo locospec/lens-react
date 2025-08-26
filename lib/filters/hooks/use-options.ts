@@ -7,7 +7,7 @@ import type { FilterGroup } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";
 import * as React from "react";
 
-export interface UseDynamicOptionsParams {
+export interface UseOptionsParams {
   attribute: string;
   value?: string | string[];
   onValueChange?: (value: string | string[]) => void;
@@ -17,7 +17,7 @@ export interface UseDynamicOptionsParams {
   onSelectionComplete?: () => void;
 }
 
-export function useDynamicOptions({
+export function useOptions({
   attribute,
   value,
   onValueChange,
@@ -25,7 +25,7 @@ export function useDynamicOptions({
   staticOptions,
   dependentFilters,
   onSelectionComplete,
-}: UseDynamicOptionsParams) {
+}: UseOptionsParams) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const { setOption } = useOptionsCache();
@@ -48,6 +48,7 @@ export function useDynamicOptions({
   }, [useStaticOptions]);
 
   // Use aggregate options hook only if we don't have static options
+  // Always pass enabled: false for static options to prevent any API calls or processing
   const aggregateResult = useAggregateOptions({
     attribute,
     searchQuery,
