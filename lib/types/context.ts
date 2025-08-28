@@ -56,7 +56,7 @@ export interface LensContextValue
   // === CONFIGURATION OVERRIDES ===
   // Properties that are optional in config but required at runtime (resolved with defaults)
   enableViews: boolean; // Resolved from ViewConfiguration.enableViews (optional, default: true)
-  filterType: FilterType; // Resolved from filter configuration (optional, default: "advanced")
+  filterType: FilterType; // Resolved from filter configuration (optional, default: "nested")
 
   // === STATE MANAGEMENT FUNCTIONS ===
   // Context manipulation functions

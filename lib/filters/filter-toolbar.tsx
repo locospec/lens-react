@@ -1,5 +1,5 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
-import { AdvancedFilterBuilder } from "@lens2/filters/advanced/advanced-filter-builder";
+import { NestedFilterBuilder } from "@lens2/filters/nested/filter-builder";
 import { ChipFilterBuilder } from "@lens2/filters/chip/chip-filter-builder";
 import { SearchBox } from "@lens2/filters/search-box";
 import { Button } from "@lens2/shadcn/components/ui/button";
@@ -23,7 +23,7 @@ export function FilterToolbar() {
         /* Chip Filters */
         <ChipFilterBuilder className="flex-1" />
       ) : (
-        /* Advanced Filter Button */
+        /* Nested Filter Button */
         <div className="flex flex-1 justify-end">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -33,7 +33,7 @@ export function FilterToolbar() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[800px] p-0" align="start">
-              <AdvancedFilterBuilder onClose={() => setOpen(false)} />
+              <NestedFilterBuilder onClose={() => setOpen(false)} />
             </PopoverContent>
           </Popover>
         </div>

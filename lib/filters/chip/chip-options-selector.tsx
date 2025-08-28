@@ -1,25 +1,13 @@
-import { OptionsSelector } from "@lens2/filters/components/ui/options-selector";
-import { useOptions } from "@lens2/filters/hooks/use-options";
-import { getDisplayText } from "@lens2/filters/logic/dynamic-options-selection";
-import { Button } from "@lens2/shadcn/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@lens2/shadcn/components/ui/tooltip";
+  renderDisplayText,
+  renderOptionsSelector,
+  useBaseOptionsSelector,
+  type BaseOptionsSelectorProps,
+} from "@lens2/filters/components/ui/base-options-selector";
+import { Button } from "@lens2/shadcn/components/ui/button";
 import { cn } from "@lens2/shadcn/lib/utils";
-import * as React from "react";
 
-interface ChipOptionsSelectorProps {
-  attribute: string;
-  value?: string | string[];
-  onValueChange?: (value: string | string[]) => void;
-  multiple?: boolean;
-  staticOptions?: Array<{ label: string; value: string; count?: number }>;
-  searchPlaceholder?: string;
-  emptyText?: string;
-  className?: string;
+interface ChipOptionsSelectorProps extends BaseOptionsSelectorProps {
   isEditing?: boolean;
   onEditingChange?: (editing: boolean) => void;
 }
@@ -42,43 +30,24 @@ export function ChipOptionsSelector({
     selectedValues,
     options,
     hydratedOptions,
+    displayInfo,
     isLoading,
     isFetching,
     hasNextPage,
     listRef,
     handleScroll,
     handleSelect,
-    useStaticOptions,
-    enableFetching,
-  } = useOptions({
+  } = useBaseOptionsSelector({
     attribute,
     value,
     onValueChange,
     multiple,
     staticOptions,
+    displayConfig: {
+      placeholder: "empty",
+      enableAutoFetch: true,
+    },
   });
-
-  // Enable fetching immediately for chip filters (no dropdown to open)
-  // But only for dynamic options, not static ones
-  React.useEffect(() => {
-    if (!useStaticOptions) {
-      enableFetching();
-    }
-  }, [enableFetching, useStaticOptions]);
-
-  // Get display text for current value
-  const displayInfo = React.useMemo(
-    () =>
-      getDisplayText(
-        selectedValues,
-        options,
-        hydratedOptions,
-        false, // isHydrating - we don't track this in chip filters
-        "empty",
-        multiple
-      ),
-    [selectedValues, options, hydratedOptions, multiple]
-  );
 
   // Handle click to enter edit mode
   const handleClick = () => {
@@ -89,29 +58,7 @@ export function ChipOptionsSelector({
 
   // If not editing, show display mode
   if (!isEditing) {
-    if (displayInfo.isTruncated) {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("h-auto p-0 px-1", className)}
-                onClick={handleClick}
-              >
-                {displayInfo.text}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs break-words">{displayInfo.fullText}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-
-    return (
+    const buttonContent = (
       <Button
         variant="ghost"
         size="sm"
@@ -121,26 +68,25 @@ export function ChipOptionsSelector({
         {displayInfo.text}
       </Button>
     );
+
+    return renderDisplayText(displayInfo, buttonContent);
   }
 
   // Use OptionsSelector for both static and dynamic options
-  return (
-    <OptionsSelector
-      searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder={searchPlaceholder}
-      options={options}
-      selectedValues={selectedValues}
-      hydratedOptions={hydratedOptions}
-      onSelect={handleSelect}
-      multiple={multiple}
-      isLoading={isLoading}
-      isFetching={isFetching}
-      hasNextPage={hasNextPage}
-      listRef={listRef}
-      onScroll={handleScroll}
-      emptyText={emptyText}
-      className={className}
-    />
-  );
+  return renderOptionsSelector({
+    searchQuery,
+    setSearchQuery,
+    options,
+    selectedValues,
+    hydratedOptions,
+    isLoading,
+    isFetching,
+    hasNextPage,
+    listRef,
+    handleScroll,
+    handleSelect,
+    searchPlaceholder,
+    emptyText,
+    multiple,
+  });
 }

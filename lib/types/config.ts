@@ -115,7 +115,7 @@ export interface LensConfiguration
  * Available props include (among others):
  * - query: string (required)
  * - baseUrl: string (required)
- * - filterType?: "advanced" | "chip"
+ * - filterType?: "nested" | "chip"
  * - enableViews?: boolean
  * - globalContext?: Record<string, Json>
  * - selectionType?: "none" | "single" | "multiple"

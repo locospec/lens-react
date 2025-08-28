@@ -1,7 +1,7 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { OptionsCacheProvider } from "@lens2/contexts/options-cache-context";
 import { useViewContext } from "@lens2/contexts/view-context";
-import { FilterGroupComponent } from "@lens2/filters/advanced/filter-group";
+import { FilterGroupComponent } from "@lens2/filters/nested/filter-group";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
 import { normalizeFilters } from "@lens2/filters/logic/process-filters";
 import { Button } from "@lens2/shadcn/components/ui/button";
@@ -12,7 +12,7 @@ import * as logger from "@lens2/utils/logger";
 import { Code, Plus } from "lucide-react";
 import React, { useState } from "react";
 
-export interface AdvancedFilterBuilderProps {
+export interface NestedFilterBuilderProps {
   value?: Filter;
   onChange?: (filter: Filter) => void;
   className?: string;
@@ -20,7 +20,7 @@ export interface AdvancedFilterBuilderProps {
   onClose?: () => void;
 }
 
-export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
+export const NestedFilterBuilder: React.FC<NestedFilterBuilderProps> = ({
   value,
   onChange,
   className,
@@ -196,4 +196,4 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
   );
 };
 
-export default AdvancedFilterBuilder;
+export default NestedFilterBuilder;
