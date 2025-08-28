@@ -1,4 +1,4 @@
-import { OptionsCombobox } from "@lens2/filters/advanced/options-combobox";
+import { OptionsCombobox } from "@lens2/filters/nested/options-combobox";
 import { operatorExpectsMultiple } from "@lens2/filters/logic/filter-operators-config";
 import {
   determineInputStrategy,

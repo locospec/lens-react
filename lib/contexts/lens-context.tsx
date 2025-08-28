@@ -32,7 +32,7 @@ export function LensProvider({
   globalContext: initialGlobalContext = {},
   enableViews = true,
   viewScoping,
-  filterType = "advanced",
+  filterType = "nested",
   interactions,
   enableForceRefresh = false,
   onForceRefresh,

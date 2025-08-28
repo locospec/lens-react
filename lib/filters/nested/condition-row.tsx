@@ -1,8 +1,8 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import { AttributeSelector } from "@lens2/filters/advanced/attribute-selector";
-import { OperatorSelector } from "@lens2/filters/advanced/operator-selector";
-import { renderValueInput } from "@lens2/filters/advanced/value-input";
+import { AttributeSelector } from "@lens2/filters/nested/attribute-selector";
+import { OperatorSelector } from "@lens2/filters/nested/operator-selector";
+import { renderValueInput } from "@lens2/filters/nested/value-input";
 import {
   getOperatorsForType,
   operatorRequiresValue,

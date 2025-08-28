@@ -2,7 +2,7 @@ import type { AttributeType } from "@lens2/types/attributes";
 
 /**
  * Shared factory functions for value input components
- * Used by both advanced and chip filter systems
+ * Used by both nested and chip filter systems
  */
 
 // Note: isMultipleValueOperator functionality moved to filter-operators-config.ts

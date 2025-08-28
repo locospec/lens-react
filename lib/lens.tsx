@@ -23,7 +23,7 @@ export function Lens({
   globalContext = {},
   enableViews = true,
   viewScoping,
-  filterType = "advanced",
+  filterType = "nested",
   interactions,
   cacheTime = CACHE_TIME.DEFAULT,
   enablePersistentCache = true,
