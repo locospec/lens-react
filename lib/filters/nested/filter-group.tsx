@@ -1,6 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
-import { ConditionRow } from "@lens2/filters/nested/condition-row";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
+import { ConditionRow } from "@lens2/filters/nested/condition-row";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   ToggleGroup,

@@ -1,12 +1,12 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import { AttributeSelector } from "@lens2/filters/nested/attribute-selector";
-import { OperatorSelector } from "@lens2/filters/nested/operator-selector";
-import { renderValueInput } from "@lens2/filters/nested/value-input";
 import {
   getOperatorsForType,
   operatorRequiresValue,
 } from "@lens2/filters/logic/filter-operators-config";
+import { AttributeSelector } from "@lens2/filters/nested/attribute-selector";
+import { OperatorSelector } from "@lens2/filters/nested/operator-selector";
+import { renderValueInput } from "@lens2/filters/nested/value-input";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import type { Condition, Operator } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";

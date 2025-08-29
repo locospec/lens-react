@@ -1,5 +1,9 @@
 import { ChipOptionsSelector } from "@lens2/filters/chip/chip-options-selector";
-import { operatorExpectsMultiple } from "@lens2/filters/logic/filter-operators-config";
+import { UnifiedSmartDateInput } from "@lens2/filters/components/unified-smart-date-input";
+import {
+  operatorExpectsMultiple,
+  operatorExpectsRange,
+} from "@lens2/filters/logic/filter-operators-config";
 import {
   determineInputStrategy,
   formatDisplayValue,
@@ -25,7 +29,9 @@ export function ChipValueInput({
 
   // Use factory functions for shared logic
   const isMultiple = operatorExpectsMultiple(operator);
+  const isRange = operatorExpectsRange(operator);
   const inputStrategy = determineInputStrategy({
+    type: attribute.type,
     options,
     optionsAggregator,
   });
@@ -72,7 +78,21 @@ export function ChipValueInput({
     );
   }
 
-  // Case 3: For attributes without options, use a simple input
+  // Case 3: Use UnifiedSmartDateInput for date types
+  if (inputStrategy === "date_input") {
+    return (
+      <UnifiedSmartDateInput
+        variant="chip"
+        value={value as string | [string, string] | null}
+        onChange={onChange}
+        forceRangeMode={isRange}
+        placeholder={`Select ${attribute.label.toLowerCase()}`}
+        className={className}
+      />
+    );
+  }
+
+  // Case 4: For attributes without options, use a simple input
   if (!isEditing) {
     // Display mode for simple values - use factory function
     const displayValue = formatDisplayValue(value);

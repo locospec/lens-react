@@ -1,11 +1,15 @@
-import { OptionsCombobox } from "@lens2/filters/nested/options-combobox";
-import { operatorExpectsMultiple } from "@lens2/filters/logic/filter-operators-config";
+import { UnifiedSmartDateInput } from "@lens2/filters/components/unified-smart-date-input";
+import {
+  operatorExpectsMultiple,
+  operatorExpectsRange,
+} from "@lens2/filters/logic/filter-operators-config";
 import {
   determineInputStrategy,
   getInputTypeForAttributeType,
   getPlaceholderForType,
   getSelectionPlaceholder,
 } from "@lens2/filters/logic/value-input-factory";
+import { OptionsCombobox } from "@lens2/filters/nested/options-combobox";
 import { Input } from "@lens2/shadcn/components/ui/input";
 import type { Attribute } from "@lens2/types/attributes";
 import type { Condition } from "@lens2/types/filters";
@@ -27,7 +31,9 @@ export function renderValueInput(
   const isMultiple = condition.op
     ? operatorExpectsMultiple(condition.op)
     : false;
+  const isRange = condition.op ? operatorExpectsRange(condition.op) : false;
   const inputStrategy = determineInputStrategy({
+    type: attribute.type,
     options,
     optionsAggregator,
   });
@@ -65,8 +71,21 @@ export function renderValueInput(
     );
   }
 
-  // For date types, we could add a date picker here
-  // For now, use standard input
+  // Case 3: Use UnifiedSmartDateInput for date types
+  if (inputStrategy === "date_input") {
+    return (
+      <UnifiedSmartDateInput
+        variant="default"
+        value={condition.value as string | [string, string] | null}
+        onChange={value => onChange({ ...condition, value })}
+        forceRangeMode={isRange}
+        placeholder={getPlaceholderForType(type)}
+        className="flex-1"
+      />
+    );
+  }
+
+  // Case 4: For other attribute types, use standard input
   return (
     <Input
       value={condition.value as string}

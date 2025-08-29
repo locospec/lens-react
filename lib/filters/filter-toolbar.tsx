@@ -1,6 +1,6 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
-import { NestedFilterBuilder } from "@lens2/filters/nested/filter-builder";
 import { ChipFilterBuilder } from "@lens2/filters/chip/chip-filter-builder";
+import { NestedFilterBuilder } from "@lens2/filters/nested/filter-builder";
 import { SearchBox } from "@lens2/filters/search-box";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {

@@ -161,4 +161,5 @@ export const SORTABLE_ATTRIBUTE_TYPES: AttributeType[] = [
   "string",
   "text",
   "enum",
+  "timestamp",
 ];
