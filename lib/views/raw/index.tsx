@@ -1,3 +1,4 @@
+import { Paginator } from "@lens2/components/paginator";
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
@@ -12,6 +13,7 @@ export function RawDisplay() {
     endpoints,
     headers,
     perPage: contextPerPage,
+    paginationType,
   } = useLensContext();
   const { view, readPayload } = useViewContext();
 
@@ -22,12 +24,15 @@ export function RawDisplay() {
     isFetching,
     isLoading,
     totalCount,
+    currentPage,
+    totalPages,
   } = useInfiniteFetch({
     query: query,
     viewId: view.id,
     endpoint: endpoints.query,
     headers: headers,
     perPage: contextPerPage || FETCH_CONFIG.DEFAULT_PER_PAGE,
+    paginationType: paginationType,
     body: readPayload,
   });
 
@@ -40,13 +45,15 @@ export function RawDisplay() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-shrink-0 items-center justify-between border-b p-4">
-        <h3 className="text-lg font-semibold">{query}</h3>
-        <div className="text-sm text-gray-600">
-          {flatData.length} records
-          {totalCount && ` of ${totalCount}`}
-        </div>
-      </div>
+      <Paginator
+        loadedCount={flatData.length}
+        totalCount={totalCount}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        perPage={contextPerPage || FETCH_CONFIG.DEFAULT_PER_PAGE}
+        hasNextPage={hasNextPage}
+        isFetching={isFetching}
+      />
 
       <div
         ref={containerRef}

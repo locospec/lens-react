@@ -1,6 +1,12 @@
 import { REFETCH_OPTIONS, STALE_TIME } from "@lens2/constants/cache";
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import type {
+  CursorMeta,
+  OffsetMeta,
+  PaginatedResponse,
+  PaginationType,
+} from "@lens2/types/pagination";
 import * as logger from "@lens2/utils/logger";
 import { FETCH_CONFIG } from "@lens2/views/shared/constants";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -14,30 +20,65 @@ export interface UseInfiniteFetchParams {
   body?: Record<string, any>;
   perPage?: number;
   enabled?: boolean;
+  paginationType?: PaginationType; // New parameter, defaults to "cursor"
 }
 
-interface FetchFnParams {
+interface CursorFetchFnParams {
   pageParam: string | null;
   endpoint: string;
   headers?: Record<string, string>;
   body: Record<string, any>;
 }
 
-interface PaginatedResponse {
-  data: any[];
-  meta?: {
-    next_cursor?: string | null;
-    prev_cursor?: string | null;
-    has_more?: boolean;
-    count?: number;
-    per_page?: number;
-    total?: number;
-    [key: string]: any;
-  };
-  [key: string]: any;
+interface OffsetFetchFnParams {
+  pageParam: number | null;
+  endpoint: string;
+  headers?: Record<string, string>;
+  body: Record<string, any>;
 }
 
-const createFetchFn = (
+type FetchFnParams = CursorFetchFnParams | OffsetFetchFnParams;
+
+// Helper functions for cursor pagination
+const getCursorNextPageParam = (
+  lastPage: PaginatedResponse<CursorMeta>
+): string | null => {
+  return lastPage?.meta?.next_cursor || null;
+};
+
+const getCursorPrevPageParam = (
+  firstPage: PaginatedResponse<CursorMeta>
+): string | null => {
+  return firstPage?.meta?.prev_cursor || null;
+};
+
+// Helper functions for offset pagination
+const getOffsetNextPageParam = (
+  lastPage: PaginatedResponse<OffsetMeta>
+): number | null => {
+  const meta = lastPage?.meta;
+  if (!meta) return null;
+  // Use has_more to determine if there's a next page
+  if (meta.has_more) {
+    return meta.current_page + 1;
+  }
+  return null;
+};
+
+const getOffsetPrevPageParam = (
+  firstPage: PaginatedResponse<OffsetMeta>
+): number | null => {
+  const meta = firstPage?.meta;
+  if (!meta) return null;
+  // Can go back if current_page > 1
+  if (meta.current_page > 1) {
+    return meta.current_page - 1;
+  }
+  return null;
+};
+
+// Create cursor-based fetch function
+const createCursorFetchFn = (
   addApiCall: (
     call: Omit<
       import("@lens2/contexts/lens-debug-context").ApiCall,
@@ -54,7 +95,7 @@ const createFetchFn = (
     endpoint,
     headers,
     body,
-  }: FetchFnParams): Promise<PaginatedResponse> => {
+  }: CursorFetchFnParams): Promise<PaginatedResponse<CursorMeta>> => {
     const { perPage, ...restBody } = body;
     const requestBody = {
       ...restBody,
@@ -106,6 +147,85 @@ const createFetchFn = (
   };
 };
 
+// Create offset-based fetch function
+const createOffsetFetchFn = (
+  addApiCall: (
+    call: Omit<
+      import("@lens2/contexts/lens-debug-context").ApiCall,
+      "id" | "timestamp" | "type"
+    >
+  ) => string,
+  updateApiCall: (
+    id: string,
+    updates: Partial<import("@lens2/contexts/lens-debug-context").ApiCall>
+  ) => void
+) => {
+  return async ({
+    pageParam,
+    endpoint,
+    headers,
+    body,
+  }: OffsetFetchFnParams): Promise<PaginatedResponse<OffsetMeta>> => {
+    const { perPage, ...restBody } = body;
+    const requestBody = {
+      ...restBody,
+      pagination: {
+        type: "offset",
+        page: pageParam || 1, // Default to page 1
+        per_page: perPage || FETCH_CONFIG.DEFAULT_PER_PAGE,
+      },
+    };
+
+    const startTime = Date.now();
+
+    // Add initial call
+    const callId = addApiCall({
+      method: "POST",
+      endpoint,
+      request: requestBody,
+    });
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "*/*",
+        ...headers,
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const responseJson = await response.json();
+
+    // Update call with response
+    updateApiCall(callId, {
+      response: responseJson,
+      status: response.status,
+      duration: Date.now() - startTime,
+    });
+
+    if (!response.ok) {
+      logger.error(`Error: ${response.status} - ${endpoint}`);
+      return {
+        data: [],
+        meta: {
+          count: 0,
+          per_page: perPage || FETCH_CONFIG.DEFAULT_PER_PAGE,
+          current_page: 1,
+          total_pages: 0,
+          has_more: false,
+        },
+      };
+    }
+
+    if (responseJson?.data && !Array.isArray(responseJson.data)) {
+      throw new Error("Expected data to be an array");
+    }
+
+    return responseJson;
+  };
+};
+
 export const useInfiniteFetch = ({
   query,
   viewId,
@@ -114,6 +234,7 @@ export const useInfiniteFetch = ({
   body = {},
   perPage = FETCH_CONFIG.DEFAULT_PER_PAGE,
   enabled = true,
+  paginationType = "cursor", // Default to cursor for backward compatibility
 }: UseInfiniteFetchParams) => {
   const { addApiCall, updateApiCall } = useLensDebugClient();
   const { setRecordsLoaded } = useLensContext();
@@ -124,17 +245,32 @@ export const useInfiniteFetch = ({
     perPage,
   };
 
-  // Create the fetch function with API tracking
-  const fetchFn = useMemo(
-    () => createFetchFn(addApiCall, updateApiCall),
+  // Create the appropriate fetch functions
+  const cursorFetchFn = useMemo(
+    () => createCursorFetchFn(addApiCall, updateApiCall),
+    [addApiCall, updateApiCall]
+  );
+
+  const offsetFetchFn = useMemo(
+    () => createOffsetFetchFn(addApiCall, updateApiCall),
     [addApiCall, updateApiCall]
   );
 
   // Create a stable query key by stringifying the body to ensure
   // consistent caching even when object references change
   const stableQueryKey = useMemo(() => {
-    return ["lens", query, "data", viewId, JSON.stringify(body)];
-  }, [query, viewId, body]);
+    return [
+      "lens",
+      query,
+      "data",
+      viewId,
+      paginationType,
+      JSON.stringify(body),
+    ];
+  }, [query, viewId, paginationType, body]);
+
+  // Determine initial page param based on pagination type
+  const initialPageParam = paginationType === "offset" ? 1 : null;
 
   const {
     data,
@@ -152,19 +288,46 @@ export const useInfiniteFetch = ({
     ...rest
   } = useInfiniteQuery({
     queryKey: stableQueryKey,
-    queryFn: ({ pageParam = null }) =>
-      fetchFn({
-        pageParam: pageParam as string | null,
-        endpoint,
-        headers,
-        body: requestBody,
-      }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage: PaginatedResponse) => {
-      return lastPage?.meta?.next_cursor || null;
+    queryFn: ({ pageParam }) => {
+      if (paginationType === "offset") {
+        return offsetFetchFn({
+          pageParam: pageParam as number | null,
+          endpoint,
+          headers,
+          body: requestBody,
+        });
+      } else {
+        return cursorFetchFn({
+          pageParam: pageParam as string | null,
+          endpoint,
+          headers,
+          body: requestBody,
+        });
+      }
     },
-    getPreviousPageParam: (firstPage: PaginatedResponse) =>
-      firstPage?.meta?.prev_cursor || null,
+    initialPageParam,
+    getNextPageParam: (lastPage: PaginatedResponse) => {
+      if (paginationType === "offset") {
+        return getOffsetNextPageParam(
+          lastPage as PaginatedResponse<OffsetMeta>
+        );
+      } else {
+        return getCursorNextPageParam(
+          lastPage as PaginatedResponse<CursorMeta>
+        );
+      }
+    },
+    getPreviousPageParam: (firstPage: PaginatedResponse) => {
+      if (paginationType === "offset") {
+        return getOffsetPrevPageParam(
+          firstPage as PaginatedResponse<OffsetMeta>
+        );
+      } else {
+        return getCursorPrevPageParam(
+          firstPage as PaginatedResponse<CursorMeta>
+        );
+      }
+    },
     refetchOnWindowFocus: REFETCH_OPTIONS.ON_WINDOW_FOCUS,
     refetchOnMount: REFETCH_OPTIONS.ON_MOUNT, // Don't refetch when component mounts if we have data
     staleTime: STALE_TIME.INFINITE_DATA, // Never consider data stale
@@ -179,12 +342,33 @@ export const useInfiniteFetch = ({
     [data]
   );
 
-  // Get total count if available in meta (check both 'total' and 'count')
-  const totalCount = useMemo(
-    () =>
-      data?.pages?.[0]?.meta?.total || data?.pages?.[0]?.meta?.count || null,
-    [data]
-  );
+  // Get total count if available in meta (works for both pagination types)
+  const totalCount = useMemo(() => {
+    const firstPageMeta = data?.pages?.[0]?.meta;
+    if (!firstPageMeta) return null;
+
+    if (paginationType === "offset") {
+      // For offset pagination, 'count' is the total number of records
+      return (firstPageMeta as OffsetMeta).count || null;
+    } else {
+      // For cursor pagination, check both 'total' and 'count'
+      const cursorMeta = firstPageMeta as CursorMeta;
+      return cursorMeta.total || cursorMeta.count || null;
+    }
+  }, [data, paginationType]);
+
+  // Get current page and total pages for offset pagination
+  const currentPage = useMemo(() => {
+    if (paginationType !== "offset" || !data?.pages?.length) return undefined;
+    const lastPageMeta = data.pages[data.pages.length - 1]?.meta as OffsetMeta;
+    return lastPageMeta?.current_page;
+  }, [data, paginationType]);
+
+  const totalPages = useMemo(() => {
+    if (paginationType !== "offset" || !data?.pages?.length) return undefined;
+    const lastPageMeta = data.pages[data.pages.length - 1]?.meta as OffsetMeta;
+    return lastPageMeta?.total_pages;
+  }, [data, paginationType]);
 
   // Update records loaded whenever flatData changes
   useEffect(() => {
@@ -218,6 +402,11 @@ export const useInfiniteFetch = ({
     // Refetch
     refetch,
 
+    // Pagination type and info
+    paginationType,
+    currentPage,
+    totalPages,
+
     // Rest of the query result
     ...rest,
   };
@@ -225,4 +414,4 @@ export const useInfiniteFetch = ({
 
 // Export types for consumers
 export type UseInfiniteFetchResult = ReturnType<typeof useInfiniteFetch>;
-export type { FetchFnParams, PaginatedResponse };
+export type { FetchFnParams };

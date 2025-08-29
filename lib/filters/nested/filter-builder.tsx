@@ -1,9 +1,9 @@
 import { useLensContext } from "@lens2/contexts/lens-context";
 import { OptionsCacheProvider } from "@lens2/contexts/options-cache-context";
 import { useViewContext } from "@lens2/contexts/view-context";
-import { FilterGroupComponent } from "@lens2/filters/nested/filter-group";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
 import { normalizeFilters } from "@lens2/filters/logic/process-filters";
+import { FilterGroupComponent } from "@lens2/filters/nested/filter-group";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import { Switch } from "@lens2/shadcn/components/ui/switch";
 import { cn } from "@lens2/shadcn/lib/utils";

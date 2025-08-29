@@ -15,10 +15,14 @@ export function useViewData(options: UseViewDataOptions = {}) {
     query,
     attributes: enrichedAttributes,
     perPage: contextPerPage,
+    paginationType,
   } = useLensContext();
   const { view, readPayload } = useViewContext();
 
   const { defaultPerPage = FETCH_CONFIG.DEFAULT_PER_PAGE } = options;
+
+  // Calculate the actual perPage value being used
+  const actualPerPage = view.perPage || contextPerPage || defaultPerPage;
 
   // Use enriched attributes from LensContext (which filters out unsupported types)
   const attributesObject = enrichedAttributes || {};
@@ -28,16 +32,23 @@ export function useViewData(options: UseViewDataOptions = {}) {
   const {
     flatData,
     fetchNextPage,
+    fetchPreviousPage,
     hasNextPage,
+    hasPreviousPage,
     isFetching,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
     isLoading,
     totalCount,
+    currentPage,
+    totalPages,
   } = useInfiniteFetch({
     query: query,
     viewId: view.id,
     endpoint: endpoints.query,
     headers: headers,
-    perPage: view.perPage || contextPerPage || defaultPerPage,
+    perPage: actualPerPage,
+    paginationType: paginationType,
     body: readPayload,
   });
 
@@ -57,9 +68,16 @@ export function useViewData(options: UseViewDataOptions = {}) {
     // Data
     flatData,
     fetchNextPage,
+    fetchPreviousPage,
     hasNextPage,
+    hasPreviousPage,
     isFetching,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
     isLoading,
     totalCount,
+    currentPage,
+    totalPages,
+    perPage: actualPerPage,
   };
 }

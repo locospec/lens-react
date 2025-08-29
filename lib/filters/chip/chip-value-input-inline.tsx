@@ -1,3 +1,6 @@
+import { UnifiedSmartDateInput } from "@lens2/filters/components/unified-smart-date-input";
+import { operatorExpectsRange } from "@lens2/filters/logic/filter-operators-config";
+import { isDateType } from "@lens2/filters/logic/value-input-factory";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import { Input } from "@lens2/shadcn/components/ui/input";
 import {
@@ -28,9 +31,11 @@ export function ChipValueInputInline({
   const options = attribute.options || [];
   const optionsAggregator = attribute?.optionsAggregator;
   const hasOptions = options.length > 0 || !!optionsAggregator;
+  const isDateAttribute = isDateType(attribute.type);
 
   // Determine if multiple selection based on operator
   const isMultiple = operator === "is_any_of" || operator === "is_none_of";
+  const isRange = operatorExpectsRange(operator);
 
   // Handle value change from selector
   const handleValueChange = (newValue: unknown) => {
@@ -40,6 +45,20 @@ export function ChipValueInputInline({
       onEditingChange?.(false);
     }
   };
+
+  // For date attributes, use UnifiedSmartDateInput
+  if (isDateAttribute) {
+    return (
+      <UnifiedSmartDateInput
+        variant="chip"
+        value={value as string | [string, string] | null}
+        onChange={onChange}
+        forceRangeMode={isRange}
+        placeholder={`Select ${attribute.label.toLowerCase()}`}
+        className={className}
+      />
+    );
+  }
 
   // For non-options attributes (text input)
   if (!hasOptions) {

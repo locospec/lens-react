@@ -1,3 +1,4 @@
+import { Paginator } from "@lens2/components/paginator";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { COLUMN_SIZES, FETCH_CONFIG } from "@lens2/views/shared/constants";
@@ -9,7 +10,6 @@ import { useColumnState } from "@lens2/views/shared/use-column-state";
 import { useContainerWidth } from "@lens2/views/shared/use-container-width";
 import { useRowVirtualizer } from "@lens2/views/shared/use-row-virtualizer";
 import { useViewData } from "@lens2/views/shared/use-view-data";
-import { ViewHeader } from "@lens2/views/shared/view-header";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useCallback, useRef } from "react";
 import { MemoizedTableBody, TableBody } from "./table-body";
@@ -31,6 +31,9 @@ export function ListView() {
     isFetching,
     isLoading,
     totalCount,
+    currentPage,
+    totalPages,
+    perPage,
   } = useViewData({ defaultPerPage: FETCH_CONFIG.DEFAULT_PER_PAGE });
 
   // Column state management
@@ -110,10 +113,14 @@ export function ListView() {
 
   return (
     <div ref={wrapperRef} className="flex h-full flex-col overflow-hidden">
-      <ViewHeader
-        title="List View"
+      <Paginator
         loadedCount={flatData.length}
         totalCount={totalCount}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        perPage={perPage}
+        hasNextPage={hasNextPage}
+        isFetching={isFetching}
       />
 
       {/* Table container */}

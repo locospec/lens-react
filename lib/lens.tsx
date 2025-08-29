@@ -35,6 +35,7 @@ export function Lens({
   hideAttributes,
   systemViews,
   perPage,
+  paginationType,
   selectionType = "none",
   defaultSelected,
   onSelect,
@@ -110,6 +111,7 @@ export function Lens({
         hideAttributes={hideAttributes}
         systemViews={systemViews}
         perPage={perPage}
+        paginationType={paginationType}
         selectionType={selectionType}
         defaultSelected={defaultSelected}
         onSelect={onSelect}

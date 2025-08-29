@@ -11,13 +11,13 @@ import { useColumnState } from "@lens2/views/shared/use-column-state";
 import { useContainerWidth } from "@lens2/views/shared/use-container-width";
 import { useRowVirtualizer } from "@lens2/views/shared/use-row-virtualizer";
 import { useViewData } from "@lens2/views/shared/use-view-data";
-import { ViewHeader } from "@lens2/views/shared/view-header";
 import {
   ColumnSizingState,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Paginator } from "../../components/paginator";
 import { MemoizedTableBody, TableBody } from "./table-body";
 import { TableHeader } from "./table-header";
 import { TableSkeleton } from "./table-skeleton";
@@ -46,6 +46,9 @@ export function TableView() {
     isFetching,
     isLoading,
     totalCount,
+    currentPage,
+    totalPages,
+    perPage,
   } = useViewData({ defaultPerPage: FETCH_CONFIG.DEFAULT_PER_PAGE });
 
   // Column state management
@@ -202,10 +205,14 @@ export function TableView() {
           </div>
         </div>
       </div>
-      <ViewHeader
-        title="Table View"
+      <Paginator
         loadedCount={flatData.length}
         totalCount={totalCount}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        perPage={perPage}
+        hasNextPage={hasNextPage}
+        isFetching={isFetching}
       />
     </div>
   );

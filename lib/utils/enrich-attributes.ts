@@ -164,9 +164,6 @@ export function enrichAttributes(
       options: transformedOptions,
     };
 
-    // Log the enriched attribute
-    logger.debug(`Enriched attribute "${key}"`, enrichedAttribute);
-
     // Return enriched attribute
     enriched[key] = enrichedAttribute;
   });

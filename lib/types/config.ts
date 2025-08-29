@@ -7,6 +7,7 @@ import type { Attribute, AttributeDisplayConfiguration } from "./attributes";
 import type { Json } from "./common";
 import type { FilterType } from "./filters";
 import type { SelectionConfiguration } from "./interactions";
+import type { PaginationType } from "./pagination";
 import type { ViewConfiguration } from "./view";
 
 // Core Lens configuration
@@ -90,6 +91,7 @@ export interface CacheConfiguration {
 export interface CoreLensConfiguration {
   globalContext?: Record<string, Json>;
   perPage?: number;
+  paginationType?: PaginationType;
   filterType?: FilterType;
 }
 

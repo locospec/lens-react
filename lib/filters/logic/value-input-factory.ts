@@ -12,9 +12,15 @@ import type { AttributeType } from "@lens2/types/attributes";
  * Determine input strategy based on attribute configuration
  */
 export function determineInputStrategy(attribute: {
+  type?: AttributeType;
   options?: Array<{ label: string; value: string; count?: number }>;
   optionsAggregator?: any;
-}): "dynamic_options" | "static_options" | "simple_input" {
+}): "dynamic_options" | "static_options" | "date_input" | "simple_input" {
+  // Check for date types first
+  if (attribute.type && isDateType(attribute.type)) {
+    return "date_input";
+  }
+
   if (attribute.optionsAggregator) {
     return "dynamic_options";
   }
@@ -24,6 +30,13 @@ export function determineInputStrategy(attribute: {
   }
 
   return "simple_input";
+}
+
+/**
+ * Check if attribute type is a date type
+ */
+export function isDateType(type: AttributeType): boolean {
+  return type === "date" || type === "datetime" || type === "timestamp";
 }
 
 /**
@@ -73,9 +86,37 @@ export function formatDisplayValue(value: unknown): string {
   if (value === null || value === undefined) return "empty";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (value instanceof Date) return value.toLocaleDateString();
+
   if (Array.isArray(value)) {
-    return value.length > 0 ? value.join(", ") : "empty";
+    if (value.length === 0) return "empty";
+
+    // Special formatting for date ranges
+    if (
+      value.length === 2 &&
+      typeof value[0] === "string" &&
+      typeof value[1] === "string"
+    ) {
+      // Check if these look like ISO date strings
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (dateRegex.test(value[0]) && dateRegex.test(value[1])) {
+        const startDate = new Date(value[0] + "T00:00:00");
+        const endDate = new Date(value[1] + "T00:00:00");
+        return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+      }
+    }
+
+    return value.join(", ");
   }
+
+  // Check if this is a date string
+  if (typeof value === "string") {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (dateRegex.test(value)) {
+      const date = new Date(value + "T00:00:00");
+      return date.toLocaleDateString();
+    }
+  }
+
   return String(value);
 }
 
