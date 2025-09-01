@@ -148,13 +148,13 @@ export const SEARCHABLE_ATTRIBUTE_TYPES: AttributeType[] = [
 // Attribute types that support filtering (dropdowns, pickers, selectors)
 export const FILTERABLE_ATTRIBUTE_TYPES: AttributeType[] = [
   "enum",
-  "boolean",
-  "date",
-  "datetime",
+  // "boolean",
+  // "date",
+  // "datetime",
   "timestamp",
-  "integer",
-  "number",
-  "decimal",
+  // "integer",
+  // "number",
+  // "decimal",
 ];
 
 export const SORTABLE_ATTRIBUTE_TYPES: AttributeType[] = [
