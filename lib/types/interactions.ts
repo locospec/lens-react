@@ -36,6 +36,11 @@ export interface EntityInteractions {
     onClick?: (event: React.MouseEvent) => void;
   }>;
 
+  // Serial number column
+  serialNumber?: {
+    width?: number;
+  };
+
   // Custom actions column (render only)
   actions?: {
     width?: number;
