@@ -33,6 +33,19 @@ function buildTableColumns(
 
   const columns: ColumnDef<RowData>[] = [];
 
+  if (interactions?.serialNumber) {
+    columns.push({
+      id: "__serial",
+      header: "#",
+      cell: ({ row }) => row.index + 1,
+      size: interactions.serialNumber.width || 40,
+      minSize: 40,
+      maxSize: 60,
+      enableSorting: false,
+      enableResizing: false,
+    });
+  }
+
   if (selectionType === "multiple") {
     columns.push({
       id: "__select",
@@ -148,7 +161,7 @@ export function useColumnState({
       return Object.fromEntries(
         columns.map(col => [
           col.id,
-          col.id === "__actions"
+          col.id === "__actions" || col.id === "__serial"
             ? true
             : visibleColumns.includes(col.id as string),
         ])
@@ -159,11 +172,20 @@ export function useColumnState({
   // Column order state
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(() => {
     const order = viewConfig?.columnOrder || columns.map(c => c.id as string);
-    // Ensure __actions is at the end if it exists and not already in order
-    if (interactions?.actions && !order.includes("__actions")) {
-      return [...order, "__actions"];
+    // Ensure special columns are positioned correctly
+    const result = [...order];
+
+    // Ensure __serial is at the beginning if it exists and not already in order
+    if (interactions?.serialNumber && !result.includes("__serial")) {
+      result.unshift("__serial");
     }
-    return order;
+
+    // Ensure __actions is at the end if it exists and not already in order
+    if (interactions?.actions && !result.includes("__actions")) {
+      result.push("__actions");
+    }
+
+    return result;
   });
 
   // Update states when view config changes
@@ -176,7 +198,7 @@ export function useColumnState({
     const newVisibility = Object.fromEntries(
       columns.map(col => [
         col.id,
-        col.id === "__actions"
+        col.id === "__actions" || col.id === "__serial"
           ? true
           : visibleColumns.includes(col.id as string),
       ])
@@ -191,11 +213,19 @@ export function useColumnState({
 
     const newOrder =
       viewConfig?.columnOrder || columns.map(c => c.id as string);
+    // Ensure special columns are positioned correctly
+    const result = [...newOrder];
+
+    // Ensure __serial is at the beginning if it exists and not already in order
+    if (interactions?.serialNumber && !result.includes("__serial")) {
+      result.unshift("__serial");
+    }
+
     // Ensure __actions is at the end if it exists and not already in order
     const orderWithActions =
-      interactions?.actions && !newOrder.includes("__actions")
-        ? [...newOrder, "__actions"]
-        : newOrder;
+      interactions?.actions && !result.includes("__actions")
+        ? [...result, "__actions"]
+        : result;
     setColumnOrder(prev => {
       // Only update if actually changed
       if (JSON.stringify(prev) !== JSON.stringify(orderWithActions)) {
