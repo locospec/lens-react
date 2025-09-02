@@ -43,10 +43,12 @@ export function HeaderContextMenu({
     handleSortsClear,
     getSortStateForColumn,
     handleSortsReorder,
+    isColumnSortable,
   } = useTableSorting();
 
   const sortState = getSortStateForColumn(attribute);
   const hasActiveSorts = currentSorts.length > 0;
+  const isSortable = isColumnSortable(attribute);
 
   // Ref to access context menu trigger
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -132,7 +134,7 @@ export function HeaderContextMenu({
           Sort
         </ContextMenuLabel>
 
-        {!sortState.isSorted && (
+        {!sortState.isSorted && isSortable && (
           <>
             <ContextMenuItem
               onClick={handleSortAsc}

@@ -52,4 +52,5 @@ export interface DisplayAttribute {
 export interface AttributeDisplayConfiguration {
   displayAttributes?: DisplayAttribute[];
   hideAttributes?: string[];
+  nonSortableAttributes?: string[];
 }
