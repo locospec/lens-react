@@ -33,6 +33,7 @@ export function Lens({
   onViewChange,
   displayAttributes,
   hideAttributes,
+  nonSortableAttributes,
   systemViews,
   perPage,
   paginationType,
@@ -109,6 +110,7 @@ export function Lens({
         onViewChange={onViewChange}
         displayAttributes={displayAttributes}
         hideAttributes={hideAttributes}
+        nonSortableAttributes={nonSortableAttributes}
         systemViews={systemViews}
         perPage={perPage}
         paginationType={paginationType}

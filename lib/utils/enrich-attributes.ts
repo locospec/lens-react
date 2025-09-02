@@ -44,7 +44,8 @@ export function enrichAttributes(
   attributes: Record<string, Attribute>,
   aggregates: Record<string, AggregateDefinition> = {},
   displayAttributes?: DisplayAttribute[],
-  hideAttributes?: string[]
+  hideAttributes?: string[],
+  nonSortableAttributes?: string[]
 ): Record<string, Attribute> {
   const enriched: Record<string, Attribute> = {};
 
@@ -148,7 +149,9 @@ export function enrichAttributes(
     // Compute searchable, filterable, and sortable based on the effective (final) type
     const isFilterable = FILTERABLE_ATTRIBUTE_TYPES.includes(effectiveType);
     const isSearchable = SEARCHABLE_ATTRIBUTE_TYPES.includes(effectiveType);
-    const isSortable = SORTABLE_ATTRIBUTE_TYPES.includes(effectiveType);
+    const isSortable =
+      SORTABLE_ATTRIBUTE_TYPES.includes(effectiveType) &&
+      (!nonSortableAttributes || !nonSortableAttributes.includes(key));
 
     // Create the enriched attribute
     const enrichedAttribute = {

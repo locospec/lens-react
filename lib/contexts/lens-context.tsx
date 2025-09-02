@@ -40,6 +40,7 @@ export function LensProvider({
   onViewChange,
   displayAttributes,
   hideAttributes,
+  nonSortableAttributes,
   systemViews,
   perPage,
   paginationType,
@@ -215,9 +216,10 @@ export function LensProvider({
       config.attributes,
       config.aggregates || {},
       displayAttributes,
-      hideAttributes
+      hideAttributes,
+      nonSortableAttributes
     );
-  }, [config, displayAttributes, hideAttributes]);
+  }, [config, displayAttributes, hideAttributes, nonSortableAttributes]);
 
   // Get attributes as array for backward compatibility
   const attributesArray = Object.values(attributes);
