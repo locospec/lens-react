@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import * as logger from "@lens2/utils/logger";
 import { COLUMN_SIZES } from "@lens2/views/shared/constants";
@@ -14,7 +14,7 @@ interface LayoutOption {
 
 export function LayoutPanel() {
   const { view, updateConfigChange, table } = useViewConfig();
-  const { interactions } = useLensContext();
+  const { interactions } = useLensViewContext();
   const [isProcessing, setIsProcessing] = useState(false);
   const measurementCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -53,7 +53,7 @@ export function LayoutPanel() {
       // Start with header width + padding
       const headerText = (column.columnDef.header as string) || "";
       const headerWidth =
-        measureText(headerText, "14px Inter, system-ui, sans-serif") + 40; // 40px for padding and sort icon
+        measureText(headerText, "500 12px Inter, system-ui, sans-serif") + 50; // 50px for padding and sort icon
 
       // Get all visible cells for this column
       const rows = table.getRowModel().rows;

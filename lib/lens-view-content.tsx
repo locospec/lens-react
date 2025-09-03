@@ -1,16 +1,16 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
+import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
 import { ViewProvider } from "@lens2/contexts/view-context";
 import { FilterToolbar } from "@lens2/filters/filter-toolbar";
 import { ViewsToolbar } from "@lens2/toolbar/views-toolbar";
-import type { LensContentProps } from "@lens2/types/config";
+import type { LensViewContentProps } from "@lens2/types/config";
 import { ErrorDisplay } from "@lens2/ui/error-display";
 import { Loading } from "@lens2/ui/loading";
 import { ViewConfiguration } from "@lens2/view-configuration/view-configuration";
 import { ViewContainer } from "@lens2/views/view-container";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export function LensContent({ onError }: LensContentProps) {
+export function LensViewContent({ onError }: LensViewContentProps) {
   const {
     views,
     isLoading,
@@ -19,8 +19,8 @@ export function LensContent({ onError }: LensContentProps) {
     enableViews,
     initialViewId,
     onViewChange,
-  } = useLensContext();
-  const debugClient = useLensDebugClient();
+  } = useLensViewContext();
+  const debugClient = useLensViewDebugClient();
   const [activeViewId, setActiveViewId] = useState<string>(initialViewId || "");
   const viewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +114,7 @@ export function LensContent({ onError }: LensContentProps) {
   }
 
   return (
-    <div className="@container/lens-table flex h-full flex-col space-y-2">
+    <div className="@container/lens-view-table flex h-full flex-col space-y-2">
       <ViewProvider key={activeView.id} view={activeView}>
         {enableViews && (
           <ViewsToolbar

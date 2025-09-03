@@ -40,9 +40,9 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                   data-resizing={isResizing}
                   className={cn(
                     "group/header relative flex cursor-pointer items-center text-left",
-                    "h-8 @sm/lens-table:h-9 @md/lens-table:h-10 @lg/lens-table:h-10",
-                    "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-                    "text-xs @sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
+                    "h-8 @sm/lens-view-table:h-9 @md/lens-view-table:h-10 @lg/lens-view-table:h-10",
+                    "px-1 @sm/lens-view-table:px-1 @md/lens-view-table:px-1.5 @lg/lens-view-table:px-2",
+                    "text-xs @sm/lens-view-table:text-xs @md/lens-view-table:text-xs @lg/lens-view-table:text-sm",
                     "text-foreground font-medium",
                     "bg-muted transition-colors duration-200",
                     "group-data-[resizing=false]:hover:bg-muted/60",

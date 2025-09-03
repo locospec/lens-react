@@ -1,1 +1,1 @@
-export { Lens } from "@lens2/lens";
+export { LensView } from "@lens2/lens-view";

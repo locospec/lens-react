@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useInfiniteFetch } from "@lens2/hooks/use-infinite-fetch";
 import { FETCH_CONFIG } from "./constants";
@@ -16,7 +16,7 @@ export function useViewData(options: UseViewDataOptions = {}) {
     attributes: enrichedAttributes,
     perPage: contextPerPage,
     paginationType,
-  } = useLensContext();
+  } = useLensViewContext();
   const { view, readPayload } = useViewContext();
 
   const { defaultPerPage = FETCH_CONFIG.DEFAULT_PER_PAGE } = options;
@@ -24,7 +24,7 @@ export function useViewData(options: UseViewDataOptions = {}) {
   // Calculate the actual perPage value being used
   const actualPerPage = view.perPage || contextPerPage || defaultPerPage;
 
-  // Use enriched attributes from LensContext (which filters out unsupported types)
+  // Use enriched attributes from LensViewContext (which filters out unsupported types)
   const attributesObject = enrichedAttributes || {};
   const attributes = Object.values(attributesObject);
 

@@ -19,7 +19,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useLensContext } from "./lens-context";
+import { useLensViewContext } from "./lens-view-context";
 
 const ViewContext = createContext<ViewContextValue | null>(null);
 
@@ -50,8 +50,8 @@ export function ViewProvider({
     return normalized;
   });
 
-  // Get API and globalContext from LensContext
-  const { api, globalContext: lensGlobalContext } = useLensContext();
+  // Get API and globalContext from LensViewContext
+  const { api, globalContext: lensGlobalContext } = useLensViewContext();
   const updateViewMutation = api.updateView();
 
   // Custom setFilters that ensures state updates and saves to config
@@ -160,8 +160,8 @@ export function ViewProvider({
   // Table instance state (for table views)
   const [table, setTable] = useState<Table<RowData> | null>(null);
 
-  // Get views from LensContext
-  const { views } = useLensContext();
+  // Get views from LensViewContext
+  const { views } = useLensViewContext();
 
   // Update view when views are refetched
   useEffect(() => {
@@ -181,8 +181,8 @@ export function ViewProvider({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only log on mount
 
-  // Get attributes from LensContext
-  const { attributes } = useLensContext();
+  // Get attributes from LensViewContext
+  const { attributes } = useLensViewContext();
 
   // Build the complete payload for _read endpoint
   const readPayload = useMemo(() => {

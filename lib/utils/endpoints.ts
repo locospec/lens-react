@@ -1,5 +1,5 @@
 // Endpoints interface
-export interface LensEndpoints {
+export interface LensViewEndpoints {
   // Data endpoints
   fetch_config: string;
   query: string;
@@ -20,10 +20,13 @@ export interface LensEndpoints {
 }
 
 /**
- * Constructs all Lens endpoints from a query name and base URL
+ * Constructs all LensView endpoints from a query name and base URL
  * Returns a strictly typed interface
  */
-export function createEndpoints(query: string, baseUrl: string): LensEndpoints {
+export function createEndpoints(
+  query: string,
+  baseUrl: string
+): LensViewEndpoints {
   // Remove trailing slash from baseUrl
   const cleanBaseUrl = baseUrl.replace(/\/$/, "");
 

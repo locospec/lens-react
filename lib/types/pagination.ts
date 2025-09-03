@@ -1,5 +1,5 @@
 /**
- * Pagination types for Lens
+ * Pagination types for LensView
  */
 
 // Pagination type options

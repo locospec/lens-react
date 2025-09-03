@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import * as logger from "@lens2/utils/logger";
 import { useCallback } from "react";
@@ -15,7 +15,7 @@ export function useViewConfig() {
     table,
   } = useViewContext();
 
-  const { api } = useLensContext();
+  const { api } = useLensViewContext();
   const updateViewMutation = api.updateView();
 
   const openConfig = useCallback(

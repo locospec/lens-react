@@ -114,7 +114,7 @@ export const ENUM_OPERATORS: OperatorDefinition[] = [
   },
 ];
 
-// Map lens-react-2 attribute types to operators
+// Map lens-view-react-2 attribute types to operators
 export const TYPE_OPERATORS_MAP: Record<AttributeType, OperatorDefinition[]> = {
   string: STRING_OPERATORS,
   text: STRING_OPERATORS,

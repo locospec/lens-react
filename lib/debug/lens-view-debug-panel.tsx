@@ -1,7 +1,7 @@
 import {
-  useLensDebugClient,
+  useLensViewDebugClient,
   type DebugEntry,
-} from "@lens2/contexts/lens-debug-context";
+} from "@lens2/contexts/lens-view-debug-context";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   NonModalSheet,
@@ -68,8 +68,8 @@ const InfoRow = ({
   </div>
 );
 
-export function LensDebugPanel() {
-  const { entries, clearEntries, recordsLoaded } = useLensDebugClient();
+export function LensViewDebugPanel() {
+  const { entries, clearEntries, recordsLoaded } = useLensViewDebugClient();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<DebugEntry | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -105,9 +105,9 @@ export function LensDebugPanel() {
           }`}
         >
           <SheetHeader>
-            <SheetTitle>Lens Debug Panel</SheetTitle>
+            <SheetTitle>LensView Debug Panel</SheetTitle>
             <SheetDescription>
-              View all API calls and logs from the Lens component
+              View all API calls and logs from the LensView component
             </SheetDescription>
           </SheetHeader>
           <div className="flex flex-1 flex-col overflow-hidden px-4 pb-4">

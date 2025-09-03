@@ -29,9 +29,9 @@ export const TableHeader = ({ table }: TableHeaderProps) => {
                   data-column-id={header.column.id}
                   className={cn(
                     "relative flex items-center text-left font-medium",
-                    "@sm/lens-table:h-8 @md/lens-table:h-9 @lg/lens-table:h-10",
-                    "@sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-                    "@sm/lens-table:text-xs @md/lens-table:text-xs @lg/lens-table:text-sm",
+                    "@sm/lens-view-table:h-8 @md/lens-view-table:h-9 @lg/lens-view-table:h-10",
+                    "@sm/lens-view-table:px-1 @md/lens-view-table:px-1.5 @lg/lens-view-table:px-2",
+                    "@sm/lens-view-table:text-xs @md/lens-view-table:text-xs @lg/lens-view-table:text-sm",
                     "text-foreground bg-gray-50 transition-colors",
                     "dark:bg-gray-900",
                     "group-data-[resizing=false]:hover:bg-gray-100 dark:group-data-[resizing=false]:hover:bg-gray-800"

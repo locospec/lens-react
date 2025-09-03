@@ -1,5 +1,5 @@
 /**
- * Configuration types for Lens
+ * Configuration types for LensView
  */
 
 import type { AggregateDefinition } from "./api";
@@ -10,14 +10,14 @@ import type { SelectionConfiguration } from "./interactions";
 import type { PaginationType } from "./pagination";
 import type { ViewConfiguration } from "./view";
 
-// Core Lens configuration
+// Core LensView configuration
 export interface Config {
   attributes: Record<string, Attribute>;
   aggregates?: Record<string, AggregateDefinition>;
 }
 
-// Lens endpoints configuration
-export interface LensEndpoints {
+// LensView endpoints configuration
+export interface LensViewEndpoints {
   // Data endpoints
   fetch_config: string;
   query: string;
@@ -37,8 +37,8 @@ export interface LensEndpoints {
   delete_custom_attribute: string;
 }
 
-// Core props needed by Lens
-export interface LensDataProps {
+// Core props needed by LensView
+export interface LensViewDataProps {
   query: string;
   baseUrl: string;
   headers?: Record<string, string>;
@@ -88,7 +88,7 @@ export interface CacheConfiguration {
 /**
  * Core lens behavior configuration
  */
-export interface CoreLensConfiguration {
+export interface CoreLensViewConfiguration {
   globalContext?: Record<string, Json>;
   perPage?: number;
   paginationType?: PaginationType;
@@ -99,20 +99,20 @@ export interface CoreLensConfiguration {
  * Base lens configuration - core settings that belong in config.ts
  *
  * This includes:
- * - CoreLensConfiguration (globalContext, perPage, filterType)
+ * - CoreLensViewConfiguration (globalContext, perPage, filterType)
  * - CacheConfiguration (cache settings, refresh callbacks)
  *
  * NOTE: This is NOT the complete configuration. Other domain-specific configs
- * are defined in their respective files and composed in LensProps/LensProviderProps
+ * are defined in their respective files and composed in LensViewProps/LensViewProviderProps
  */
-export interface LensConfiguration
+export interface LensViewConfiguration
   extends CacheConfiguration,
-    CoreLensConfiguration {}
+    CoreLensViewConfiguration {}
 
 // === COMPONENT INTERFACES ===
 
 /**
- * Main Lens component props - combines all configuration interfaces
+ * Main LensView component props - combines all configuration interfaces
  *
  * Available props include (among others):
  * - query: string (required)
@@ -122,9 +122,9 @@ export interface LensConfiguration
  * - globalContext?: Record<string, Json>
  * - selectionType?: "none" | "single" | "multiple"
  */
-export interface LensProps
-  extends LensDataProps,
-    LensConfiguration,
+export interface LensViewProps
+  extends LensViewDataProps,
+    LensViewConfiguration,
     ViewConfiguration,
     AttributeDisplayConfiguration,
     SelectionConfiguration {
@@ -133,7 +133,7 @@ export interface LensProps
   enableDebug?: boolean;
 }
 
-// LensContent component props
-export interface LensContentProps {
+// LensViewContent component props
+export interface LensViewContentProps {
   onError?: (error: Error) => void;
 }

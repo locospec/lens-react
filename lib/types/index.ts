@@ -1,5 +1,5 @@
 /**
- * Central export for all Lens types
+ * Central export for all LensView types
  */
 
 // Common types
@@ -23,7 +23,7 @@ export * from "./config";
 // Context types
 export * from "./context";
 
-// Lens component types (now in config.ts)
+// LensView component types (now in config.ts)
 
 // Interaction types
 export * from "./interactions";

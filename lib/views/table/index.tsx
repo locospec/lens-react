@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useTableSyncSelection } from "@lens2/hooks/use-table-sync-selection";
@@ -34,7 +34,7 @@ export function TableView() {
     defaultSelected = [],
     onSelect,
     selectionKey = "",
-  } = useLensContext();
+  } = useLensViewContext();
 
   // Get data and config using shared hook
   const {
