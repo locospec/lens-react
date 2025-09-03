@@ -13,7 +13,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { Button } from "@lens2/shadcn/components/ui/button";
@@ -26,7 +26,7 @@ import { SortableColumnItem } from "./sortable-column-item";
 
 export function ColumnsConfig() {
   const { view } = useViewContext();
-  const { attributes: attributesRecord } = useLensContext();
+  const { attributes: attributesRecord } = useLensViewContext();
   const { updateConfigChange } = useViewConfig();
   const [searchQuery, setSearchQuery] = useState("");
 

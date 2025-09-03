@@ -3,18 +3,18 @@ import {
   REFETCH_OPTIONS,
   calculateStaleTime,
 } from "@lens2/constants/cache";
-import { LensProvider } from "@lens2/contexts/lens-context";
-import { LensDebugProvider } from "@lens2/contexts/lens-debug-context";
-import { LensDebugPanel } from "@lens2/debug/lens-debug-panel";
-import { LensContent } from "@lens2/lens-content";
-import type { LensProps } from "@lens2/types/config";
-import { createLensPersister } from "@lens2/utils/create-lens-persister";
+import { LensViewProvider } from "@lens2/contexts/lens-view-context";
+import { LensViewDebugProvider } from "@lens2/contexts/lens-view-debug-context";
+import { LensViewDebugPanel } from "@lens2/debug/lens-view-debug-panel";
+import { LensViewContent } from "@lens2/lens-view-content";
+import type { LensViewProps } from "@lens2/types/config";
+import { createLensViewPersister } from "@lens2/utils/create-lens-view-persister";
 import * as logger from "@lens2/utils/logger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-export function Lens({
+export function LensView({
   query,
   baseUrl,
   headers,
@@ -40,7 +40,7 @@ export function Lens({
   selectionType = "none",
   defaultSelected,
   onSelect,
-}: LensProps) {
+}: LensViewProps) {
   // State to track if we should force refresh
   const [forceRefreshKey, setForceRefreshKey] = useState(0);
 
@@ -54,7 +54,7 @@ export function Lens({
     }
   }, [enableDebug]);
 
-  // Create a new queryClient for each Lens instance
+  // Create a new queryClient for each LensView instance
   const queryClient = useMemo(
     () =>
       new QueryClient({
@@ -72,7 +72,7 @@ export function Lens({
 
   // Create persister (only if persistence is enabled)
   const persister = useMemo(
-    () => (enablePersistentCache ? createLensPersister() : undefined),
+    () => (enablePersistentCache ? createLensViewPersister() : undefined),
     [enablePersistentCache]
   );
 
@@ -94,8 +94,8 @@ export function Lens({
 
   // Render with appropriate provider based on persistence settings
   const content = (
-    <LensDebugProvider enabled={enableDebug}>
-      <LensProvider
+    <LensViewDebugProvider enabled={enableDebug}>
+      <LensViewProvider
         query={query}
         baseUrl={baseUrl}
         headers={headers}
@@ -118,10 +118,10 @@ export function Lens({
         defaultSelected={defaultSelected}
         onSelect={onSelect}
       >
-        <LensContent onError={onError} />
-      </LensProvider>
-      {enableDebug && <LensDebugPanel />}
-    </LensDebugProvider>
+        <LensViewContent onError={onError} />
+      </LensViewProvider>
+      {enableDebug && <LensViewDebugPanel />}
+    </LensViewDebugProvider>
   );
 
   if (enablePersistentCache && persister) {

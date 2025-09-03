@@ -5,7 +5,7 @@
 import type { Attribute } from "./attributes";
 import type { Filter, FilterGroup } from "./filters";
 
-// View types available in Lens
+// View types available in LensView
 export type ViewType = "table" | "kanban" | "list" | "grid" | "raw";
 
 // Sort direction

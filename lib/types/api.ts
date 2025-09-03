@@ -1,5 +1,5 @@
 /**
- * API-related types for Lens
+ * API-related types for LensView
  */
 
 import type { Attribute } from "./attributes";

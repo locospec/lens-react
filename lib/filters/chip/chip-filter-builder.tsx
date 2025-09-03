@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { OptionsCacheProvider } from "@lens2/contexts/options-cache-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import {
@@ -137,7 +137,7 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
   );
 
   // Get attribute configurations from lens context
-  const { attributes: contextAttributes } = useLensContext();
+  const { attributes: contextAttributes } = useLensViewContext();
 
   const getAttribute = useCallback(
     (attributeKey: string) => {

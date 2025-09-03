@@ -1,5 +1,5 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
+import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
 import {
   getOperatorsForType,
   operatorRequiresValue,
@@ -28,8 +28,8 @@ const ConditionRowComponent: React.FC<ConditionRowProps> = ({
   canDelete,
   attributeOptions,
 }) => {
-  const { attributes } = useLensContext();
-  const { enabled: debugEnabled } = useLensDebugClient();
+  const { attributes } = useLensViewContext();
+  const { enabled: debugEnabled } = useLensViewDebugClient();
 
   // Get the selected attribute
   const selectedAttribute = attributes[condition.attribute];

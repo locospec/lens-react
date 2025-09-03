@@ -1,10 +1,13 @@
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
-import { useLensApi } from "@lens2/hooks/use-lens-api";
+import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
+import { useLensViewApi } from "@lens2/hooks/use-lens-view-api";
 import type { CreateViewRequestPayload } from "@lens2/types/api";
 import type { Attribute } from "@lens2/types/attributes";
 import type { Json } from "@lens2/types/common";
-import type { LensEndpoints } from "@lens2/types/config";
-import type { LensContextValue, LensProviderProps } from "@lens2/types/context";
+import type { LensViewEndpoints } from "@lens2/types/config";
+import type {
+  LensViewContextValue,
+  LensViewProviderProps,
+} from "@lens2/types/context";
 import type { View } from "@lens2/types/view";
 import { createEndpoints } from "@lens2/utils/endpoints";
 import { enrichAttributes } from "@lens2/utils/enrich-attributes";
@@ -18,13 +21,13 @@ import {
   useState,
 } from "react";
 
-const LensContext = createContext<LensContextValue | null>(null);
+const LensViewContext = createContext<LensViewContextValue | null>(null);
 
 // Re-export types that are used by other components
 export type { Config, ViewScoping } from "@lens2/types";
-export type { LensDataProps } from "@lens2/types/config";
+export type { LensViewDataProps } from "@lens2/types/config";
 
-export function LensProvider({
+export function LensViewProvider({
   children,
   query,
   baseUrl,
@@ -47,7 +50,7 @@ export function LensProvider({
   selectionType,
   defaultSelected,
   onSelect,
-}: LensProviderProps) {
+}: LensViewProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
     useState<Record<string, Json>>(initialGlobalContext);
@@ -55,7 +58,7 @@ export function LensProvider({
   const [selectionKey, setSelectionKey] = useState<string>();
 
   // Debug client
-  const debugClient = useLensDebugClient();
+  const debugClient = useLensViewDebugClient();
 
   // Wrapper function to update both local state and debug provider
   const setRecordsLoaded = useCallback(
@@ -67,13 +70,13 @@ export function LensProvider({
   );
 
   // Create endpoints
-  const endpoints = useMemo<LensEndpoints>(
+  const endpoints = useMemo<LensViewEndpoints>(
     () => createEndpoints(query, baseUrl),
     [query, baseUrl]
   );
 
   // Create API instance
-  const api = useLensApi({
+  const api = useLensViewApi({
     endpoints,
     headers,
     query,
@@ -97,10 +100,10 @@ export function LensProvider({
   // Create view mutation
   const createViewMutation = api.createView();
 
-  // Log Lens Provider initialization
+  // Log LensView Provider initialization
   useEffect(() => {
-    debugClient.addLog("Initialized Lens Provider", { query, baseUrl });
-    logger.info("Lens Provider initialized", { query, baseUrl });
+    debugClient.addLog("Initialized LensView Provider", { query, baseUrl });
+    logger.info("LensView Provider initialized", { query, baseUrl });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
 
@@ -331,7 +334,7 @@ export function LensProvider({
   }, [views, attributesArray, enableViews, query, systemViews]);
 
   // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = useMemo<LensContextValue>(
+  const contextValue = useMemo<LensViewContextValue>(
     () => ({
       query,
       baseUrl,
@@ -405,13 +408,13 @@ export function LensProvider({
     ]
   );
 
-  return <LensContext value={contextValue}>{children}</LensContext>;
+  return <LensViewContext value={contextValue}>{children}</LensViewContext>;
 }
 
-export const useLensContext = () => {
-  const context = use(LensContext);
+export const useLensViewContext = () => {
+  const context = use(LensViewContext);
   if (!context) {
-    throw new Error("useLensContext must be used within LensProvider");
+    throw new Error("useLensViewContext must be used within LensViewProvider");
   }
   return context;
 };

@@ -33,7 +33,7 @@ export interface LogEntry extends BaseDebugEntry {
 
 export type DebugEntry = ApiCall | LogEntry;
 
-interface LensDebugContextValue {
+interface LensViewDebugContextValue {
   entries: DebugEntry[];
   addApiCall: (call: Omit<ApiCall, "id" | "timestamp" | "type">) => string;
   updateApiCall: (id: string, updates: Partial<ApiCall>) => void;
@@ -48,17 +48,19 @@ interface LensDebugContextValue {
   setRecordsLoaded: (count: number) => void;
 }
 
-const LensDebugContext = createContext<LensDebugContextValue | null>(null);
+const LensViewDebugContext = createContext<LensViewDebugContextValue | null>(
+  null
+);
 
-interface LensDebugProviderProps {
+interface LensViewDebugProviderProps {
   children: React.ReactNode;
   enabled?: boolean;
 }
 
-export function LensDebugProvider({
+export function LensViewDebugProvider({
   children,
   enabled = false,
-}: LensDebugProviderProps) {
+}: LensViewDebugProviderProps) {
   const [entries, setEntries] = useState<DebugEntry[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(0);
 
@@ -132,7 +134,7 @@ export function LensDebugProvider({
   }, []);
 
   return (
-    <LensDebugContext
+    <LensViewDebugContext
       value={{
         entries: sortedEntries,
         addApiCall,
@@ -145,12 +147,12 @@ export function LensDebugProvider({
       }}
     >
       {children}
-    </LensDebugContext>
+    </LensViewDebugContext>
   );
 }
 
-export const useLensDebugClient = () => {
-  const context = use(LensDebugContext);
+export const useLensViewDebugClient = () => {
+  const context = use(LensViewDebugContext);
   if (!context) {
     // Return a no-op client when not wrapped in provider
     return {

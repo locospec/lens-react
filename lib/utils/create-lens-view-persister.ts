@@ -41,7 +41,7 @@ export function createIDBPersister(): Persister {
  * - Tries IndexedDB first (better performance, larger storage)
  * - Falls back to localStorage if IndexedDB is not available
  */
-export function createLensPersister(): Persister {
+export function createLensViewPersister(): Persister {
   // Check if we're in a browser environment
   if (typeof window === "undefined") {
     // Return a no-op persister for SSR
@@ -84,6 +84,6 @@ export function createLensPersister(): Persister {
         window.localStorage.removeItem(key);
       },
     },
-    key: "lens-query-cache",
+    key: "lens-view-query-cache",
   });
 }

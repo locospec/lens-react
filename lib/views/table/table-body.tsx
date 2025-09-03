@@ -138,9 +138,9 @@ const TableRow = ({ row, virtualRow, rowVirtualizer }: TableRowProps) => {
             data-cell-column-id={cell.column.id}
             className={cn(
               "flex items-center overflow-hidden",
-              "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-              "py-1.5 @sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-2.5",
-              "text-xs @sm/lens-table:text-xs @md/lens-table:text-sm @lg/lens-table:text-sm",
+              "px-1 @sm/lens-view-table:px-1 @md/lens-view-table:px-1.5 @lg/lens-view-table:px-2",
+              "py-1.5 @sm/lens-view-table:py-2 @md/lens-view-table:py-2.5 @lg/lens-view-table:py-2.5",
+              "text-xs @sm/lens-view-table:text-xs @md/lens-view-table:text-sm @lg/lens-view-table:text-sm",
               "text-foreground"
             )}
             style={{

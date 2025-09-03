@@ -44,7 +44,7 @@ export const calculateStaleTime = (cacheTime: number): number => {
 
 // Persister configuration
 export const PERSISTER_CONFIG = {
-  DB_NAME: "lens-react-query-persistence",
-  STORE_NAME: "lens-query-state",
+  DB_NAME: "lens-view-react-query-persistence",
+  STORE_NAME: "lens-view-query-state",
   DB_VERSION: 1,
 } as const;

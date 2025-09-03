@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import type { PaginationType } from "@lens2/types/pagination";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useMemo } from "react";
@@ -31,7 +31,7 @@ export function Paginator({
   isFetching = false,
   paginationType: propPaginationType,
 }: PaginatorProps) {
-  const { paginationType: contextPaginationType } = useLensContext();
+  const { paginationType: contextPaginationType } = useLensViewContext();
   const paginationType =
     propPaginationType || contextPaginationType || "cursor";
 

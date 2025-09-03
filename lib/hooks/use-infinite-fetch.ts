@@ -1,6 +1,6 @@
 import { REFETCH_OPTIONS, STALE_TIME } from "@lens2/constants/cache";
-import { useLensContext } from "@lens2/contexts/lens-context";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
+import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
 import type {
   CursorMeta,
   OffsetMeta,
@@ -81,13 +81,13 @@ const getOffsetPrevPageParam = (
 const createCursorFetchFn = (
   addApiCall: (
     call: Omit<
-      import("@lens2/contexts/lens-debug-context").ApiCall,
+      import("@lens2/contexts/lens-view-debug-context").ApiCall,
       "id" | "timestamp" | "type"
     >
   ) => string,
   updateApiCall: (
     id: string,
-    updates: Partial<import("@lens2/contexts/lens-debug-context").ApiCall>
+    updates: Partial<import("@lens2/contexts/lens-view-debug-context").ApiCall>
   ) => void
 ) => {
   return async ({
@@ -151,13 +151,13 @@ const createCursorFetchFn = (
 const createOffsetFetchFn = (
   addApiCall: (
     call: Omit<
-      import("@lens2/contexts/lens-debug-context").ApiCall,
+      import("@lens2/contexts/lens-view-debug-context").ApiCall,
       "id" | "timestamp" | "type"
     >
   ) => string,
   updateApiCall: (
     id: string,
-    updates: Partial<import("@lens2/contexts/lens-debug-context").ApiCall>
+    updates: Partial<import("@lens2/contexts/lens-view-debug-context").ApiCall>
   ) => void
 ) => {
   return async ({
@@ -236,8 +236,8 @@ export const useInfiniteFetch = ({
   enabled = true,
   paginationType = "cursor", // Default to cursor for backward compatibility
 }: UseInfiniteFetchParams) => {
-  const { addApiCall, updateApiCall } = useLensDebugClient();
-  const { setRecordsLoaded } = useLensContext();
+  const { addApiCall, updateApiCall } = useLensViewDebugClient();
+  const { setRecordsLoaded } = useLensViewContext();
 
   // Build the request body - perPage goes into the body
   const requestBody = {

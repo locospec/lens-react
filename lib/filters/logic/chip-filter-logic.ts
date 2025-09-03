@@ -30,7 +30,7 @@ export function createChipFilter(
 /**
  * Convert chip filters to lens filter format
  */
-export function chipFiltersToLensFilter(chipFilters: ChipFilter[]): Filter {
+export function chipFiltersToLensViewFilter(chipFilters: ChipFilter[]): Filter {
   if (chipFilters.length === 0) {
     return {};
   }
@@ -87,7 +87,7 @@ export function applyChipFilters(
   chipFilters: ChipFilter[],
   setFilters: (filters: Filter) => void
 ): void {
-  const lensFilter = chipFiltersToLensFilter(chipFilters);
+  const lensFilter = chipFiltersToLensViewFilter(chipFilters);
   setFilters(lensFilter);
 }
 

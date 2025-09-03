@@ -1,5 +1,5 @@
 import { STALE_TIME } from "@lens2/constants/cache";
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useOptionsCache } from "@lens2/contexts/options-cache-context";
 import * as logger from "@lens2/utils/logger";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ export const useSelectedOptionsHydration = ({
   onHydrated,
 }: UseSelectedOptionsHydrationParams) => {
   const { baseUrl, headers, globalContext, query, attributes } =
-    useLensContext();
+    useLensViewContext();
   const { getOption, setOption } = useOptionsCache();
 
   // Get the correct attribute config

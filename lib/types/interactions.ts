@@ -1,5 +1,5 @@
 /**
- * Interaction-related types for Lens
+ * Interaction-related types for LensView
  */
 
 import type { RowData } from "./common";

@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   DropdownMenu,
@@ -29,7 +29,7 @@ export function ChipFilterCreator({
   onFilterUpdate,
   sessionFilters,
 }: ChipFilterCreatorProps) {
-  const { filterableAttributes } = useLensContext();
+  const { filterableAttributes } = useLensViewContext();
   const [open, setOpen] = useState(false);
 
   // Get attribute keys for iteration

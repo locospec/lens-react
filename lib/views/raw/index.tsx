@@ -1,5 +1,5 @@
 import { Paginator } from "@lens2/components/paginator";
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { useFetchMoreOnScroll } from "@lens2/hooks/use-fetch-more-on-scroll";
 import { useInfiniteFetch } from "@lens2/hooks/use-infinite-fetch";
@@ -14,7 +14,7 @@ export function RawDisplay() {
     headers,
     perPage: contextPerPage,
     paginationType,
-  } = useLensContext();
+  } = useLensViewContext();
   const { view, readPayload } = useViewContext();
 
   const {

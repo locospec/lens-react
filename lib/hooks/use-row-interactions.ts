@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import type { RowData } from "@lens2/types/common";
 import { useCallback, useMemo } from "react";
 
@@ -36,7 +36,7 @@ export interface UseRowInteractionsResult {
 }
 
 export function useRowInteractions(): UseRowInteractionsResult {
-  const { interactions } = useLensContext();
+  const { interactions } = useLensViewContext();
 
   // Row click handler
   const handleRowClick = useCallback(

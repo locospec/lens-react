@@ -1,5 +1,5 @@
 /**
- * Simplified client-side logger for lens-react-2
+ * Simplified client-side logger for lens-view-react-2
  *
  * Usage:
  * 1. Enable logging: logger.enable()

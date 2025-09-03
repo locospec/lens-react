@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { OptionsCacheProvider } from "@lens2/contexts/options-cache-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
@@ -29,7 +29,7 @@ export const NestedFilterBuilder: React.FC<NestedFilterBuilderProps> = ({
 }) => {
   const { filters: contextFilters, setFilters } = useViewContext();
   const { attributes: contextAttributes, filterableAttributes } =
-    useLensContext();
+    useLensViewContext();
 
   // Transform filterable attributes for dropdown display
   const attributes = React.useMemo(() => {

@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { ChipFilterBuilder } from "@lens2/filters/chip/chip-filter-builder";
 import { NestedFilterBuilder } from "@lens2/filters/nested/filter-builder";
 import { SearchBox } from "@lens2/filters/search-box";
@@ -12,7 +12,7 @@ import { Filter } from "lucide-react";
 import { useState } from "react";
 
 export function FilterToolbar() {
-  const { filterType } = useLensContext();
+  const { filterType } = useLensViewContext();
   const [open, setOpen] = useState(false);
 
   return (

@@ -33,8 +33,8 @@ export const TableSkeleton = ({
               key={`skeleton-cell-${rowIndex}-${colIndex}`}
               className={cn(
                 "flex flex-1 items-center overflow-hidden",
-                "px-1 @sm/lens-table:px-1 @md/lens-table:px-1.5 @lg/lens-table:px-2",
-                "py-1.5 @sm/lens-table:py-2 @md/lens-table:py-2.5 @lg/lens-table:py-2.5"
+                "px-1 @sm/lens-view-table:px-1 @md/lens-view-table:px-1.5 @lg/lens-view-table:px-2",
+                "py-1.5 @sm/lens-view-table:py-2 @md/lens-view-table:py-2.5 @lg/lens-view-table:py-2.5"
               )}
             >
               <Skeleton

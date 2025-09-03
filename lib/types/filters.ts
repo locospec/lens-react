@@ -1,4 +1,4 @@
-// Filter types matching lens-react structure
+// Filter types matching lens-view-react structure
 export type GroupOperator = "and" | "or";
 export type Operator =
   // String operators

@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
 import { ConditionRow } from "@lens2/filters/nested/condition-row";
 import { Button } from "@lens2/shadcn/components/ui/button";
@@ -30,7 +30,7 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
   maxDepth = 1,
   attributes,
 }) => {
-  const { attributes: contextAttributes } = useLensContext();
+  const { attributes: contextAttributes } = useLensViewContext();
 
   const addCondition = () => {
     const newCondition = createEmptyCondition("", contextAttributes);

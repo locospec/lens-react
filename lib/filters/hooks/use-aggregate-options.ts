@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useInfiniteFetch } from "@lens2/hooks/use-infinite-fetch";
 import type { Condition, FilterGroup } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";
@@ -19,7 +19,7 @@ export const useAggregateOptions = ({
   enabled = true,
 }: UseAggregateOptionsParams) => {
   const { baseUrl, headers, globalContext, query, attributes } =
-    useLensContext();
+    useLensViewContext();
 
   // Build endpoint
   const endpoint = `${baseUrl}/${query}/_aggregate`;

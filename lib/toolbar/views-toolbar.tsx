@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewConfig } from "@lens2/hooks/use-view-config";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
@@ -50,7 +50,7 @@ const VIEW_TYPES = [
 
 export function ViewsToolbar({ activeViewId, onViewChange }: ToolbarProps) {
   const { views, api, query, viewScoping, enableForceRefresh, onForceRefresh } =
-    useLensContext();
+    useLensViewContext();
   const { openConfig } = useViewConfig();
   const [editingViewId, setEditingViewId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");

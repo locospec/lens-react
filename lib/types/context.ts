@@ -1,8 +1,8 @@
 /**
- * Context-specific types for Lens
+ * Context-specific types for LensView
  */
 
-import type { useLensApi } from "@lens2/hooks/use-lens-api";
+import type { useLensViewApi } from "@lens2/hooks/use-lens-view-api";
 import type { Table } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import type { AggregateDefinition, ReadRequestPayload } from "./api";
@@ -10,23 +10,23 @@ import type { Attribute, AttributeDisplayConfiguration } from "./attributes";
 import type { Json, RowData } from "./common";
 import type {
   Config,
-  LensConfiguration,
-  LensDataProps,
-  LensEndpoints,
+  LensViewConfiguration,
+  LensViewDataProps,
+  LensViewEndpoints,
 } from "./config";
 import type { Filter, FilterType } from "./filters";
 import type { SelectionConfiguration } from "./interactions";
 import type { Sort, View, ViewConfiguration } from "./view";
 
 /**
- * Lens Context Value extends all configurations plus core runtime data
+ * LensView Context Value extends all configurations plus core runtime data
  *
  * This interface combines:
  * - Configuration properties (from various Configuration interfaces) - user settings and preferences
  * - Runtime state properties (defined below) - live data and API state
  */
-export interface LensContextValue
-  extends LensConfiguration,
+export interface LensViewContextValue
+  extends LensViewConfiguration,
     ViewConfiguration,
     AttributeDisplayConfiguration,
     SelectionConfiguration {
@@ -34,9 +34,9 @@ export interface LensContextValue
   // Connection and API configuration
   query: string;
   baseUrl: string;
-  endpoints: LensEndpoints;
+  endpoints: LensViewEndpoints;
   headers?: Record<string, string>;
-  api: ReturnType<typeof useLensApi>;
+  api: ReturnType<typeof useLensViewApi>;
 
   // === RUNTIME STATE - LOADED DATA ===
   // Configuration and schema loaded from server
@@ -64,10 +64,10 @@ export interface LensContextValue
   setRecordsLoaded: (count: number) => void;
 }
 
-// Lens Provider Props
-export interface LensProviderProps
-  extends LensDataProps,
-    LensConfiguration,
+// LensView Provider Props
+export interface LensViewProviderProps
+  extends LensViewDataProps,
+    LensViewConfiguration,
     ViewConfiguration,
     AttributeDisplayConfiguration,
     SelectionConfiguration {

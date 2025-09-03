@@ -1,5 +1,5 @@
 import { STALE_TIME } from "@lens2/constants/cache";
-import { useLensDebugClient } from "@lens2/contexts/lens-debug-context";
+import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
 import type {
   ApiResponse,
   ConfigResponse,
@@ -9,7 +9,7 @@ import type {
   DeleteCustomAttributePayload,
   DeleteViewRequestPayload,
   Json,
-  LensEndpoints,
+  LensViewEndpoints,
   RelationOptionsResponse,
   UpdateCustomAttributePayload,
   UpdateRequestPayload,
@@ -27,12 +27,12 @@ import {
 } from "@tanstack/react-query";
 
 /**
- * useLensApi - A unified API hook for all Lens operations
+ * useLensViewApi - A unified API hook for all LensView operations
  *
  * Usage Examples:
  *
  * // Initialize the API
- * const api = useLensApi({ endpoints, headers });
+ * const api = useLensViewApi({ endpoints, headers });
  *
  * // Queries
  * const { data: config } = api.config();
@@ -61,27 +61,27 @@ import {
  * deleteViewMutation.mutate('view-123');
  */
 
-interface UseLensApiFactoryProps {
-  endpoints: LensEndpoints;
+interface UseLensViewApiFactoryProps {
+  endpoints: LensViewEndpoints;
   headers?: Record<string, string>;
   query: string;
   enableViews?: boolean;
   viewScoping?: ViewScoping;
 }
 
-export const useLensApi = ({
+export const useLensViewApi = ({
   endpoints,
   headers,
   query,
   enableViews = true,
   viewScoping,
-}: UseLensApiFactoryProps) => {
+}: UseLensViewApiFactoryProps) => {
   const queryClient = useQueryClient();
   const {
     addApiCall,
     updateApiCall,
     enabled: debugEnabled,
-  } = useLensDebugClient();
+  } = useLensViewDebugClient();
 
   const defaultHeaders = {
     "Content-Type": "application/json",

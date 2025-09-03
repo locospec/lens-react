@@ -1,4 +1,4 @@
-import { useLensContext } from "@lens2/contexts/lens-context";
+import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import * as logger from "@lens2/utils/logger";
 import {
@@ -19,7 +19,7 @@ export function useTableSorting() {
   const { sorts, setSorts } = useViewContext();
 
   // Get attributes for sortable check
-  const { attributes } = useLensContext();
+  const { attributes } = useLensViewContext();
 
   // Memoize sort states for all columns to prevent recalculation on every render
   const sortStates = useMemo(() => {

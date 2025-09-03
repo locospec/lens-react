@@ -1,5 +1,5 @@
 /**
- * Common types used throughout the Lens component
+ * Common types used throughout the LensView component
  */
 
 // JSON type that can represent any valid JSON value
