@@ -25,6 +25,8 @@ export function ChipValueInputInline({
   className,
   isEditing = false,
   onEditingChange,
+  currentFilters,
+  uniqueFilters,
 }: ChipValueInputProps) {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
 
@@ -126,6 +128,8 @@ export function ChipValueInputInline({
                   onEditingChange?.(true);
                 }
               }}
+              currentFilters={currentFilters}
+              uniqueFilters={uniqueFilters}
             />
           </div>
         </PopoverTrigger>
@@ -156,6 +160,8 @@ export function ChipValueInputInline({
             emptyText={`No ${attribute.label.toLowerCase()} found.`}
             className={className}
             isEditing={false}
+            currentFilters={currentFilters}
+            uniqueFilters={uniqueFilters}
           />
         </div>
       </PopoverTrigger>
@@ -169,6 +175,8 @@ export function ChipValueInputInline({
           searchPlaceholder={`Search ${attribute.label.toLowerCase()}...`}
           emptyText={`No ${attribute.label.toLowerCase()} found.`}
           isEditing={true}
+          currentFilters={currentFilters}
+          uniqueFilters={uniqueFilters}
         />
       </PopoverContent>
     </Popover>

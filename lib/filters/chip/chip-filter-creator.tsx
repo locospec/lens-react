@@ -1,4 +1,5 @@
 import { useLensViewContext } from "@lens2/contexts/lens-view-context";
+import { chipFiltersToLensViewFilter } from "@lens2/filters/logic/chip-filter-logic";
 import { Button } from "@lens2/shadcn/components/ui/button";
 import {
   DropdownMenu,
@@ -10,9 +11,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@lens2/shadcn/components/ui/dropdown-menu";
+import type { FilterGroup } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";
 import { Plus } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ChipFilter } from "./types";
 import { ChipValueInput } from "./value-input";
 
@@ -21,6 +23,8 @@ interface ChipFilterCreatorProps {
   onSessionEnd: () => void;
   onFilterUpdate: (attribute: string, value: unknown, operator: string) => void;
   sessionFilters: Map<string, ChipFilter>;
+  uniqueFilters?: boolean;
+  allFilters?: ChipFilter[];
 }
 
 export function ChipFilterCreator({
@@ -28,12 +32,26 @@ export function ChipFilterCreator({
   onSessionEnd,
   onFilterUpdate,
   sessionFilters,
+  uniqueFilters,
+  allFilters,
 }: ChipFilterCreatorProps) {
   const { filterableAttributes } = useLensViewContext();
   const [open, setOpen] = useState(false);
 
+  // Convert allFilters to FilterGroup format for parent filtering
+  const currentFiltersAsGroup = useMemo(() => {
+    if (!allFilters || allFilters.length === 0) return undefined;
+    return chipFiltersToLensViewFilter(allFilters) as FilterGroup;
+  }, [allFilters]);
+
   // Get attribute keys for iteration
   const attributeKeys = Object.keys(filterableAttributes);
+
+  // Filter out already-used attributes if uniqueFilters is true
+  const visibleAttributeKeys =
+    uniqueFilters === true
+      ? attributeKeys.filter(key => !allFilters?.some(f => f.attribute === key))
+      : attributeKeys;
 
   // Handle popover open/close
   const handleOpenChange = useCallback(
@@ -81,7 +99,7 @@ export function ChipFilterCreator({
         align="start"
         className="max-h-96 w-64 overflow-y-auto"
       >
-        {attributeKeys.map(key => {
+        {visibleAttributeKeys.map(key => {
           const attr = filterableAttributes[key];
           const currentFilter = sessionFilters.get(key);
 
@@ -107,6 +125,8 @@ export function ChipFilterCreator({
                       onChange={value => handleValueChange(key, value)}
                       className="w-full"
                       isEditing={true}
+                      currentFilters={currentFiltersAsGroup}
+                      uniqueFilters={uniqueFilters}
                     />
                   </div>
                 </DropdownMenuSubContent>
@@ -114,9 +134,15 @@ export function ChipFilterCreator({
             </DropdownMenuSub>
           );
         })}
-        <DropdownMenuItem disabled className="text-muted-foreground text-xs">
-          Hover over an attribute to filter
-        </DropdownMenuItem>
+        {visibleAttributeKeys.length === 0 ? (
+          <DropdownMenuItem disabled className="text-muted-foreground text-xs">
+            All attributes are already filtered
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem disabled className="text-muted-foreground text-xs">
+            Hover over an attribute to filter
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

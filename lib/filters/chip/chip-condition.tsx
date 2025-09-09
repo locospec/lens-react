@@ -8,6 +8,7 @@ import {
 } from "@lens2/shadcn/components/ui/dropdown-menu";
 import { cn } from "@lens2/shadcn/lib/utils";
 import type { Attribute } from "@lens2/types/attributes";
+import type { FilterGroup } from "@lens2/types/filters";
 import { ChevronDown, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { ChipValueInputInline } from "./chip-value-input-inline";
@@ -18,6 +19,8 @@ interface ChipConditionRowProps {
   attribute: Attribute;
   onUpdate: (filter: ChipFilter) => void;
   onRemove: (id: string) => void;
+  currentFilters?: FilterGroup;
+  uniqueFilters?: boolean;
 }
 
 export function ChipCondition({
@@ -25,6 +28,8 @@ export function ChipCondition({
   attribute,
   onUpdate,
   onRemove,
+  currentFilters,
+  uniqueFilters,
 }: ChipConditionRowProps) {
   const [isEditingValue, setIsEditingValue] = useState(false);
   const operators = getOperatorsForType(attribute.type, true);
@@ -99,6 +104,8 @@ export function ChipCondition({
         className="h-6"
         isEditing={isEditingValue}
         onEditingChange={setIsEditingValue}
+        currentFilters={currentFilters}
+        uniqueFilters={uniqueFilters}
       />
 
       {/* Remove button */}

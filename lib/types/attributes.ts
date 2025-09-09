@@ -34,6 +34,7 @@ export interface Attribute {
 
   // Optional properties for filters and advanced features
   optionsAggregator?: string; // Aggregator name for dynamic options
+  parentFilters?: string[]; // Parent attributes for cascading filters - always an array
   options?: Array<{ label: string; value: string; count?: number }>; // Static enum options
   filterable?: boolean; // Whether this attribute can be used for filtering
   searchable?: boolean; // Whether this attribute can be used for searching
@@ -53,4 +54,5 @@ export interface AttributeDisplayConfiguration {
   displayAttributes?: DisplayAttribute[];
   hideAttributes?: string[];
   nonSortableAttributes?: string[];
+  dependencyMap?: Record<string, string[]>; // e.g., { "district_name": ["state_name"], "city_name": ["district_name", "state_name"] }
 }

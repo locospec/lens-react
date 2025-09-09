@@ -24,6 +24,8 @@ export interface BaseOptionsSelectorProps {
   emptyText?: string;
   className?: string;
   dependentFilters?: FilterGroup;
+  currentFilters?: FilterGroup;
+  uniqueFilters?: boolean;
 }
 
 /**
@@ -45,6 +47,8 @@ export function useBaseOptionsSelector({
   multiple = false,
   staticOptions,
   dependentFilters,
+  currentFilters,
+  uniqueFilters,
   onSelectionComplete,
   displayConfig = {},
 }: BaseOptionsSelectorProps & {
@@ -73,8 +77,12 @@ export function useBaseOptionsSelector({
     multiple,
     staticOptions,
     dependentFilters,
+    currentFilters,
+    uniqueFilters,
     onSelectionComplete,
   });
+
+  // Note: Cascading filter dependencies now handled by cascade-filter-manager in chip-filter-builder
 
   // Auto-enable fetching for dynamic options if configured
   React.useEffect(() => {

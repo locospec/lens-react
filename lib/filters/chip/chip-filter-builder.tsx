@@ -2,9 +2,14 @@ import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { OptionsCacheProvider } from "@lens2/contexts/options-cache-context";
 import { useViewContext } from "@lens2/contexts/view-context";
 import {
+  applyCascadeToChipFilters,
+  type CascadeContext,
+} from "@lens2/filters/logic/cascade-filter-manager";
+import {
   applyChipFilters,
   lensFilterToChipFilters,
 } from "@lens2/filters/logic/chip-filter-logic";
+import type { FilterGroup } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";
 import { useCallback, useEffect, useState } from "react";
 import { ChipFilterCreator } from "./chip-filter-creator";
@@ -13,10 +18,15 @@ import { ChipFilter } from "./types";
 
 interface ChipFilterBuilderProps {
   className?: string;
+  uniqueFilters?: boolean;
 }
 
-export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
+export function ChipFilterBuilder({
+  className,
+  uniqueFilters,
+}: ChipFilterBuilderProps) {
   const { filters: contextFilters, setFilters } = useViewContext();
+  const { attributes: contextAttributes } = useLensViewContext();
   const [allFilters, setAllFilters] = useState<ChipFilter[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
@@ -41,6 +51,26 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
       applyChipFilters(cleanFilters, setFilters);
     },
     [setFilters]
+  );
+
+  // Shared cascade logic
+  const applyCascadeAndUpdate = useCallback(
+    (filters: ChipFilter[], context: CascadeContext): ChipFilter[] => {
+      if (uniqueFilters) {
+        const cascadedFilters = applyCascadeToChipFilters(
+          filters,
+          context,
+          contextAttributes
+        );
+        updateViewFilters(cascadedFilters);
+        return cascadedFilters;
+      }
+
+      // No cascade when uniqueFilters is false
+      updateViewFilters(filters);
+      return filters;
+    },
+    [uniqueFilters, contextAttributes, updateViewFilters]
   );
 
   // Start a new session
@@ -68,6 +98,8 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
         const existingFilterIndex = prevFilters.findIndex(
           f => f.attribute === attribute && f.sessionId === currentSessionId
         );
+        const existingFilter =
+          existingFilterIndex !== -1 ? prevFilters[existingFilterIndex] : null;
 
         if (value === "" || value === null || value === undefined) {
           // Remove the filter if value is empty
@@ -103,25 +135,44 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
           newFilters = [...prevFilters, newFilter];
         }
 
-        updateViewFilters(newFilters);
-        return newFilters;
+        // Apply cascade clearing
+        const context: CascadeContext = {
+          isUserAction: true,
+          sourceAttribute: attribute,
+          action: existingFilterIndex !== -1 ? "update" : "add",
+          previousValue: existingFilter?.value,
+          newValue: value,
+        };
+
+        return applyCascadeAndUpdate(newFilters, context);
       });
     },
-    [currentSessionId, updateViewFilters]
+    [currentSessionId, applyCascadeAndUpdate]
   );
 
   // Update an existing filter (from chip list)
   const handleFilterListUpdate = useCallback(
     (updatedFilter: ChipFilter) => {
       setAllFilters(prevFilters => {
+        const oldFilter = prevFilters.find(f => f.id === updatedFilter.id);
+
         const newFilters = prevFilters.map(filter =>
           filter.id === updatedFilter.id ? updatedFilter : filter
         );
-        updateViewFilters(newFilters);
-        return newFilters;
+
+        // Apply cascade clearing
+        const context: CascadeContext = {
+          isUserAction: true,
+          sourceAttribute: updatedFilter.attribute,
+          action: "update",
+          previousValue: oldFilter?.value,
+          newValue: updatedFilter.value,
+        };
+
+        return applyCascadeAndUpdate(newFilters, context);
       });
     },
-    [updateViewFilters]
+    [applyCascadeAndUpdate]
   );
 
   // Remove a filter
@@ -136,9 +187,7 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
     [updateViewFilters]
   );
 
-  // Get attribute configurations from lens context
-  const { attributes: contextAttributes } = useLensViewContext();
-
+  // Get attribute configurations
   const getAttribute = useCallback(
     (attributeKey: string) => {
       return contextAttributes[attributeKey];
@@ -169,6 +218,8 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
             onSessionEnd={handleSessionEnd}
             onFilterUpdate={handleFilterUpdate}
             sessionFilters={getSessionFilters()}
+            uniqueFilters={uniqueFilters}
+            allFilters={allFilters}
           />
 
           {/* Filter chips list - to the right of creator */}
@@ -177,6 +228,12 @@ export function ChipFilterBuilder({ className }: ChipFilterBuilderProps) {
             onFilterUpdate={handleFilterListUpdate}
             onFilterRemove={handleFilterRemove}
             getAttribute={getAttribute}
+            currentFilters={
+              contextFilters && "conditions" in contextFilters
+                ? (contextFilters as FilterGroup)
+                : undefined
+            }
+            uniqueFilters={uniqueFilters}
           />
         </div>
       </div>

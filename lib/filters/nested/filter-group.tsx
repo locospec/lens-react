@@ -1,4 +1,8 @@
 import { useLensViewContext } from "@lens2/contexts/lens-view-context";
+import {
+  applyCascadeToFilterGroup,
+  type CascadeContext,
+} from "@lens2/filters/logic/cascade-filter-manager";
 import { createEmptyCondition } from "@lens2/filters/logic/initialize-filter";
 import { ConditionRow } from "@lens2/filters/nested/condition-row";
 import { Button } from "@lens2/shadcn/components/ui/button";
@@ -19,6 +23,8 @@ interface FilterGroupComponentProps {
   level?: number;
   maxDepth?: number;
   attributes: Array<{ value: string; label: string }>;
+  uniqueFilters?: boolean;
+  currentFilters?: FilterGroup;
 }
 
 export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
@@ -29,6 +35,8 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
   level = 0,
   maxDepth = 1,
   attributes,
+  uniqueFilters,
+  currentFilters,
 }) => {
   const { attributes: contextAttributes } = useLensViewContext();
 
@@ -55,12 +63,49 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
     index: number,
     newCondition: Condition | FilterGroup
   ) => {
+    const oldCondition = group.conditions[index];
     const newConditions = [...group.conditions];
     newConditions[index] = newCondition;
-    onChange({
+
+    let updatedGroup: FilterGroup = {
       ...group,
       conditions: newConditions,
-    });
+    };
+
+    // Apply cascade clearing if this is a simple condition change and uniqueFilters is enabled
+    if (
+      uniqueFilters &&
+      "attribute" in oldCondition &&
+      "attribute" in newCondition &&
+      oldCondition.attribute &&
+      newCondition.attribute
+    ) {
+      // Check if attribute or value changed
+      const attributeChanged =
+        oldCondition.attribute !== newCondition.attribute;
+      const valueChanged =
+        JSON.stringify(oldCondition.value) !==
+        JSON.stringify(newCondition.value);
+
+      if (attributeChanged || valueChanged) {
+        const cascadeContext: CascadeContext = {
+          isUserAction: true,
+          sourceAttribute: newCondition.attribute,
+          action: attributeChanged ? "update" : "update",
+          previousValue: oldCondition.value,
+          newValue: newCondition.value,
+        };
+
+        // Apply cascade clearing to the updated group
+        updatedGroup = applyCascadeToFilterGroup(
+          updatedGroup,
+          cascadeContext,
+          contextAttributes
+        ) as FilterGroup;
+      }
+    }
+
+    onChange(updatedGroup);
   };
 
   const deleteCondition = (index: number) => {
@@ -85,6 +130,27 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
   const hasOnlyGroups = group.conditions.every(
     condition => !isCondition(condition)
   );
+
+  // Get attributes already used in this group (for uniqueFilters)
+  const usedAttributes = uniqueFilters
+    ? group.conditions
+        .filter(isCondition)
+        .map(c => c.attribute)
+        .filter(attr => attr) // Remove empty attributes
+    : [];
+
+  // Filter available attributes for a condition
+  const getFilteredAttributes = (currentAttribute?: string) => {
+    if (!uniqueFilters || usedAttributes.length === 0) {
+      return attributes;
+    }
+
+    return attributes.filter(
+      attr =>
+        attr.value === currentAttribute || // Keep current attribute visible when editing
+        !usedAttributes.includes(attr.value)
+    );
+  };
 
   return (
     <div className={cn("space-y-2", level > 0 && "bg-muted/80 rounded-lg p-3")}>
@@ -153,7 +219,11 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
                     }
                     onDelete={() => deleteCondition(index)}
                     canDelete={group.conditions.length > 1}
-                    attributeOptions={attributes}
+                    attributeOptions={getFilteredAttributes(
+                      condition.attribute
+                    )}
+                    currentFilters={currentFilters}
+                    uniqueFilters={uniqueFilters}
                   />
                 ) : (
                   <FilterGroupComponent
@@ -164,6 +234,8 @@ export const FilterGroupComponent: React.FC<FilterGroupComponentProps> = ({
                     level={level + 1}
                     maxDepth={maxDepth}
                     attributes={attributes}
+                    uniqueFilters={uniqueFilters}
+                    currentFilters={condition}
                   />
                 )}
               </div>

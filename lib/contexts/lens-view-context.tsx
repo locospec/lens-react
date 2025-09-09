@@ -36,6 +36,7 @@ export function LensViewProvider({
   enableViews = true,
   viewScoping,
   filterType = "nested",
+  uniqueFilters,
   interactions,
   enableForceRefresh = false,
   onForceRefresh,
@@ -44,6 +45,7 @@ export function LensViewProvider({
   displayAttributes,
   hideAttributes,
   nonSortableAttributes,
+  dependencyMap,
   systemViews,
   perPage,
   paginationType,
@@ -220,9 +222,16 @@ export function LensViewProvider({
       config.aggregates || {},
       displayAttributes,
       hideAttributes,
-      nonSortableAttributes
+      nonSortableAttributes,
+      dependencyMap
     );
-  }, [config, displayAttributes, hideAttributes, nonSortableAttributes]);
+  }, [
+    config,
+    displayAttributes,
+    hideAttributes,
+    nonSortableAttributes,
+    dependencyMap,
+  ]);
 
   // Get attributes as array for backward compatibility
   const attributesArray = Object.values(attributes);
@@ -356,6 +365,7 @@ export function LensViewProvider({
       enableViews,
       viewScoping,
       filterType,
+      uniqueFilters,
       interactions,
       enableForceRefresh,
       onForceRefresh,
@@ -391,6 +401,7 @@ export function LensViewProvider({
       enableViews,
       viewScoping,
       filterType,
+      uniqueFilters,
       interactions,
       enableForceRefresh,
       onForceRefresh,
