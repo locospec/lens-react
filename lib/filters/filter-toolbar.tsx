@@ -12,7 +12,7 @@ import { Filter } from "lucide-react";
 import { useState } from "react";
 
 export function FilterToolbar() {
-  const { filterType } = useLensViewContext();
+  const { filterType, uniqueFilters } = useLensViewContext();
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +21,7 @@ export function FilterToolbar() {
 
       {filterType === "chip" ? (
         /* Chip Filters */
-        <ChipFilterBuilder className="flex-1" />
+        <ChipFilterBuilder className="flex-1" uniqueFilters={uniqueFilters} />
       ) : (
         /* Nested Filter Button */
         <div className="flex flex-1 justify-end">
@@ -33,7 +33,10 @@ export function FilterToolbar() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[800px] p-0" align="start">
-              <NestedFilterBuilder onClose={() => setOpen(false)} />
+              <NestedFilterBuilder
+                onClose={() => setOpen(false)}
+                uniqueFilters={uniqueFilters}
+              />
             </PopoverContent>
           </Popover>
         </div>

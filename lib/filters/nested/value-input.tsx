@@ -12,13 +12,15 @@ import {
 import { OptionsCombobox } from "@lens2/filters/nested/options-combobox";
 import { Input } from "@lens2/shadcn/components/ui/input";
 import type { Attribute } from "@lens2/types/attributes";
-import type { Condition } from "@lens2/types/filters";
+import type { Condition, FilterGroup } from "@lens2/types/filters";
 
 // Helper function to render value input based on attribute type
 export function renderValueInput(
   condition: Condition,
   onChange: (condition: Condition) => void,
-  attribute?: Attribute
+  attribute?: Attribute,
+  currentFilters?: FilterGroup,
+  uniqueFilters?: boolean
 ) {
   if (!attribute) {
     return null;
@@ -50,6 +52,8 @@ export function renderValueInput(
         emptyText="No value found."
         className="flex-1"
         multiple={isMultiple}
+        currentFilters={currentFilters}
+        uniqueFilters={uniqueFilters}
       />
     );
   }
@@ -67,6 +71,8 @@ export function renderValueInput(
         className="flex-1"
         multiple={isMultiple}
         staticOptions={options}
+        currentFilters={currentFilters}
+        uniqueFilters={uniqueFilters}
       />
     );
   }

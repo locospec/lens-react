@@ -23,6 +23,8 @@ export function ChipValueInput({
   className,
   isEditing = false,
   onEditingChange,
+  currentFilters,
+  uniqueFilters,
 }: ChipValueInputProps) {
   const options = attribute.options || [];
   const optionsAggregator = attribute?.optionsAggregator;
@@ -56,6 +58,8 @@ export function ChipValueInput({
         className={className}
         isEditing={isEditing}
         onEditingChange={onEditingChange}
+        currentFilters={currentFilters}
+        uniqueFilters={uniqueFilters}
       />
     );
   }
@@ -74,6 +78,8 @@ export function ChipValueInput({
         className={className}
         isEditing={isEditing}
         onEditingChange={onEditingChange}
+        currentFilters={currentFilters}
+        uniqueFilters={uniqueFilters}
       />
     );
   }

@@ -18,6 +18,7 @@ export interface NestedFilterBuilderProps {
   className?: string;
   maxDepth?: number;
   onClose?: () => void;
+  uniqueFilters?: boolean;
 }
 
 export const NestedFilterBuilder: React.FC<NestedFilterBuilderProps> = ({
@@ -26,6 +27,7 @@ export const NestedFilterBuilder: React.FC<NestedFilterBuilderProps> = ({
   className,
   maxDepth = 1,
   onClose,
+  uniqueFilters,
 }) => {
   const { filters: contextFilters, setFilters } = useViewContext();
   const { attributes: contextAttributes, filterableAttributes } =
@@ -178,6 +180,8 @@ export const NestedFilterBuilder: React.FC<NestedFilterBuilderProps> = ({
                     level={0}
                     maxDepth={maxDepth}
                     attributes={attributes}
+                    uniqueFilters={uniqueFilters}
+                    currentFilters={filter as FilterGroup}
                   />
                 </div>
               )}
