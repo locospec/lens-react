@@ -20,6 +20,7 @@ export interface ChipFilterState {
 }
 
 import type { Attribute } from "@lens2/types/attributes";
+import type { FilterGroup } from "@lens2/types/filters";
 
 export interface ChipValueInputProps {
   attribute: Attribute;
@@ -30,6 +31,8 @@ export interface ChipValueInputProps {
   className?: string;
   isEditing?: boolean;
   onEditingChange?: (editing: boolean) => void;
+  currentFilters?: FilterGroup;
+  uniqueFilters?: boolean;
 }
 
 export interface ChipConditionProps {

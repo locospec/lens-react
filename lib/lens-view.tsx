@@ -24,6 +24,7 @@ export function LensView({
   enableViews = true,
   viewScoping,
   filterType = "nested",
+  uniqueFilters = false,
   interactions,
   cacheTime = CACHE_TIME.DEFAULT,
   enablePersistentCache = true,
@@ -34,6 +35,7 @@ export function LensView({
   displayAttributes,
   hideAttributes,
   nonSortableAttributes,
+  dependencyMap,
   systemViews,
   perPage,
   paginationType,
@@ -103,6 +105,7 @@ export function LensView({
         enableViews={enableViews}
         viewScoping={viewScoping}
         filterType={filterType}
+        uniqueFilters={uniqueFilters}
         interactions={interactions}
         enableForceRefresh={enableForceRefresh}
         onForceRefresh={handleForceRefresh}
@@ -111,6 +114,7 @@ export function LensView({
         displayAttributes={displayAttributes}
         hideAttributes={hideAttributes}
         nonSortableAttributes={nonSortableAttributes}
+        dependencyMap={dependencyMap}
         systemViews={systemViews}
         perPage={perPage}
         paginationType={paginationType}

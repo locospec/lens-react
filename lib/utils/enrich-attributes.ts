@@ -45,7 +45,8 @@ export function enrichAttributes(
   aggregates: Record<string, AggregateDefinition> = {},
   displayAttributes?: DisplayAttribute[],
   hideAttributes?: string[],
-  nonSortableAttributes?: string[]
+  nonSortableAttributes?: string[],
+  dependencyMap?: Record<string, string[]> // e.g., { "district_name": ["state_name"], "city_name": ["district_name", "state_name"] }
 ): Record<string, Attribute> {
   const enriched: Record<string, Attribute> = {};
 
@@ -153,6 +154,13 @@ export function enrichAttributes(
       SORTABLE_ATTRIBUTE_TYPES.includes(effectiveType) &&
       (!nonSortableAttributes || !nonSortableAttributes.includes(key));
 
+    // Determine parentFilters: use attr.parentFilters if defined, otherwise check dependencyMap
+    const parentFilters =
+      attr.parentFilters ||
+      (dependencyMap && dependencyMap[key]
+        ? (dependencyMap[key] as string[])
+        : undefined);
+
     // Create the enriched attribute
     const enrichedAttribute = {
       ...attr,
@@ -165,6 +173,7 @@ export function enrichAttributes(
       searchable: isSearchable,
       sortable: isSortable,
       options: transformedOptions,
+      parentFilters, // Use computed parentFilters (from attr or dependencyMap)
     };
 
     // Return enriched attribute

@@ -8,7 +8,7 @@ import { AttributeSelector } from "@lens2/filters/nested/attribute-selector";
 import { OperatorSelector } from "@lens2/filters/nested/operator-selector";
 import { renderValueInput } from "@lens2/filters/nested/value-input";
 import { Button } from "@lens2/shadcn/components/ui/button";
-import type { Condition, Operator } from "@lens2/types/filters";
+import type { Condition, FilterGroup, Operator } from "@lens2/types/filters";
 import * as logger from "@lens2/utils/logger";
 import { Trash2 } from "lucide-react";
 import React, { useMemo } from "react";
@@ -19,6 +19,8 @@ interface ConditionRowProps {
   onDelete: () => void;
   canDelete: boolean;
   attributeOptions: Array<{ value: string; label: string }>;
+  currentFilters?: FilterGroup;
+  uniqueFilters?: boolean;
 }
 
 const ConditionRowComponent: React.FC<ConditionRowProps> = ({
@@ -27,6 +29,8 @@ const ConditionRowComponent: React.FC<ConditionRowProps> = ({
   onDelete,
   canDelete,
   attributeOptions,
+  currentFilters,
+  uniqueFilters,
 }) => {
   const { attributes } = useLensViewContext();
   const { enabled: debugEnabled } = useLensViewDebugClient();
@@ -100,7 +104,14 @@ const ConditionRowComponent: React.FC<ConditionRowProps> = ({
       />
 
       <div className="flex flex-1 items-center gap-2">
-        {needsValue && renderValueInput(condition, onChange, selectedAttribute)}
+        {needsValue &&
+          renderValueInput(
+            condition,
+            onChange,
+            selectedAttribute,
+            currentFilters,
+            uniqueFilters
+          )}
       </div>
 
       {canDelete && (

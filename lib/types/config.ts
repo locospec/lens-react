@@ -93,6 +93,7 @@ export interface CoreLensViewConfiguration {
   perPage?: number;
   paginationType?: PaginationType;
   filterType?: FilterType;
+  uniqueFilters?: boolean;
 }
 
 /**

@@ -32,6 +32,8 @@ export function OptionsCombobox({
   className,
   disabled = false,
   dependentFilters,
+  currentFilters,
+  uniqueFilters,
   multiple = false,
   staticOptions,
 }: OptionsComboboxProps) {
@@ -58,6 +60,8 @@ export function OptionsCombobox({
     multiple,
     staticOptions,
     dependentFilters,
+    currentFilters,
+    uniqueFilters,
     onSelectionComplete: () => setOpen(false),
     displayConfig: {
       placeholder,

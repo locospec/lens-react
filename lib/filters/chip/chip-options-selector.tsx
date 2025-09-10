@@ -23,6 +23,8 @@ export function ChipOptionsSelector({
   className,
   isEditing = false,
   onEditingChange,
+  currentFilters,
+  uniqueFilters,
 }: ChipOptionsSelectorProps) {
   const {
     searchQuery,
@@ -43,6 +45,8 @@ export function ChipOptionsSelector({
     onValueChange,
     multiple,
     staticOptions,
+    currentFilters,
+    uniqueFilters,
     displayConfig: {
       placeholder: "empty",
       enableAutoFetch: true,
