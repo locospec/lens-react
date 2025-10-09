@@ -1,4 +1,5 @@
 import { REFETCH_OPTIONS, STALE_TIME } from "@lens2/constants/cache";
+import { useLensFormContext } from "@lens2/contexts/lens-form-context";
 import { useLensViewContext } from "@lens2/contexts/lens-view-context";
 import { useLensViewDebugClient } from "@lens2/contexts/lens-view-debug-context";
 import type {
@@ -21,6 +22,7 @@ export interface UseInfiniteFetchParams {
   perPage?: number;
   enabled?: boolean;
   paginationType?: PaginationType; // New parameter, defaults to "cursor"
+  type?: "view" | "form";
 }
 
 interface CursorFetchFnParams {
@@ -235,9 +237,33 @@ export const useInfiniteFetch = ({
   perPage = FETCH_CONFIG.DEFAULT_PER_PAGE,
   enabled = true,
   paginationType = "cursor", // Default to cursor for backward compatibility
+  type = "view",
 }: UseInfiniteFetchParams) => {
   const { addApiCall, updateApiCall } = useLensViewDebugClient();
-  const { setRecordsLoaded } = useLensViewContext();
+  // const { setRecordsLoaded } = useLensViewContext();
+
+  // Conditionally use the appropriate context based on type
+  let setRecordsLoaded: (count: number) => void;
+
+  if (type === "form") {
+    try {
+      const formContext = useLensFormContext();
+      setRecordsLoaded = formContext.setRecordsLoaded;
+    } catch (error) {
+      throw new Error(
+        "useInfiniteFetch with type='form' must be used within LensFormProvider"
+      );
+    }
+  } else {
+    try {
+      const viewContext = useLensViewContext();
+      setRecordsLoaded = viewContext.setRecordsLoaded;
+    } catch (error) {
+      throw new Error(
+        "useInfiniteFetch with type='view' must be used within LensViewProvider"
+      );
+    }
+  }
 
   // Build the request body - perPage goes into the body
   const requestBody = {
