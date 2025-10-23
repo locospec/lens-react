@@ -36,13 +36,14 @@ export function LensFormProvider({
   globalContext: initialGlobalContext = {},
   enableForceRefresh = false,
   onForceRefresh,
-  rendererType = "material",
+  rendererType = "shadcn",
   displayKeys,
   prefillMapping,
   defaultValues,
   autoCreateConfig,
   conditionalFields,
   dependencyMap,
+  additionalFields,
 }: LensFormProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
@@ -161,7 +162,13 @@ export function LensFormProvider({
     if (!config?.attributes) return {};
     const operation =
       config?.dbOp === "delete" ? "update" : config?.dbOp || "create";
-    return enrichFormAttributes(config.attributes, operation);
+    const additional_fields: {} = additionalFields || {};
+    const combinedAttributes = {
+      ...config.attributes,
+      ...additional_fields,
+    };
+
+    return enrichFormAttributes(combinedAttributes, operation);
   }, [config]);
 
   // Generate schema and UI schema from enriched attributes

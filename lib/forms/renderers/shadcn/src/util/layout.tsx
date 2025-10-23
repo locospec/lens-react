@@ -139,7 +139,7 @@ const ShadcnLayoutRendererComponent = ({
     return null;
   } else {
     return (
-      <Grid container direction={direction} spacing={2}>
+      <Grid container direction={direction} spacing={4}>
         {renderLayoutElements(
           elements,
           schema,
