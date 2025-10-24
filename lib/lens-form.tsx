@@ -26,13 +26,14 @@ export function LensForm({
   enablePersistentCache = true,
   enableForceRefresh = false,
   onRefresh,
-  rendererType = "material",
+  rendererType = "shadcn",
   displayKeys,
   prefillMapping,
   defaultValues,
   autoCreateConfig,
   conditionalFields,
   dependencyMap,
+  additionalFields,
 }: LensFormProps) {
   // State to track if we should force refresh
   const [forceRefreshKey, setForceRefreshKey] = useState(0);
@@ -102,6 +103,7 @@ export function LensForm({
         autoCreateConfig={autoCreateConfig}
         conditionalFields={conditionalFields}
         dependencyMap={dependencyMap}
+        additionalFields={additionalFields}
       >
         <LensFormContent onError={onError} onSuccess={onSuccess} />
       </LensFormProvider>
