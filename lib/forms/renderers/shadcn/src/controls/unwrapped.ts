@@ -28,6 +28,7 @@ import { ShadcnBooleanControl } from "./shadcn-boolean-control";
 import { ShadcnBooleanToggleControl } from "./shadcn-boolean-toggle-control";
 import { ShadcnDateControl } from "./shadcn-date-control";
 import { ShadcnDateTimeControl } from "./shadcn-date-time-control";
+import { ShadcnDynamicInputRangeGroupControl } from "./shadcn-dynamic-input-range-group-control";
 import { ShadcnDynamicSelectControl } from "./shadcn-dynamic-select-control";
 import { ShadcnEnumControl } from "./shadcn-enum-control";
 import { ShadcnIntegerControl } from "./shadcn-integer-control";
@@ -58,4 +59,5 @@ export const UnwrappedControls = {
   ShadcnTextControl,
   ShadcnDynamicSelectControl,
   ShadcnApiAutocompleteControl,
+  ShadcnDynamicInputRangeGroupControl,
 };
