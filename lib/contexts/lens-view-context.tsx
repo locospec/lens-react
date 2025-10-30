@@ -52,6 +52,7 @@ export function LensViewProvider({
   selectionType,
   defaultSelected,
   onSelect,
+  overrideSelectionKey,
 }: LensViewProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
@@ -212,7 +213,10 @@ export function LensViewProvider({
 
     Object.keys(config.attributes).forEach(key => {
       const attr = config.attributes[key];
-      if (attr.primaryKey) {
+      if (attr.primaryKey && overrideSelectionKey === "") {
+        setSelectionKey(key);
+      }
+      if (overrideSelectionKey !== "" && key === overrideSelectionKey) {
         setSelectionKey(key);
       }
     });
