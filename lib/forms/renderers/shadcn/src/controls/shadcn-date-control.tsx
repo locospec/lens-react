@@ -111,34 +111,12 @@ export const ShadcnDateControl = (props: ControlProps) => {
   );
   const value = getData(data, saveFormat);
 
-  // Handle pasting a date in DD/MM/YYYY, DD:MM:YYYY, or DD-MM-YYYY
-  const onPasteHandler = useCallback(
-    (e: React.ClipboardEvent) => {
-      const text = e.clipboardData.getData("text").trim();
-      const match = /^(\d{1,2})[/:\-](\d{1,2})[/:\-](\d{4})$/.exec(text);
-      if (!match) {
-        return;
-      }
-
-      e.preventDefault();
-
-      const day = match[1].padStart(2, "0");
-      const month = match[2].padStart(2, "0");
-      const year = match[3];
-
-      const isoDate = `${year}-${month}-${day}`; // YYYY-MM-DD
-      onChange(isoDate);
-      setOpen(false);
-    },
-    [onChange]
-  );
-
   if (!visible) {
     return null;
   }
 
   return (
-    <div className="space-y-2" onPaste={onPasteHandler}>
+    <div className="space-y-2">
       {label && (
         <Label
           htmlFor={id + "-input"}

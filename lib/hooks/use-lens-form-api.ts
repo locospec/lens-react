@@ -27,15 +27,10 @@ export function useLensFormApi({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const error = new Error(
+        throw new Error(
           errorData?.error ||
             `Failed to fetch form configuration: ${response.statusText}`
         );
-        (error as any).response = {
-          status: response.status,
-          data: errorData,
-        };
-        throw error;
       }
 
       const result = await response.json();
@@ -75,14 +70,9 @@ export function useLensFormApi({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const error = new Error(
+        throw new Error(
           errorData?.error || `Failed to submit form: ${response.statusText}`
         );
-        (error as any).response = {
-          status: response.status,
-          data: errorData,
-        };
-        throw error;
       }
 
       const result = await response.json();
@@ -111,15 +101,10 @@ export function useLensFormApi({
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          const error = new Error(
+          throw new Error(
             errorData?.error ||
               `Failed to fetch relation options: ${response.statusText}`
           );
-          (error as any).response = {
-            status: response.status,
-            data: errorData,
-          };
-          throw error;
         }
 
         const result = await response.json();

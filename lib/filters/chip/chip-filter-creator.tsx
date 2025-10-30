@@ -136,7 +136,9 @@ export function ChipFilterCreator({
         })}
         {visibleAttributeKeys.length === 0 ? (
           <DropdownMenuItem disabled className="text-muted-foreground text-xs">
-            All attributes are already filtered
+            {attributeKeys.length === 0
+              ? "No filterable attributes available"
+              : "All attributes are already filtered"}
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem disabled className="text-muted-foreground text-xs">

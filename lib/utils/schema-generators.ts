@@ -46,10 +46,6 @@ export function generateJsonSchema(
       // property.dateTimeSaveFormat = "YYYY/MM/DD h:mm a";
     }
 
-    if (attribute?.customComponent) {
-      property.customComponent = attribute.customComponent;
-    }
-
     // Add related model info for foreign keys
     if (attribute.relatedModelName) {
       property.relatedModelName = attribute.relatedModelName;
@@ -119,9 +115,9 @@ export function generateUiSchema(
         effect: condition.effect,
         condition: {
           scope: `#/properties/${condition.field}`,
-          schema: Array.isArray(condition.value)
-            ? { enum: condition.value }
-            : { const: condition.value },
+          schema: {
+            const: condition.value,
+          },
         },
       };
     }
@@ -129,35 +125,11 @@ export function generateUiSchema(
     elements.push(element);
   });
 
-  // Create a proper two-column layout using JSON Forms nested layout system
-  // This approach groups elements in pairs to maintain alignment
-  const layoutElements: any[] = [];
-
-  // Group elements in pairs: [0,1], [2,3], [4,5], etc.
-  for (let i = 0; i < elements.length; i += 2) {
-    const leftElement = elements[i];
-    const rightElement = elements[i + 1];
-
-    if (rightElement) {
-      // Create a horizontal row with two elements
-      layoutElements.push({
-        type: "HorizontalLayout",
-        elements: [leftElement, rightElement],
-        options: {
-          columnSpacing: 16,
-        },
-      });
-    } else {
-      // If odd number of elements, add the last one as a single element
-      layoutElements.push(leftElement);
-    }
-  }
-
   const uiSchema = {
-    type: "VerticalLayout",
-    elements: layoutElements,
+    type: "VerticalLayout", // TODORajesh: Make this dynamic
+    elements,
     options: {
-      rowSpacing: FORM_CONFIG.ROW_SPACING,
+      rowSpacing: FORM_CONFIG.ROW_SPACING, // TODORajesh: Figure out how to generate spacing and accordingly add here
     },
   };
 

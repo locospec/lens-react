@@ -23,7 +23,7 @@ export function LensView({
   globalContext = {},
   enableViews = true,
   viewScoping,
-  filterType = "nested",
+  filterType = "none",
   uniqueFilters = false,
   interactions,
   cacheTime = CACHE_TIME.DEFAULT,
@@ -42,6 +42,7 @@ export function LensView({
   selectionType = "none",
   defaultSelected,
   onSelect,
+  overrideSelectionKey = "",
 }: LensViewProps) {
   // State to track if we should force refresh
   const [forceRefreshKey, setForceRefreshKey] = useState(0);
@@ -121,6 +122,7 @@ export function LensView({
         selectionType={selectionType}
         defaultSelected={defaultSelected}
         onSelect={onSelect}
+        overrideSelectionKey={overrideSelectionKey}
       >
         <LensViewContent onError={onError} />
       </LensViewProvider>
