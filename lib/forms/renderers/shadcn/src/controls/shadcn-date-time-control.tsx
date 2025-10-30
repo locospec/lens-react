@@ -170,42 +170,12 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
     [displayValue, onChange, onBlur]
   );
 
-  // Handle pasting a date in DD/MM/YYYY format anywhere within the control
-  const onPasteHandler = useCallback(
-    (e: React.ClipboardEvent) => {
-      const text = e.clipboardData.getData("text").trim();
-      const match = /^(\d{1,2})[/:\-](\d{1,2})[/:\-](\d{4})$/.exec(text);
-      if (!match) {
-        return;
-      }
-
-      e.preventDefault();
-
-      const day = match[1].padStart(2, "0");
-      const month = match[2].padStart(2, "0");
-      const year = match[3];
-
-      const time = displayValue
-        ? displayValue.toTimeString().split(" ")[0]
-        : "00:00";
-
-      const localDateTime = `${year}-${month}-${day}T${time}`;
-      const localDayjs = dayjs(localDateTime);
-
-      if (localDayjs.isValid()) {
-        onChange(localDayjs);
-        setOpen(false);
-      }
-    },
-    [displayValue, onChange]
-  );
-
   if (!visible) {
     return null;
   }
 
   return (
-    <div className="space-y-2" onPaste={onPasteHandler}>
+    <div className="space-y-2">
       {label && (
         <Label
           htmlFor={id + "-input"}

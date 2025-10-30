@@ -89,7 +89,7 @@ export function UnifiedPresetSelector({
           >
             Yesterday
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("tomorrow")}
             className={cn(
               "cursor-pointer",
@@ -97,11 +97,11 @@ export function UnifiedPresetSelector({
             )}
           >
             Tomorrow
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           {/* Time periods */}
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("next_7_days")}
             className={cn(
               "cursor-pointer",
@@ -109,7 +109,7 @@ export function UnifiedPresetSelector({
             )}
           >
             Next 7 days
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onChange("last_7_days")}
             className={cn(
@@ -128,7 +128,7 @@ export function UnifiedPresetSelector({
           >
             This week
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("next_week")}
             className={cn(
               "cursor-pointer",
@@ -136,7 +136,7 @@ export function UnifiedPresetSelector({
             )}
           >
             Next week
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onChange("last_week")}
             className={cn(
@@ -167,7 +167,7 @@ export function UnifiedPresetSelector({
           >
             This month
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("next_month")}
             className={cn(
               "cursor-pointer",
@@ -175,7 +175,7 @@ export function UnifiedPresetSelector({
             )}
           >
             Next month
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           {/* Quarterly */}
@@ -197,7 +197,7 @@ export function UnifiedPresetSelector({
           >
             This quarter
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("next_quarter")}
             className={cn(
               "cursor-pointer",
@@ -205,7 +205,7 @@ export function UnifiedPresetSelector({
             )}
           >
             Next quarter
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           {/* Special */}
@@ -218,7 +218,7 @@ export function UnifiedPresetSelector({
           >
             Today & Earlier
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             onClick={() => onChange("overdue")}
             className={cn("cursor-pointer", value === "overdue" && "bg-accent")}
           >
@@ -232,7 +232,7 @@ export function UnifiedPresetSelector({
             )}
           >
             Later than Today
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           {/* Custom */}
@@ -327,7 +327,7 @@ export function UnifiedPresetSelector({
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Time periods">
-              {/* <CommandItem
+              <CommandItem
                 value="next_7_days"
                 onSelect={() => handleSelect("next_7_days")}
                 className="cursor-pointer"
@@ -339,7 +339,7 @@ export function UnifiedPresetSelector({
                   )}
                 />
                 Next 7 days
-              </CommandItem> */}
+              </CommandItem>
               <CommandItem
                 value="last_7_days"
                 onSelect={() => handleSelect("last_7_days")}
@@ -366,7 +366,7 @@ export function UnifiedPresetSelector({
                 />
                 This week
               </CommandItem>
-              {/* <CommandItem
+              <CommandItem
                 value="next_week"
                 onSelect={() => handleSelect("next_week")}
                 className="cursor-pointer"
@@ -378,7 +378,7 @@ export function UnifiedPresetSelector({
                   )}
                 />
                 Next week
-              </CommandItem> */}
+              </CommandItem>
               <CommandItem
                 value="last_week"
                 onSelect={() => handleSelect("last_week")}
@@ -420,7 +420,7 @@ export function UnifiedPresetSelector({
                 />
                 This month
               </CommandItem>
-              {/* <CommandItem
+              <CommandItem
                 value="next_month"
                 onSelect={() => handleSelect("next_month")}
                 className="cursor-pointer"
@@ -432,7 +432,7 @@ export function UnifiedPresetSelector({
                   )}
                 />
                 Next month
-              </CommandItem> */}
+              </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Quarterly">
               <CommandItem
@@ -461,7 +461,7 @@ export function UnifiedPresetSelector({
                 />
                 This quarter
               </CommandItem>
-              {/* <CommandItem
+              <CommandItem
                 value="next_quarter"
                 onSelect={() => handleSelect("next_quarter")}
                 className="cursor-pointer"
@@ -473,7 +473,7 @@ export function UnifiedPresetSelector({
                   )}
                 />
                 Next quarter
-              </CommandItem> */}
+              </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Special">
               <CommandItem
@@ -489,7 +489,7 @@ export function UnifiedPresetSelector({
                 />
                 Today & Earlier
               </CommandItem>
-              {/* <CommandItem
+              <CommandItem
                 value="overdue"
                 onSelect={() => handleSelect("overdue")}
                 className="cursor-pointer"
@@ -514,7 +514,7 @@ export function UnifiedPresetSelector({
                   )}
                 />
                 Later than Today
-              </CommandItem> */}
+              </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Custom">
               <CommandItem

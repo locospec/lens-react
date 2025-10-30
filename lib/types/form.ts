@@ -28,7 +28,6 @@ export interface MutatorAttribute {
   relatedModelName?: string;
   generators?: MutatorGenerator[];
   validators?: MutatorValidator[];
-  customComponent?: string;
   options?: Array<
     { title: string; const: string } | { label: string; value: string }
   >;
@@ -130,7 +129,6 @@ export interface LensFormConfiguration {
   autoCreateConfig?: Record<string, any>;
   conditionalFields?: Record<string, any>;
   dependencyMap?: Record<string, any>;
-  additionalFields?: Record<string, any>;
 }
 
 // Main LensForm component props
@@ -138,13 +136,13 @@ export interface LensFormProps
   extends LensFormDataProps,
     LensFormConfiguration {
   onError?: (error: Error) => void;
-  onSuccess?: (data: Record<string, any>, redirect: boolean) => void;
+  onSuccess?: (data: Record<string, any>) => void;
 }
 
 // LensFormContent component props
 export interface LensFormContentProps {
   onError?: (error: Error) => void;
-  onSuccess?: (data: Record<string, any>, redirect: boolean) => void;
+  onSuccess?: (data: Record<string, any>) => void;
 }
 
 // Form context value

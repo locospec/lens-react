@@ -12,10 +12,6 @@ export const FORM_CONFIG = {
 export const FORM_STATES = {
   SUBMITTING: "Submitting...",
   SUBMIT: "Save & Submit",
-  SAVE_AND_NEXT: "Save & Next",
-  SAVING_AND_NEXT: "Saving & Next...",
-  SAVE_AND_CLONE: "Save & Clone",
-  SAVING_AND_CLONE: "Saving & Cloning...",
   LOADING: "Loading...",
 } as const;
 
