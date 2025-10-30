@@ -20,7 +20,7 @@ export interface ShadcnFormRendererProps {
   formData: Record<string, any>;
   onChange: (data: Record<string, any>) => void;
   onSubmit: (data: Record<string, any>) => Promise<void>;
-  onSuccess?: (data: Record<string, any>) => void;
+  onSuccess?: (data: Record<string, any>, redirect: boolean) => void;
   onError?: (error: Error) => void;
 }
 
@@ -35,6 +35,9 @@ export function ShadcnFormRenderer({
   const { schema, uiSchema, primaryKey, model } = config;
   const { globalContext } = useLensFormContext();
   const [validationErrors, setValidationErrors] = useState<any[]>([]);
+
+  // Detect if this is a create form (no primaryKeyValue) or update form (has primaryKeyValue)
+  const isCreateForm = !globalContext.primaryKeyValue;
 
   // Use shared form submission hook
   const {
@@ -84,6 +87,39 @@ export function ShadcnFormRenderer({
     }
   }
 
+  const transformedSubmissionErrors = submissionErrors.flatMap(error => {
+    const errors: any[] = [];
+    if (error.fieldErrors && typeof error.fieldErrors === "object") {
+      Object.entries(error.fieldErrors).forEach(
+        ([fieldPath, fieldMessages]) => {
+          const messages = Array.isArray(fieldMessages)
+            ? fieldMessages
+            : [fieldMessages];
+          messages.forEach((message: string) => {
+            errors.push({
+              instancePath: `/${fieldPath}`,
+              message: message,
+              schemaPath: `#/properties/${fieldPath}`,
+              keyword: "error",
+              params: {},
+            });
+          });
+        }
+      );
+    }
+    if (error.type === "validation" && !error.fieldErrors) {
+      errors.push({
+        instancePath: "/",
+        message: error.message,
+        schemaPath: "#",
+        keyword: "error",
+        params: {},
+      });
+    }
+
+    return errors;
+  });
+
   return (
     <>
       <JsonForms
@@ -92,23 +128,47 @@ export function ShadcnFormRenderer({
         data={formData}
         renderers={renderers}
         cells={shadcnCells}
-        validationMode="ValidateAndHide"
+        validationMode="NoValidation"
         onChange={({ data, errors }: any) => {
           if (data) {
             onChange(data);
           }
           setValidationErrors(errors || []);
         }}
-        additionalErrors={[...validationErrors, ...submissionErrors]}
+        additionalErrors={[...validationErrors, ...transformedSubmissionErrors]}
       />
 
       {/* Error Display */}
       <FormErrorDisplay errors={submissionErrors} className="mt-2" />
 
-      {/* Submit Button */}
-      <div className="flex justify-end">
+      {/* Submit Buttons */}
+      <div className="flex justify-end gap-3 pb-4">
+        {/* Save & Next button - only for create forms */}
+        {isCreateForm && globalContext?.enableSaveAndNext && (
+          <>
+            <Button
+              onClick={() => handleSubmit(formData, true, false)}
+              disabled={isSubmitting}
+              className={`min-w-[${FORM_CONFIG.SUBMIT_BUTTON_WIDTH}px]`}
+            >
+              {isSubmitting
+                ? FORM_STATES.SAVING_AND_NEXT
+                : FORM_STATES.SAVE_AND_NEXT}
+            </Button>
+            <Button
+              onClick={() => handleSubmit(formData, false, false)}
+              disabled={isSubmitting}
+              className={`min-w-[${FORM_CONFIG.SUBMIT_BUTTON_WIDTH}px]`}
+            >
+              {isSubmitting
+                ? FORM_STATES.SAVING_AND_CLONE
+                : FORM_STATES.SAVE_AND_CLONE}
+            </Button>
+          </>
+        )}
+        {/* Only show Save & Submit for update forms */}
         <Button
-          onClick={() => handleSubmit(formData)}
+          onClick={() => handleSubmit(formData, true, true)}
           disabled={isSubmitting}
           className={`min-w-[${FORM_CONFIG.SUBMIT_BUTTON_WIDTH}px]`}
         >

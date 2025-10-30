@@ -41,6 +41,9 @@ import ShadcnDateControl, {
 import ShadcnDateTimeControl, {
   shadcnDateTimeControlTester,
 } from "./shadcn-date-time-control";
+import ShadcnDynamicInputRangeGroupControl, {
+  shadcnDynamicInputRangeGroupControlTester,
+} from "./shadcn-dynamic-input-range-group-control";
 import ShadcnDynamicSelectControl, {
   shadcnDynamicSelectControlTester,
 } from "./shadcn-dynamic-select-control";
@@ -88,6 +91,8 @@ export {
   shadcnDateControlTester,
   ShadcnDateTimeControl,
   shadcnDateTimeControlTester,
+  ShadcnDynamicInputRangeGroupControl,
+  shadcnDynamicInputRangeGroupControlTester,
   ShadcnDynamicSelectControl,
   shadcnDynamicSelectControlTester,
   ShadcnEnumControl,

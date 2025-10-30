@@ -22,23 +22,39 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import {
-  CellProps,
-  isBooleanControl,
-  RankedTester,
-  rankWith,
-  WithClassname,
-} from "@jsonforms/core";
-import { withJsonFormsCellProps } from "@jsonforms/react";
-import { MuiCheckbox } from "../mui-controls/mui-checkbox";
+import { ControlProps, RankedTester, rankWith } from "@jsonforms/core";
+import { withJsonFormsControlProps } from "@jsonforms/react";
+import { ShadcnDynamicInputRangeGroup } from "./shadcn-dynamic-input-range-group";
 
-export const MaterialBooleanCell = (props: CellProps & WithClassname) => {
-  return <MuiCheckbox {...props} />;
-};
-
-export const materialBooleanCellTester: RankedTester = rankWith(
-  2,
-  isBooleanControl
+export const ShadcnDynamicInputRangeGroupControl = (props: ControlProps) => (
+  <ShadcnDynamicInputRangeGroup {...props} />
 );
 
-export default withJsonFormsCellProps(MaterialBooleanCell);
+const getLastKeyFromPointer = (pointer: string) => {
+  if (typeof pointer !== "string") return null;
+  const parts = pointer.split("/"); // split by "/"
+  return parts[parts.length - 1] || null; // return last part
+};
+
+const testDynamicInputRangeGroup = (
+  uiSchema: any,
+  schema: any,
+  formContext: any
+) => {
+  let keyName = getLastKeyFromPointer(uiSchema?.scope);
+
+  if (!keyName) return false;
+
+  let customComponent = schema["properties"][keyName]["customComponent"];
+  if (!customComponent) return false;
+
+  if (customComponent === "dynamic_input_range_group") {
+    return true;
+  } else return false;
+};
+
+export const shadcnDynamicInputRangeGroupControlTester: RankedTester = rankWith(
+  2,
+  testDynamicInputRangeGroup
+);
+export default withJsonFormsControlProps(ShadcnDynamicInputRangeGroupControl);
