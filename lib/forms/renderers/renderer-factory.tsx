@@ -1,4 +1,4 @@
-import { ShadcnFormRenderer } from "@/locospec/lens-react-2/lib/forms/renderers/shadcn/form-renderer";
+import { ShadcnFormRenderer } from "@lens2/forms/renderers/shadcn/form-renderer";
 import type { FormConfig, FormRendererType } from "@lens2/types/form";
 
 export interface FormRendererProps {
