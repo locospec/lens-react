@@ -19,12 +19,10 @@ export function FilterToolbar() {
     <div className="flex items-center gap-2">
       <SearchBox />
 
-      {filterType === "chip" && (
+      {filterType === "chip" ? (
         /* Chip Filters */
         <ChipFilterBuilder className="flex-1" uniqueFilters={uniqueFilters} />
-      )}
-
-      {filterType === "nested" && (
+      ) : (
         /* Nested Filter Button */
         <div className="flex flex-1 justify-end">
           <Popover open={open} onOpenChange={setOpen}>
@@ -43,8 +41,6 @@ export function FilterToolbar() {
           </Popover>
         </div>
       )}
-
-      {/* filterType === "none" shows no filters, only search */}
     </div>
   );
 }

@@ -30,11 +30,16 @@ import {
 } from "@jsonforms/core";
 import { withJsonFormsControlProps } from "@jsonforms/react";
 import { ShadcnInputText } from "../shadcn-controls/shadcn-input-text";
+import { ShadcnInputTextArea } from "../shadcn-controls/shadcn-input-text-area";
 import { ShadcnInputControl } from "./shadcn-input-control";
 
-export const ShadcnTextControl = (props: ControlProps) => (
-  <ShadcnInputControl {...props} input={ShadcnInputText} />
-);
+export const ShadcnTextControl = (props: ControlProps) => {
+  return props?.uischema?.options?.multi === true ? (
+    <ShadcnInputControl {...props} input={ShadcnInputTextArea} />
+  ) : (
+    <ShadcnInputControl {...props} input={ShadcnInputText} />
+  );
+};
 
 export const shadcnTextControlTester: RankedTester = rankWith(
   1,

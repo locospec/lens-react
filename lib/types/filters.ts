@@ -75,4 +75,4 @@ export const RANGE_OPERATORS: Operator[] = ["between", "not_between"];
 export const MULTIPLE_VALUE_OPERATORS: Operator[] = ["is_any_of", "is_none_of"];
 
 // Filter UI type options
-export type FilterType = "nested" | "chip" | "none";
+export type FilterType = "nested" | "chip";

@@ -1,7 +1,7 @@
-import { useLensFormContext } from "@lens2/contexts/lens-form-context";
-import { Checkbox } from "@lens2/shadcn/components/ui/checkbox";
-import { Input } from "@lens2/shadcn/components/ui/input";
-import { Label } from "@lens2/shadcn/components/ui/label";
+import { useLensFormContext } from "@/locospec/lens-react-2/lib/contexts/lens-form-context";
+import { Checkbox } from "@/locospec/lens-react-2/lib/shadcn/components/ui/checkbox";
+import { Input } from "@/locospec/lens-react-2/lib/shadcn/components/ui/input";
+import { Label } from "@/locospec/lens-react-2/lib/shadcn/components/ui/label";
 import { ControlProps } from "@jsonforms/core";
 import { useState } from "react";
 

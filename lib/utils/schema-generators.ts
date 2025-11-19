@@ -10,10 +10,29 @@ export function generateJsonSchema(
   defaultValues?: Record<string, any>,
   autoCreateConfig?: Record<string, any>,
   conditionalFields?: Record<string, any>,
-  dependencyMap?: Record<string, any>
+  dependencyMap?: Record<string, any>,
+  jsonFromOptions?: Record<string, any>
 ): JsonSchema {
   const properties: Record<string, any> = {};
   const required: string[] = [];
+
+  // add extra fields to the properties
+  if (jsonFromOptions?.extra_fields) {
+    Object.entries(jsonFromOptions.extra_fields).forEach(([key, value]) => {
+      const fieldValue = value as {
+        type: string;
+        label: string;
+        required: boolean;
+      };
+      properties[key] = {
+        type: mapAttributeTypeToJsonSchemaType(fieldValue.type),
+      };
+
+      if (fieldValue.required) {
+        required.push(key);
+      }
+    });
+  }
 
   Object.entries(enrichedAttributes).forEach(([key, attribute]) => {
     // Attributes are already filtered by enrichFormAttributes, so we can use validationRules.required directly
@@ -83,9 +102,22 @@ export function generateUiSchema(
   defaultValues?: Record<string, any>,
   autoCreateConfig?: Record<string, any>,
   conditionalFields?: Record<string, any>,
-  dependencyMap?: Record<string, any>
+  dependencyMap?: Record<string, any>,
+  jsonFromOptions?: Record<string, any>
 ): UiSchema {
   const elements: any[] = [];
+
+  // add extra fields to the elements
+  if (jsonFromOptions?.extra_fields) {
+    Object.entries(jsonFromOptions.extra_fields).forEach(([key, value]) => {
+      const fieldValue = value as { type: string; label: string };
+      elements.push({
+        type: "Control",
+        scope: `#/properties/${key}`,
+        label: fieldValue.label,
+      });
+    });
+  }
 
   Object.entries(enrichedAttributes).forEach(([key, attribute]) => {
     // Attributes are already filtered by enrichFormAttributes, so no need to skip here
@@ -124,6 +156,15 @@ export function generateUiSchema(
             : { const: condition.value },
         },
       };
+    }
+
+    if (jsonFromOptions?.[key]) {
+      if (jsonFromOptions?.[key]?.multi) {
+        element.options = {
+          ...element.options,
+          multi: jsonFromOptions?.[key]?.multi,
+        };
+      }
     }
 
     elements.push(element);

@@ -56,6 +56,5 @@ export interface SelectionConfiguration {
   defaultSelected?: string[];
   onSelect?: React.Dispatch<React.SetStateAction<string[]>>;
   selectionKey?: string;
-  overrideSelectionKey?: string;
   interactions?: EntityInteractions;
 }
