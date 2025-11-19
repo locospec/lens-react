@@ -330,18 +330,6 @@ export const ShadcnApiAutocomplete = (props: ControlProps & WithClassname) => {
     return null;
   }
 
-  // Debug logging
-  console.log("ShadcnApiAutocomplete Debug:", {
-    open,
-    inputValue,
-    filteredOptions: filteredOptions.length,
-    options: options.length,
-    isLoading,
-    isFetching,
-    searchQuery,
-    isUserTyping,
-  });
-
   return (
     <div className="space-y-2">
       {label && (

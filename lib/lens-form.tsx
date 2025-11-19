@@ -34,6 +34,7 @@ export function LensForm({
   conditionalFields,
   dependencyMap,
   additionalFields,
+  jsonFromOptions,
 }: LensFormProps) {
   // State to track if we should force refresh
   const [forceRefreshKey, setForceRefreshKey] = useState(0);
@@ -104,6 +105,7 @@ export function LensForm({
         conditionalFields={conditionalFields}
         dependencyMap={dependencyMap}
         additionalFields={additionalFields}
+        jsonFromOptions={jsonFromOptions}
       >
         <LensFormContent onError={onError} onSuccess={onSuccess} />
       </LensFormProvider>

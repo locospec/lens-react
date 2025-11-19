@@ -23,20 +23,21 @@
   THE SOFTWARE.
 */
 import { CellProps, WithClassname } from "@jsonforms/core";
-import { Input } from "@lens2/shadcn/components/ui/input";
+import { Textarea } from "@lens2/shadcn/components/ui/textarea";
+import { cn } from "@lens2/shadcn/lib/utils";
 import merge from "lodash/merge";
 import React, { useState } from "react";
 import { WithInputProps, useDebouncedChange, useFocus } from "../util";
 
-interface ShadcnTextInputProps {
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+interface ShadcnTextAreaProps {
+  inputProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
 const eventToValue = (ev: any) =>
   ev.target.value === "" ? undefined : ev.target.value;
 
-export const ShadcnInputText = React.memo(function ShadcnInputText(
-  props: CellProps & WithClassname & ShadcnTextInputProps & WithInputProps
+export const ShadcnInputTextArea = React.memo(function ShadcnInputTextArea(
+  props: CellProps & WithClassname & ShadcnTextAreaProps & WithInputProps
 ) {
   const [focused, onFocus, onBlur] = useFocus();
   const [showClearButton, setShowClearButton] = useState(false);
@@ -58,15 +59,15 @@ export const ShadcnInputText = React.memo(function ShadcnInputText(
   const maxLength = schema.maxLength;
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
 
-  let mergedInputProps: React.InputHTMLAttributes<HTMLInputElement> = {};
+  let mergedInputProps: React.TextareaHTMLAttributes<HTMLTextAreaElement> = {};
   if (appliedUiSchemaOptions.restrict) {
-    mergedInputProps = { maxLength: maxLength };
+    mergedInputProps.maxLength = maxLength;
   }
 
   mergedInputProps = merge(mergedInputProps, inputProps);
 
   if (appliedUiSchemaOptions.trim && maxLength !== undefined) {
-    mergedInputProps.size = maxLength;
+    mergedInputProps.maxLength = maxLength;
   }
 
   const [inputText, onChange, onClear] = useDebouncedChange(
@@ -85,13 +86,10 @@ export const ShadcnInputText = React.memo(function ShadcnInputText(
 
   return (
     <div className="relative">
-      <Input
-        type={
-          appliedUiSchemaOptions.format === "password" ? "password" : "text"
-        }
+      <Textarea
         value={inputText}
         onChange={onChange}
-        className={className}
+        className={cn(className, "h-9 resize-none")}
         onBlur={onBlur}
         onFocus={onFocus}
         id={id}
@@ -102,7 +100,6 @@ export const ShadcnInputText = React.memo(function ShadcnInputText(
         onPointerLeave={onPointerLeave}
         {...mergedInputProps}
       />
-
       {/* {showClearButton && enabled && data !== undefined && (
         <Button
           type="button"
