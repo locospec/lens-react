@@ -36,16 +36,15 @@ export const ResizeHandle = ({
     >
       <div
         className={cn(
-          "absolute top-1/2 right-0 h-1/2 w-0.5 -translate-y-1/2 rounded-l-md bg-gray-300 transition-all duration-200 ease-in-out",
+          "absolute top-1/2 right-0 h-1/2 w-0.5 -translate-y-1/2 rounded-l-md bg-border transition-all duration-200 ease-in-out",
           // Hidden by default
           disabled ? "hidden" : "opacity-0",
           // Visible on column header hover (but not when any column is resizing)
           "group-data-[resizing=false]:group-hover/header:opacity-100",
           // Hover effects on the handle itself
-          "group-hover/resize-handle:h-3/4 group-hover/resize-handle:w-1 group-hover/resize-handle:bg-gray-600",
-          "dark:bg-gray-500 dark:group-hover/resize-handle:bg-gray-300",
+          "group-hover/resize-handle:h-3/4 group-hover/resize-handle:w-1 group-hover/resize-handle:bg-foreground/60",
           // When resizing
-          isResizing && "h-3/4 w-1 bg-gray-700 opacity-100 dark:bg-gray-300"
+          isResizing && "h-3/4 w-1 bg-foreground/70 opacity-100"
         )}
       />
     </div>

@@ -71,7 +71,7 @@ export function Paginator({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="text-gray-200"
+          className="text-muted"
         />
         {/* Progress circle */}
         <circle
@@ -82,7 +82,7 @@ export function Paginator({
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className="text-blue-500"
+          className="text-primary"
           strokeDasharray={`${2 * Math.PI * 6}`}
           strokeDashoffset={`${2 * Math.PI * 6 * (1 - progress / 100)}`}
           style={{
@@ -96,18 +96,18 @@ export function Paginator({
   // Get status icon
   const getStatusIcon = () => {
     if (isFetching) {
-      return <Loader2 className="h-3 w-3 animate-spin text-blue-500" />;
+      return <Loader2 className="h-3 w-3 animate-spin text-primary" />;
     }
 
     if (paginationType === "cursor") {
       // For cursor pagination, only show completion icon when all loaded
       return hasNextPage ? null : (
-        <CheckCircle className="h-3 w-3 text-green-500" />
+        <CheckCircle className="h-3 w-3 text-primary" />
       );
     } else {
       // For offset pagination, show progress or completion
       return progressData?.isAllLoaded ? (
-        <CheckCircle className="h-3 w-3 text-green-500" />
+        <CheckCircle className="h-3 w-3 text-primary" />
       ) : (
         <ProgressCircle progress={progressData?.recordsProgress || 0} />
       );
@@ -117,9 +117,9 @@ export function Paginator({
   // Render cursor pagination display
   if (paginationType === "cursor") {
     return (
-      <div className="flex items-center justify-end gap-3 bg-gray-50/50 px-4 py-2.5">
+      <div className="flex items-center justify-end gap-3 bg-muted/50 px-4 py-2.5">
         {getStatusIcon()}
-        <div className="text-sm font-medium text-gray-600">
+        <div className="text-sm font-medium text-muted-foreground">
           {loadedCount} records loaded • {perPage} per page
         </div>
       </div>
@@ -130,13 +130,13 @@ export function Paginator({
   const total = totalCount || 0;
 
   return (
-    <div className="flex items-center justify-end gap-3 bg-gray-50/50 px-4 py-2.5">
+    <div className="flex items-center justify-end gap-3 bg-muted/50 px-4 py-2.5">
       {getStatusIcon()}
-      <div className="text-sm font-medium text-gray-600">
+      <div className="text-sm font-medium text-muted-foreground">
         {loadedCount}/{total} records • {currentPage}/{totalPages} pages •{" "}
         {perPage} per page
         {progressData && (
-          <span className="ml-2 text-xs text-gray-500">
+          <span className="ml-2 text-xs text-muted-foreground/70">
             ({Math.round(progressData.recordsProgress)}%)
           </span>
         )}
