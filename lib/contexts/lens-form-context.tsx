@@ -44,6 +44,7 @@ export function LensFormProvider({
   conditionalFields,
   dependencyMap,
   additionalFields,
+  jsonFromOptions,
 }: LensFormProviderProps) {
   // Global context state
   const [globalContext, setGlobalContext] =
@@ -182,7 +183,8 @@ export function LensFormProvider({
       defaultValues,
       autoCreateConfig,
       conditionalFields,
-      dependencyMap
+      dependencyMap,
+      jsonFromOptions
     );
   }, [enrichedAttributes]);
 
@@ -196,7 +198,8 @@ export function LensFormProvider({
       defaultValues,
       autoCreateConfig,
       conditionalFields,
-      dependencyMap
+      dependencyMap,
+      jsonFromOptions
     );
   }, [enrichedAttributes]);
 
