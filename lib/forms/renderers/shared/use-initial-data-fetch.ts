@@ -108,14 +108,8 @@ export function useInitialDataFetch({
   enabled = true,
   schema,
 }: UseInitialDataFetchParams) {
-  const {
-    baseUrl,
-    headers,
-    setFormData,
-    triggerFieldRefetch,
-    globalContext,
-    config,
-  } = useLensFormContext();
+  const { baseUrl, headers, setFormData, triggerFieldRefetch, globalContext } =
+    useLensFormContext();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -130,8 +124,7 @@ export function useInitialDataFetch({
         `Fetching initial data for ${model} with ID:`,
         primaryKey,
         globalContext.primaryKeyValue,
-        globalContext,
-        config
+        globalContext
       );
 
       const response = await fetch(`${baseUrl}/${model}/_read`, {
@@ -145,7 +138,7 @@ export function useInitialDataFetch({
             op: "and",
             conditions: [
               {
-                attribute: `${config?.tableName}.${primaryKey}`, // Use the primary key field from config
+                attribute: primaryKey, // Use the primary key field from config
                 op: "is",
                 value: globalContext.primaryKeyValue,
               },

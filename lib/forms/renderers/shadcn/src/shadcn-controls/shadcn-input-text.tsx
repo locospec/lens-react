@@ -23,8 +23,10 @@
   THE SOFTWARE.
 */
 import { CellProps, WithClassname } from "@jsonforms/core";
+import { Button } from "@lens2/shadcn/components/ui/button";
 import { Input } from "@lens2/shadcn/components/ui/input";
 import merge from "lodash/merge";
+import { X } from "lucide-react";
 import React, { useState } from "react";
 import { WithInputProps, useDebouncedChange, useFocus } from "../util";
 
@@ -102,8 +104,7 @@ export const ShadcnInputText = React.memo(function ShadcnInputText(
         onPointerLeave={onPointerLeave}
         {...mergedInputProps}
       />
-
-      {/* {showClearButton && enabled && data !== undefined && (
+      {showClearButton && enabled && data !== undefined && (
         <Button
           type="button"
           variant="ghost"
@@ -114,7 +115,7 @@ export const ShadcnInputText = React.memo(function ShadcnInputText(
         >
           <X className="h-4 w-4" />
         </Button>
-      )} */}
+      )}
     </div>
   );
 });

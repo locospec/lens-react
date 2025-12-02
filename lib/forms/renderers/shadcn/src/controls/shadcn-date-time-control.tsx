@@ -47,7 +47,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import merge from "lodash/merge";
 import { CalendarIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createOnBlurHandler, useFocus } from "../util";
 
 // Extend dayjs with UTC and timezone plugins
@@ -81,8 +81,6 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
 
   const [key, setKey] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
-  const [timeInputValue, setTimeInputValue] = useState<string>("");
-  const isTimeEditingRef = useRef<boolean>(false);
 
   const format = appliedUiSchemaOptions.dateTimeFormat ?? "YYYY-MM-DD HH:mm";
   const saveFormat = "YYYY-MM-DDTHH:mm:ss[Z]"; // ISO format with UTC
@@ -118,18 +116,6 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
 
   const displayValue = getDisplayValue(data);
 
-  // Sync time input value with displayValue when it changes externally
-  // But don't sync if user is actively editing
-  useEffect(() => {
-    if (!isTimeEditingRef.current) {
-      if (displayValue) {
-        setTimeInputValue(displayValue.toTimeString().split(" ")[0]);
-      } else {
-        setTimeInputValue("");
-      }
-    }
-  }, [displayValue]);
-
   // Custom onChange handler for proper UTC conversion
   const onChange = useMemo(
     () => (value: dayjs.Dayjs) => {
@@ -157,40 +143,31 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
     [path, handleChange, format, saveFormat, updateChild]
   );
 
-  // Helper to commit time value
-  const commitTimeValue = useCallback(
-    (timeValue: string) => {
-      // Use displayValue if available, otherwise use today's date
-      const dateForTime = displayValue || new Date();
-      if (timeValue) {
-        // Validate time format (HH:MM)
-        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-        if (timeRegex.test(timeValue)) {
-          // Create local date-time string from date and new time
-          const year = dateForTime.getFullYear();
-          const month = String(dateForTime.getMonth() + 1).padStart(2, "0");
-          const day = String(dateForTime.getDate()).padStart(2, "0");
-          const localDateTime = `${year}-${month}-${day}T${timeValue}`;
+  const onTimeBlurHandler = useMemo(
+    () => (e: React.FocusEvent<HTMLInputElement>) => {
+      if (displayValue) {
+        const timeValue = e.target.value;
+        if (timeValue) {
+          // Validate time format (HH:MM)
+          const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+          if (timeRegex.test(timeValue)) {
+            // Create local date-time string from display value and new time
+            const year = displayValue.getFullYear();
+            const month = String(displayValue.getMonth() + 1).padStart(2, "0");
+            const day = String(displayValue.getDate()).padStart(2, "0");
+            const localDateTime = `${year}-${month}-${day}T${timeValue}`;
 
-          // Convert local time to UTC using dayjs
-          const localDayjs = dayjs(localDateTime);
-          if (localDayjs.isValid()) {
-            onChange(localDayjs);
+            // Convert local time to UTC using dayjs
+            const localDayjs = dayjs(localDateTime);
+            if (localDayjs.isValid()) {
+              onChange(localDayjs);
+            }
           }
         }
       }
-    },
-    [displayValue, onChange]
-  );
-
-  const onTimeBlurHandler = useMemo(
-    () => (e: React.FocusEvent<HTMLInputElement>) => {
-      const timeValue = e.target.value;
-      commitTimeValue(timeValue);
-      isTimeEditingRef.current = false;
       onBlur();
     },
-    [commitTimeValue, onBlur]
+    [displayValue, onChange, onBlur]
   );
 
   // Handle pasting a date in DD/MM/YYYY format anywhere within the control
@@ -210,7 +187,7 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
 
       const time = displayValue
         ? displayValue.toTimeString().split(" ")[0]
-        : "11:00";
+        : "00:00";
 
       const localDateTime = `${year}-${month}-${day}T${time}`;
       const localDayjs = dayjs(localDateTime);
@@ -273,7 +250,7 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
                 if (date) {
                   const time = displayValue
                     ? displayValue.toTimeString().split(" ")[0]
-                    : "11:00";
+                    : "00:00";
                   // Create local date-time string
                   const year = date.getFullYear();
                   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -295,16 +272,24 @@ export const ShadcnDateTimeControl = (props: ControlProps) => {
         </Popover>
         <Input
           type="time"
-          value={timeInputValue}
-          onFocus={() => {
-            isTimeEditingRef.current = true;
-          }}
+          value={displayValue ? displayValue.toTimeString().split(" ")[0] : ""}
           onChange={e => {
-            const newValue = e.target.value;
-            setTimeInputValue(newValue);
-            isTimeEditingRef.current = true;
-            // Don't commit during typing - only on blur
-            // This allows free editing without interruption
+            if (displayValue && e.target.value) {
+              // Create local date-time string from display value and new time
+              const year = displayValue.getFullYear();
+              const month = String(displayValue.getMonth() + 1).padStart(
+                2,
+                "0"
+              );
+              const day = String(displayValue.getDate()).padStart(2, "0");
+              const localDateTime = `${year}-${month}-${day}T${e.target.value}`;
+
+              // Convert local time to UTC using dayjs
+              const localDayjs = dayjs(localDateTime);
+              if (localDayjs.isValid()) {
+                onChange(localDayjs);
+              }
+            }
           }}
           onBlur={onTimeBlurHandler}
           disabled={!enabled}

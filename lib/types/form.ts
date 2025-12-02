@@ -13,7 +13,6 @@ export interface MutatorConfig {
   model: string;
   attributes: Record<string, MutatorAttribute>;
   primaryKey: string;
-  tableName: string;
 }
 
 // Mutator attribute definition
@@ -96,7 +95,6 @@ export interface FormConfig {
   primaryKey: string;
   dbOp: "create" | "update" | "delete";
   model: string;
-  tableName: string;
 }
 
 // Form endpoints configuration
@@ -133,7 +131,6 @@ export interface LensFormConfiguration {
   conditionalFields?: Record<string, any>;
   dependencyMap?: Record<string, any>;
   additionalFields?: Record<string, any>;
-  jsonFromOptions?: Record<string, any>;
 }
 
 // Main LensForm component props
@@ -175,7 +172,6 @@ export interface LensFormContextValue {
   autoCreateConfig?: Record<string, any>;
   conditionalFields?: Record<string, any>;
   dependencyMap?: Record<string, any>;
-  jsonFromOptions?: Record<string, any>;
   registerFieldRefetch: (
     fieldPath: string,
     refetchFn: (value: any) => void
